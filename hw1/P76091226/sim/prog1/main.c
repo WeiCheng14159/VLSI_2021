@@ -2,12 +2,7 @@ extern int _test_start;
 extern int array_size;
 extern int array_addr;
 
-void swap(int *a, int *b) {
-  int temp = *a;
-  *a = *b;
-  *b = temp;
-}
-
+void swap(int *a, int *b);
 void selectionSort(int arr[], int n, int test[]){
   int i, j, min_idx;
   for(i = 0; i < n-1 ; i++){
@@ -24,4 +19,10 @@ void selectionSort(int arr[], int n, int test[]){
 int main(void){
   selectionSort(&array_addr, array_size, &_test_start);
   return 0;
+}
+
+void swap(int *a, int *b) {
+  int temp = *a;
+  *a = *b;
+  *b = temp;
 }
