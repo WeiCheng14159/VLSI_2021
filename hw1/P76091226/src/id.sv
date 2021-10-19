@@ -1,5 +1,4 @@
 `include "def.v"
-`include "cpu_types_pkg.sv"
 
 module id(
   input logic                 [`RegBus] pc_i,

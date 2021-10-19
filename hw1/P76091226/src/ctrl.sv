@@ -1,5 +1,4 @@
 `include "def.v"
-`include "cpu_types_pkg.sv"
 
 module ctrl(
   input logic                           stallreq_from_if,

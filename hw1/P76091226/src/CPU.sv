@@ -10,7 +10,6 @@
 `include "mem.sv"
 `include "ifetch.sv"
 `include "wb.sv"
-`include "cpu_types_pkg.sv"
 
 module CPU(
   input  logic                          clk,
