@@ -25,9 +25,6 @@ module CPU(
   output logic               [`DataBus] data_in_o
 );
 
-  /* Fetch (pre-IF) */
-  logic                       [`RegBus] fetch_pc;
-
   /* Instruction Fetch (IF) */
   logic                       [`RegBus] if_pc; 
   logic                      [`InstBus] if_inst;
