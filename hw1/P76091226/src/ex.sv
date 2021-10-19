@@ -15,38 +15,38 @@ module ex(
   output logic                          stallreq
 );
 
-  logic                       [`RegBus] alu_src1, alu_src2;
+  logic                       [`RegBus] alu_in1, alu_in2;
   logic signed                [`MulBus] result_mul;
   logic                       [`MulBus] result_mulu;
   logic signed                [`MulBus] result_mulsu;
 
   /* MUL-related */
-  assign result_mul[`MulBus]   = $signed  ({{ 32{alu_src1[31]} }, alu_src1[`RegBus]}) *
-                                 $signed  ({{ 32{alu_src2[31]} }, alu_src2[`RegBus]});
-  assign result_mulu[`MulBus]  = $unsigned({{ 32{1'b0} },         alu_src1[`RegBus]}) *
-                                 $unsigned({{ 32{1'b0} },         alu_src2[`RegBus]});
-  assign result_mulsu[`MulBus] = $signed  ({{ 32{alu_src1[31]} }, alu_src1[`RegBus]}) *
-                                 $unsigned({{ 32{1'b0} },         alu_src2[`RegBus]});
+  assign result_mul[`MulBus]   = $signed  ({{ 32{alu_in1[31]} }, alu_in1[`RegBus]}) *
+                                 $signed  ({{ 32{alu_in2[31]} }, alu_in2[`RegBus]});
+  assign result_mulu[`MulBus]  = $unsigned({{ 32{1'b0} },         alu_in1[`RegBus]}) *
+                                 $unsigned({{ 32{1'b0} },         alu_in2[`RegBus]});
+  assign result_mulsu[`MulBus] = $signed  ({{ 32{alu_in1[31]} }, alu_in1[`RegBus]}) *
+                                 $unsigned({{ 32{1'b0} },         alu_in2[`RegBus]});
 
   always_comb begin
     // stallreq = 1'b0;
     wdata_o  = rs2_i;
   end
 
-  // alu_src1
+  // alu_in1
   always_comb begin
     if(alusrc1_i == `SRC1_FROM_REG)
-      alu_src1 = rs1_i;
+      alu_in1 = rs1_i;
     else // `SRC1_FROM_PC
-      alu_src1 = pc_i;
+      alu_in1 = pc_i;
   end
 
-  // alu_src2
+  // alu_in2
   always_comb begin
     if(alusrc2_i == `SRC2_FROM_REG)
-      alu_src2 = rs2_i;
+      alu_in2 = rs2_i;
     else // `SRC2_FROM_IMM
-      alu_src2 = imm_i;
+      alu_in2 = imm_i;
   end
 
   // wreg_data_o
@@ -54,34 +54,34 @@ module ex(
     stallreq = 1'b0;
     case (1'b1)
       aluop_i[`ALUOP_ADD]: begin
-        wreg_data_o = $signed(alu_src1) + $signed(alu_src2);
+        wreg_data_o = $signed(alu_in1) + $signed(alu_in2);
       end
       aluop_i[`ALUOP_SUB]: begin
-        wreg_data_o = $signed(alu_src1) - $signed(alu_src2);
+        wreg_data_o = $signed(alu_in1) - $signed(alu_in2);
       end
       aluop_i[`ALUOP_SLL]: begin
-        wreg_data_o = alu_src1 << alu_src2[4:0];
+        wreg_data_o = alu_in1 << alu_in2[4:0];
       end
       aluop_i[`ALUOP_SRL]: begin
-        wreg_data_o = alu_src1 >> alu_src2[4:0];
+        wreg_data_o = alu_in1 >> alu_in2[4:0];
       end
       aluop_i[`ALUOP_SRA]: begin
-        wreg_data_o = $signed(alu_src1) >>> alu_src2[4:0];
+        wreg_data_o = $signed(alu_in1) >>> alu_in2[4:0];
       end
       aluop_i[`ALUOP_SLT]: begin
-        wreg_data_o = ($signed(alu_src1) < $signed(alu_src2)) ? 32'b1 : 32'b0;
+        wreg_data_o = ($signed(alu_in1) < $signed(alu_in2)) ? 32'b1 : 32'b0;
       end
       aluop_i[`ALUOP_SLTU]: begin
-        wreg_data_o = (alu_src1 < alu_src2) ? 32'b1 : 32'b0;
+        wreg_data_o = (alu_in1 < alu_in2) ? 32'b1 : 32'b0;
       end
       aluop_i[`ALUOP_OR]: begin
-        wreg_data_o = alu_src1 | alu_src2;
+        wreg_data_o = alu_in1 | alu_in2;
       end
       aluop_i[`ALUOP_XOR]: begin
-        wreg_data_o = alu_src1 ^ alu_src2;
+        wreg_data_o = alu_in1 ^ alu_in2;
       end
       aluop_i[`ALUOP_AND]: begin
-        wreg_data_o = alu_src1 & alu_src2;
+        wreg_data_o = alu_in1 & alu_in2;
       end
       aluop_i[`ALUOP_MUL]: begin
         stallreq = 1'b1;
