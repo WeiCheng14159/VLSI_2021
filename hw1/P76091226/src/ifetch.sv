@@ -25,7 +25,7 @@ module ifetch(
   assign ce = `ChipEnable; 
   assign inst_read_o = `ReadEnable;
   assign inst_addr_o = fetch_pc;
-  assign next_pc = fetch_pc + 4'h4;
+  assign next_pc = fetch_pc + 4;
 
   // stall_prev
   always_ff @(posedge clk, posedge rst) begin

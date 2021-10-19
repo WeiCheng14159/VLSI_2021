@@ -245,7 +245,6 @@ module id(
             end
             `OP_OR   : aluop_o[`ALUOP_OR]  = 1'b1;
             `OP_AND  : aluop_o[`ALUOP_AND] = 1'b1;      
-            default: ;
           endcase
           rd_o                             = inst_i[`RD];
           alusrc1_o                        = `SRC1_FROM_REG;
@@ -284,9 +283,7 @@ module id(
                   aluop_o[`ALUOP_SRL]            = 1'b1;
               end
               `OP_OR     : aluop_o[`ALUOP_OR]    = 1'b1;
-              `OP_AND    : aluop_o[`ALUOP_AND]   = 1'b1;      
               `OP_AND    : aluop_o[`ALUOP_AND]   = 1'b1;
-              default: ;
             endcase  
           end
           rd_o                             = inst_i[`RD];

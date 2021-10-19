@@ -53,7 +53,7 @@ module id_ex(
   always_ff @(posedge clk, posedge rst) begin
     if (rst) begin
       ex_pc                 <= `ZeroWord;
-      ex_func3              <= 0;
+      ex_func3              <= 3'b000;
       ex_aluop              <= 0;
       ex_alusrc1            <= `SRC1_FROM_REG;
       ex_alusrc2            <= `SRC2_FROM_REG;
@@ -71,7 +71,7 @@ module id_ex(
     end else if (flush == `True | 
       (stall[`ID_STAGE] == `Stop && stall[`EX_STAGE] == `NoStop) ) begin
       ex_pc                 <= `ZeroWord;
-      ex_func3              <= 0;
+      ex_func3              <= 3'b000;
       ex_aluop              <= 0;
       ex_alusrc1            <= `SRC1_FROM_REG;
       ex_alusrc2            <= `SRC2_FROM_REG;
