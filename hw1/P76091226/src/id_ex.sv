@@ -54,7 +54,7 @@ module id_ex(
     if (rst) begin
       ex_pc                 <= `ZeroWord;
       ex_func3              <= 3'b000;
-      ex_aluop              <= 0;
+      ex_aluop              <= (1'b1 << `ALUOP_ADD);
       ex_alusrc1            <= `SRC1_FROM_REG;
       ex_alusrc2            <= `SRC2_FROM_REG;
       ex_imm                <= `ZeroWord;
@@ -72,7 +72,7 @@ module id_ex(
       (stall[`ID_STAGE] == `Stop && stall[`EX_STAGE] == `NoStop) ) begin
       ex_pc                 <= `ZeroWord;
       ex_func3              <= 3'b000;
-      ex_aluop              <= 0;
+      ex_aluop              <= (1'b1 << `ALUOP_ADD);
       ex_alusrc1            <= `SRC1_FROM_REG;
       ex_alusrc2            <= `SRC2_FROM_REG;
       ex_imm                <= `ZeroWord;

@@ -77,7 +77,7 @@ module id(
   always_comb begin
     if (is_in_delayslot_i == `InDelaySlot) begin
       // NOP instruction
-      aluop_o                             = `ZeroWord;
+      aluop_o                             = (1'b1 << `ALUOP_ADD);
       alusrc1_o                           = `SRC1_FROM_REG;
       alusrc2_o                           = `SRC2_FROM_REG;
       rd_o                                = `NopRegAddr;
@@ -98,7 +98,7 @@ module id(
       next_inst_in_delayslot_o            = `NotInDelaySlot;
       flush_o                             = `False;
     end else begin
-      aluop_o                             = `ZeroWord;
+      aluop_o                             = (1'b1 << `ALUOP_ADD);
       alusrc1_o                           = `SRC1_FROM_REG;
       alusrc2_o                           = `SRC2_FROM_REG;
       rd_o                                = `NopRegAddr;
@@ -120,7 +120,6 @@ module id(
       flush_o                             = `False;
       case (opcode)
         `OP_AUIPC : begin
-          aluop_o[`ALUOP_ADD]             = 1'b1;
           rd_o                            = inst_i[`RD];
           alusrc1_o                       = `SRC1_FROM_PC;
           alusrc2_o                       = `SRC2_FROM_IMM;
@@ -129,7 +128,6 @@ module id(
           imm_o                           = {inst_i[31:12], 12'b0};
         end
         `OP_LUI   : begin
-          aluop_o[`ALUOP_ADD]             = 1'b1;
           rd_o                            = inst_i[`RD];
           wreg_o                          = `WriteEnable;
           alusrc1_o                       = `SRC1_FROM_REG;
@@ -138,7 +136,7 @@ module id(
           imm_o                           = {inst_i[31:12], 12'b0};
         end
         `OP_JAL   : begin
-          aluop_o[`ALUOP_LINK]            = 1'b1;
+          aluop_o                         = (1'b1 << `ALUOP_LINK);
           rd_o                            = inst_i[`RD];
           wreg_o                          = `WriteEnable;
           inst_valid                      = `InstValid;
@@ -149,7 +147,7 @@ module id(
           next_inst_in_delayslot_o        = `InDelaySlot;
         end
         `OP_JALR  : begin
-          aluop_o[`ALUOP_LINK]            = 1'b1;
+          aluop_o                         = (1'b1 << `ALUOP_LINK);
           rd_o                            = inst_i[`RD];
           wreg_o                          = `WriteEnable;
           inst_valid                      = `InstValid;
@@ -162,7 +160,6 @@ module id(
           next_inst_in_delayslot_o        = `InDelaySlot;
         end
         `OP_BRANCH: begin
-          aluop_o[`ALUOP_ADD]             = 1'b1;
           inst_valid                      = `InstValid;
           rs1_read_o                      = `ReadEnable;
           rs2_read_o                      = `ReadEnable;
@@ -206,7 +203,6 @@ module id(
           end
         end
         `OP_LOAD  : begin
-          aluop_o[`ALUOP_ADD]             = 1'b1;
           rd_o                            = inst_i[`RD]; // rd
           alusrc1_o                       = `SRC1_FROM_REG;
           alusrc2_o                       = `SRC2_FROM_IMM;
@@ -219,7 +215,6 @@ module id(
           mem2reg_o                       = `Mem2Reg;
         end
         `OP_STORE : begin
-          aluop_o[`ALUOP_ADD]             = 1'b1;
           inst_valid                      = `InstValid;
           alusrc1_o                       = `SRC1_FROM_REG;
           alusrc2_o                       = `SRC2_FROM_IMM;
@@ -232,73 +227,59 @@ module id(
         end
         `OP_ARITHI: begin
           case(func3_o)
-            `OP_ADD : aluop_o[`ALUOP_ADD]  = 1'b1;
-            `OP_SLL : aluop_o[`ALUOP_SLL]  = 1'b1;
-            `OP_SLT : aluop_o[`ALUOP_SLT]  = 1'b1; 
-            `OP_SLTU: aluop_o[`ALUOP_SLTU] = 1'b1;
-            `OP_XOR : aluop_o[`ALUOP_XOR]  = 1'b1;
-            `OP_SR  : begin
-              if(inst_i[30]) // SRA
-                aluop_o[`ALUOP_SRA]        = 1'b1;
-              else
-                aluop_o[`ALUOP_SRL]        = 1'b1;
-            end
-            `OP_OR   : aluop_o[`ALUOP_OR]  = 1'b1;
-            `OP_AND  : aluop_o[`ALUOP_AND] = 1'b1;      
+            `OP_ADD : aluop_o             = (1'b1 << `ALUOP_ADD);
+            `OP_SLL : aluop_o             = (1'b1 << `ALUOP_SLL);
+            `OP_SLT : aluop_o             = (1'b1 << `ALUOP_SLT); 
+            `OP_SLTU: aluop_o             = (1'b1 << `ALUOP_SLTU);
+            `OP_XOR : aluop_o             = (1'b1 << `ALUOP_XOR);
+            `OP_SR  : aluop_o             = (inst_i[30]) ? (1'b1 << `ALUOP_SRA) : (1'b1 << `ALUOP_SRL);
+            `OP_OR  : aluop_o             = (1'b1 << `ALUOP_OR);
+            `OP_AND : aluop_o             = (1'b1 << `ALUOP_AND);
           endcase
-          rd_o                             = inst_i[`RD];
-          alusrc1_o                        = `SRC1_FROM_REG;
-          alusrc2_o                        = `SRC2_FROM_IMM;
-          wreg_o                           = `WriteEnable;
-          inst_valid                       = `InstValid;
-          rs1_read_o                       = `ReadEnable;
-          rs1_addr_o                       = inst_i[`RS1];
-          imm_o                            = $signed({inst_i[31:20]});
+          rd_o                            = inst_i[`RD];
+          alusrc1_o                       = `SRC1_FROM_REG;
+          alusrc2_o                       = `SRC2_FROM_IMM;
+          wreg_o                          = `WriteEnable;
+          inst_valid                      = `InstValid;
+          rs1_read_o                      = `ReadEnable;
+          rs1_addr_o                      = inst_i[`RS1];
+          imm_o                           = $signed({inst_i[31:20]});
         end
         `OP_ARITHR: begin
           if(func7[0] == 1'b1) begin // Multiply instruction
+            `ifdef MulEnable
             case(func3_o) 
-              `OP_MUL    : aluop_o[`ALUOP_MUL]   = 1'b1;  
-              `OP_MULH   : aluop_o[`ALUOP_MULH]  = 1'b1; 
-              `OP_MULHSU : aluop_o[`ALUOP_MULSU] = 1'b1;  
-              `OP_MULHU  : aluop_o[`ALUOP_MULU]  = 1'b1;
-              default: ;
+              `OP_MUL   : aluop_o         = (1'b1 << `ALUOP_MUL);  
+              `OP_MULH  : aluop_o         = (1'b1 << `ALUOP_MUL); 
+              `OP_MULHSU: aluop_o         = (1'b1 << `ALUOP_MUL);  
+              `OP_MULHU : aluop_o         = (1'b1 << `ALUOP_MUL);
             endcase
+            `endif
           end else begin // Other instruction
             case(func3_o)
-              `OP_ADD : begin
-                if(inst_i[30] == `True) // SUB
-                  aluop_o[`ALUOP_SUB]            = 1'b1;
-                else // ADD
-                  aluop_o[`ALUOP_ADD]            = 1'b1;
-              end
-              `OP_SLL :aluop_o[`ALUOP_SLL]       = 1'b1;
-              `OP_SLT :aluop_o[`ALUOP_SLT]       = 1'b1; 
-              `OP_SLTU:aluop_o[`ALUOP_SLTU]      = 1'b1;
-              `OP_XOR :aluop_o[`ALUOP_XOR]       = 1'b1;
-              `OP_SR  : begin
-                if(inst_i[30]) // SRA
-                  aluop_o[`ALUOP_SRA]            = 1'b1;
-                else // SRL
-                  aluop_o[`ALUOP_SRL]            = 1'b1;
-              end
-              `OP_OR     : aluop_o[`ALUOP_OR]    = 1'b1;
-              `OP_AND    : aluop_o[`ALUOP_AND]   = 1'b1;
-            endcase  
+              `OP_ADD : aluop_o           = (inst_i[30]) ? (1'b1 << `ALUOP_SUB) : (1'b1 << `ALUOP_ADD);
+              `OP_SLL : aluop_o           = (1'b1 << `ALUOP_SLL);
+              `OP_SLT : aluop_o           = (1'b1 << `ALUOP_SLT); 
+              `OP_SLTU: aluop_o           = (1'b1 << `ALUOP_SLTU);
+              `OP_XOR : aluop_o           = (1'b1 <<`ALUOP_XOR);
+              `OP_SR  : aluop_o           = (inst_i[30]) ? (1'b1 << `ALUOP_SRA) : (1'b1 << `ALUOP_SRL);
+              `OP_OR  : aluop_o           = (1'b1 << `ALUOP_OR);
+              `OP_AND : aluop_o           = (1'b1 << `ALUOP_AND);
+            endcase
           end
-          rd_o                             = inst_i[`RD];
-          wreg_o                           = `WriteEnable;
-          inst_valid                       = `InstValid;
-          rs1_read_o                       = `ReadEnable;
-          rs2_read_o                       = `ReadEnable;
-          rs1_addr_o                       = inst_i[`RS1];
-          rs2_addr_o                       = inst_i[`RS2];
+          rd_o                            = inst_i[`RD];
+          wreg_o                          = `WriteEnable;
+          inst_valid                      = `InstValid;
+          rs1_read_o                      = `ReadEnable;
+          rs2_read_o                      = `ReadEnable;
+          rs1_addr_o                      = inst_i[`RS1];
+          rs2_addr_o                      = inst_i[`RS2];
         end
         `OP_FENCE : begin
-          inst_valid                       = `InstValid;
+          inst_valid                      = `InstValid;
         end
         `OP_SYSTEM: begin
-          inst_valid                       = `InstValid;
+          inst_valid                      = `InstValid;
         end
         
         default: ;

@@ -16,22 +16,25 @@ module ex(
 );
 
   logic                       [`RegBus] alu_in1, alu_in2;
-  logic signed                [`MulBus] result_mul;
-  logic                       [`MulBus] result_mulu;
-  logic signed                [`MulBus] result_mulsu;
+  logic                       [`RegBus] alu_in1_mult, alu_in2_mult;
+  logic                       [`MulBus] hilo_temp;
+  logic                       [`MulBus] mulres;
 
-  /* MUL-related */
-  assign result_mul[`MulBus]   = $signed  ({{ 32{alu_in1[31]} }, alu_in1[`RegBus]}) *
-                                 $signed  ({{ 32{alu_in2[31]} }, alu_in2[`RegBus]});
-  assign result_mulu[`MulBus]  = $unsigned({{ 32{1'b0} },         alu_in1[`RegBus]}) *
-                                 $unsigned({{ 32{1'b0} },         alu_in2[`RegBus]});
-  assign result_mulsu[`MulBus] = $signed  ({{ 32{alu_in1[31]} }, alu_in1[`RegBus]}) *
-                                 $unsigned({{ 32{1'b0} },         alu_in2[`RegBus]});
+  `ifdef MulEnable
+  assign alu_in1_mult = ( (aluop_i[`ALUOP_MUL] || aluop_i[`ALUOP_MULH]) && (rs1_i[31] == 1'b1) ) ? 
+                          (~rs1_i + 1'b1) : rs1_i;
+  assign alu_in2_mult = ( (aluop_i[`ALUOP_MUL] || aluop_i[`ALUOP_MULH]) && (rs2_i[31] == 1'b1) ) ? 
+                          (~rs2_i + 1'b1) : rs2_i;
+  assign hilo_temp = alu_in1_mult * alu_in2_mult;
 
   always_comb begin
-    // stallreq = 1'b0;
-    wdata_o  = rs2_i;
+    if(aluop_i[`ALUOP_MUL] || aluop_i[`ALUOP_MULH]) begin
+      mulres = (rs1_i[31] ^ rs2_i[31]) ? (~hilo_temp + 1'b1) : hilo_temp;
+    end else begin
+      mulres = hilo_temp;
+    end
   end
+  `endif
 
   // alu_in1
   always_comb begin
@@ -52,7 +55,7 @@ module ex(
   // wreg_data_o
   always_comb begin
     stallreq = 1'b0;
-    case (1'b1)
+    unique case (1'b1)
       aluop_i[`ALUOP_ADD]: begin
         wreg_data_o = $signed(alu_in1) + $signed(alu_in2);
       end
@@ -83,27 +86,26 @@ module ex(
       aluop_i[`ALUOP_AND]: begin
         wreg_data_o = alu_in1 & alu_in2;
       end
+      `ifdef MulEnable
       aluop_i[`ALUOP_MUL]: begin
-        stallreq = 1'b1;
-        wreg_data_o = result_mul[31:0];
+        wreg_data_o = mulres[31:0];
       end
       aluop_i[`ALUOP_MULH]: begin
-        stallreq = 1'b1;
-        wreg_data_o = result_mul[63:32];
+        wreg_data_o = mulres[63:32];
       end
       aluop_i[`ALUOP_MULU]: begin
-        stallreq = 1'b1;
-        wreg_data_o = result_mulu[63:32];
+        wreg_data_o = mulres[63:32];
       end
       aluop_i[`ALUOP_MULSU]: begin
-        stallreq = 1'b1;
-        wreg_data_o = result_mulsu[63:32];
+        wreg_data_o = mulres[63:32];
       end
+      `endif
       aluop_i[`ALUOP_LINK]: begin
         wreg_data_o = link_addr_i;
       end
-      default: wreg_data_o = `ZeroWord;
     endcase
   end
+
+  assign wdata_o  = rs2_i;
 
 endmodule

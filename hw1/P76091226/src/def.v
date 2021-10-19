@@ -1,6 +1,8 @@
 `ifndef __CPU_DEF_V__
 `define __CPU_DEF_V__
 
+// `define MulEnable
+
 /* Signal alias */
 `define RstEnable                       1'b1
 `define RstDisable                      1'b0
@@ -56,6 +58,7 @@
 `define RS2                             24:20
 `define IMM12                           31:20
 
+/* NOP (bubble) */
 `define NOP                             32'h0000_0013  // addi x0, x0, 0
 `define NopRegAddr                      5'b00000
 
