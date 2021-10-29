@@ -8,65 +8,13 @@ module CPU_wrapper (
  	/* Others */
   input clk,
 	input rst
-
-//  /* Master 0 => IF-stage */
-//	// READ ADDRESS for M0
-//	output [`AXI_ID_BITS-1:0] ARID_M0,
-//	output [`AXI_ADDR_BITS-1:0] ARADDR_M0,
-//	output [`AXI_LEN_BITS-1:0] ARLEN_M0,
-//	output [`AXI_SIZE_BITS-1:0] ARSIZE_M0,
-//	output [1:0] ARBURST_M0,
-//	output ARVALID_M0,
-//	input ARREADY_M0,
-//	//READ DATA for M0
-//	input [`AXI_ID_BITS-1:0] RID_M0,
-//	input [`AXI_DATA_BITS-1:0] RDATA_M0,
-//	input [1:0] RRESP_M0,
-//	input RLAST_M0,
-//	input RVALID_M0,
-//	output RREADY_M0,
-//  
-//  /* Master 1 => ME-stage */
-//	//READ ADDRESS for M1
-//	output [`AXI_ID_BITS-1:0] ARID_M1,
-//	output [`AXI_ADDR_BITS-1:0] ARADDR_M1,
-//	output [`AXI_LEN_BITS-1:0] ARLEN_M1,
-//	output [`AXI_SIZE_BITS-1:0] ARSIZE_M1,
-//	output [1:0] ARBURST_M1,
-//	output ARVALID_M1,
-//	input ARREADY_M1,
-//	//READ DATA for M1
-//	input [`AXI_ID_BITS-1:0] RID_M1,
-//	input [`AXI_DATA_BITS-1:0] RDATA_M1,
-//	input [1:0] RRESP_M1,
-//	input RLAST_M1,
-//	input RVALID_M1,
-//	output RREADY_M1,
-//  //WRITE ADDRESS for M1
-//	output [`AXI_ID_BITS-1:0] AWID_M1,
-//	output [`AXI_ADDR_BITS-1:0] AWADDR_M1,
-//	output [`AXI_LEN_BITS-1:0] AWLEN_M1,
-//	output [`AXI_SIZE_BITS-1:0] AWSIZE_M1,
-//	output [1:0] AWBURST_M1,
-//	output AWVALID_M1,
-//	input AWREADY_M1,
-//	//WRITE DATA for M1
-//	output [`AXI_DATA_BITS-1:0] WDATA_M1,
-//	output [`AXI_STRB_BITS-1:0] WSTRB_M1,
-//	output WLAST_M1,
-//	output WVALID_M1,
-//	input WREADY_M1,
-//	//WRITE RESPONSE for M1
-//	input [`AXI_ID_BITS-1:0] BID_M1,
-//	input [1:0] BRESP_M1,
-//	input BVALID_M1,
-//	output BREADY_M1
 );
 
  logic               [`InstBus] inst_out_i;
  logic                          inst_read_o;
  logic           [`InstAddrBus] inst_addr_o;
 
+ logic                          stallreq_from_imem;
  logic                          stallreq_from_if;
  logic                          stallreq_from_mem;
   
@@ -98,11 +46,6 @@ always_ff @(posedge clk, posedge rst) begin
   if(rst)
     cnt <= 0;
   else
-  // else if(curr_state[RESET_BIT])
-  //   cnt <= 0;
-  // else if (curr_state[SADDR_BIT])
-  //   cnt <= cnt + 1;
-  // else if (curr_state[LOADD_BIT])
     cnt <= cnt + 1;
 end
 
@@ -131,31 +74,29 @@ always_comb begin
   cpu2axi_interface.ARLEN_M0 = 0; // Burst = 1
   cpu2axi_interface.ARSIZE_M0 = 3'h4; // 4B per transfer
   cpu2axi_interface.ARBURST_M0 = `AXI_BURST_INC;
+  stallreq_from_imem = `Stop;
+  stallreq_from_if = `Stop; 
       
   unique case(1'b1)
       
     curr_state[RESET_BIT]: begin
       cpu2axi_interface.ARADDR_M0 = 0;
       cpu2axi_interface.ARVALID_M0 = 1'b0; // A3-39
-      stallreq_from_if = `NoStop; 
       cpu2axi_interface.RREADY_M0 = 1'b0;
     end
     curr_state[SADDR_BIT]: begin
       cpu2axi_interface.ARADDR_M0 = inst_addr_o;
       cpu2axi_interface.ARVALID_M0 = 1'b1; // A3-39
-      stallreq_from_if = `Stop; // Stall the IF-stage;
       cpu2axi_interface.RREADY_M0 = 1'b0;
     end
     curr_state[WAITE_BIT]: begin
       cpu2axi_interface.ARADDR_M0 = 0;
       cpu2axi_interface.ARVALID_M0 = 1'b0; // A3-39
-      stallreq_from_if = `Stop; // Stall the IF-stage;
       cpu2axi_interface.RREADY_M0 = 1'b1;
     end
     curr_state[LOADD_BIT]: begin
       cpu2axi_interface.ARADDR_M0 = 0;
       cpu2axi_interface.ARVALID_M0 = 1'b0; // A3-39
-      stallreq_from_if = `Stop; // Stall the IF-stage;
     end
   endcase
 end

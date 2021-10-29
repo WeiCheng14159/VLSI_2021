@@ -3,6 +3,7 @@ module ifetch(
   input logic                           clk,
   input logic                           rst,
 
+  input logic                           stallreq_fom_imem,
   input logic          [`STAGE_NUM-1:0] stall,
   input logic                           flush,
   input logic                 [`RegBus] branch_target_addr_i,
@@ -17,12 +18,10 @@ module ifetch(
   output logic               [`InstBus] inst_o
 );
 
-  logic                                 ce;
   logic                       [`RegBus] fetch_pc;
   logic                [`STAGE_NUM-1:0] stall_prev;
   logic                       [`RegBus] next_pc;
 
-  assign ce = `ChipEnable; 
   assign inst_read_o = `ReadEnable;
   assign inst_addr_o = fetch_pc;
   assign next_pc = fetch_pc + 4;
@@ -40,7 +39,7 @@ module ifetch(
     if(rst) begin
       fetch_pc <= `StartAddr;
     end else begin
-      fetch_pc <= (ce == `ChipDisable) ? `ZeroWord :
+      fetch_pc <= (stallreq_fom_imem == `Stop) ? fetch_pc :
                   (flush == `True) ? new_pc_i :
                   (stall[`IF_STAGE] == `Stop) ? id_pc_i + 4 :
                   (branch_taken_i == `BranchTaken) ? branch_target_addr_i :

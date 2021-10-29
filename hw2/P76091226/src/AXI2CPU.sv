@@ -2,56 +2,58 @@
 
 interface AXI2CPU_interface ();
  
-  //WRITE ADDRESS
-  logic              [`AXI_ID_BITS-1:0] AWID_M1;
-  logic            [`AXI_ADDR_BITS-1:0] AWADDR_M1;
-  logic             [`AXI_LEN_BITS-1:0] AWLEN_M1;
-  logic            [`AXI_SIZE_BITS-1:0] AWSIZE_M1;
-  logic                           [1:0] AWBURST_M1;
-  logic                                 AWVALID_M1;
-  logic                                 AWREADY_M1;
-  //WRITE DATA
-  logic            [`AXI_DATA_BITS-1:0] WDATA_M1;
-  logic            [`AXI_STRB_BITS-1:0] WSTRB_M1;
-  logic                                 WLAST_M1;
-  logic                                 WVALID_M1;
-  logic                                 WREADY_M1;
-  //WRITE RESPONSE
-  logic              [`AXI_ID_BITS-1:0] BID_M1;
-  logic                           [1:0] BRESP_M1;
-  logic                                 BVALID_M1;
-  logic                                 BREADY_M1;
+ 	// AXI to master 1 (MEM-stage)
+    //READ ADDRESS1
+    logic              [`AXI_ID_BITS-1:0] ARID_M1;
+    logic            [`AXI_ADDR_BITS-1:0] ARADDR_M1;
+    logic             [`AXI_LEN_BITS-1:0] ARLEN_M1;
+    logic            [`AXI_SIZE_BITS-1:0] ARSIZE_M1;
+    logic                           [1:0] ARBURST_M1;
+    logic                                 ARVALID_M1;
+    logic                                 ARREADY_M1;
+    //READ DATA1
+    logic              [`AXI_ID_BITS-1:0] RID_M1;
+    logic            [`AXI_DATA_BITS-1:0] RDATA_M1;
+    logic                           [1:0] RRESP_M1;
+    logic                                 RLAST_M1;
+    logic                                 RVALID_M1;
+    logic                                 RREADY_M1;
+    //WRITE ADDRESS
+    logic              [`AXI_ID_BITS-1:0] AWID_M1;
+    logic            [`AXI_ADDR_BITS-1:0] AWADDR_M1;
+    logic             [`AXI_LEN_BITS-1:0] AWLEN_M1;
+    logic            [`AXI_SIZE_BITS-1:0] AWSIZE_M1;
+    logic                           [1:0] AWBURST_M1;
+    logic                                 AWVALID_M1;
+    logic                                 AWREADY_M1;
+    //WRITE DATA
+    logic            [`AXI_DATA_BITS-1:0] WDATA_M1;
+    logic            [`AXI_STRB_BITS-1:0] WSTRB_M1;
+    logic                                 WLAST_M1;
+    logic                                 WVALID_M1;
+    logic                                 WREADY_M1;
+    //WRITE RESPONSE
+    logic              [`AXI_ID_BITS-1:0] BID_M1;
+    logic                           [1:0] BRESP_M1;
+    logic                                 BVALID_M1;
+    logic                                 BREADY_M1;
   
-  //READ ADDRESM0
-  logic              [`AXI_ID_BITS-1:0] ARID_M0;
-  logic            [`AXI_ADDR_BITS-1:0] ARADDR_M0;
-  logic             [`AXI_LEN_BITS-1:0] ARLEN_M0;
-  logic            [`AXI_SIZE_BITS-1:0] ARSIZE_M0;
-  logic                           [1:0] ARBURST_M0;
-  logic                                 ARVALID_M0;
-  logic                                 ARREADY_M0;
-  //READ DATA0
-  logic              [`AXI_ID_BITS-1:0] RID_M0;
-  logic            [`AXI_DATA_BITS-1:0] RDATA_M0;
-  logic                           [1:0] RRESP_M0;
-  logic                                 RLAST_M0;
-  logic                                 RVALID_M0;
-  logic                                 RREADY_M0;
-  //READ ADDRESS1
-  logic              [`AXI_ID_BITS-1:0] ARID_M1;
-  logic            [`AXI_ADDR_BITS-1:0] ARADDR_M1;
-  logic             [`AXI_LEN_BITS-1:0] ARLEN_M1;
-  logic            [`AXI_SIZE_BITS-1:0] ARSIZE_M1;
-  logic                           [1:0] ARBURST_M1;
-  logic                                 ARVALID_M1;
-  logic                                 ARREADY_M1;
-  //READ DATA1
-  logic              [`AXI_ID_BITS-1:0] RID_M1;
-  logic            [`AXI_DATA_BITS-1:0] RDATA_M1;
-  logic                           [1:0] RRESP_M1;
-  logic                                 RLAST_M1;
-  logic                                 RVALID_M1;
-  logic                                 RREADY_M1;
+  // AXI to master 0 (IF-stage)
+    //READ ADDRESM0
+    logic              [`AXI_ID_BITS-1:0] ARID_M0;
+    logic            [`AXI_ADDR_BITS-1:0] ARADDR_M0;
+    logic             [`AXI_LEN_BITS-1:0] ARLEN_M0;
+    logic            [`AXI_SIZE_BITS-1:0] ARSIZE_M0;
+    logic                           [1:0] ARBURST_M0;
+    logic                                 ARVALID_M0;
+    logic                                 ARREADY_M0;
+    //READ DATA0
+    logic              [`AXI_ID_BITS-1:0] RID_M0;
+    logic            [`AXI_DATA_BITS-1:0] RDATA_M0;
+    logic                           [1:0] RRESP_M0;
+    logic                                 RLAST_M0;
+    logic                                 RVALID_M0;
+    logic                                 RREADY_M0;
 
   modport cpu_ports (
     /* Master 1 = MEM stage */
@@ -67,6 +69,9 @@ interface AXI2CPU_interface ();
     // ARx
     input ARREADY_M1,
     output ARID_M1, ARADDR_M1, ARLEN_M1, ARSIZE_M1, ARBURST_M1, ARVALID_M1,
+    // Rx
+    input RID_M1, RDATA_M1, RRESP_M1, RLAST_M1, RVALID_M1,
+    output RREADY_M1,
     /* Master 0 = IF stage */
     // ARx
     input ARREADY_M0,
@@ -90,6 +95,9 @@ interface AXI2CPU_interface ();
     // ARx
     output ARREADY_M1,
     input ARID_M1, ARADDR_M1, ARLEN_M1, ARSIZE_M1, ARBURST_M1, ARVALID_M1,
+    // Rx
+    output RID_M1, RDATA_M1, RRESP_M1, RLAST_M1, RVALID_M1,
+    input RREADY_M1,
     /* Master 1 = IF stage */
     // ARx
     output ARREADY_M0,

@@ -1,12 +1,22 @@
 module SRAM_wrapper (
-  input CK,
-  input CS,
-  input OE,
-  input [3:0] WEB,
-  input [13:0] A,
-  input [31:0] DI,
-  output [31:0] DO
+  input logic clk,
+  input logic rst,
+  AXI2SRAM_interface.sram_ports sram2axi_interface
 );
+
+  logic CK;
+  logic CS;
+  logic OE;
+  logic [3:0] WEB;
+  logic [13:0] A;
+  logic [31:0] DI;
+  logic [31:0] DO;
+
+  assign CK = clk;
+  assign CS = 1'b1;
+  assign OE = 1'b1;
+  assign DI = sram2axi_interface.WDATA;
+  assign sram2axi_interface.RDATA = DO;
 
   SRAM i_SRAM (
     .A0   (A[0]  ),

@@ -23,6 +23,7 @@ module CPU(
   output logic           [`DataAddrBus] data_addr_o,
   output logic               [`DataBus] data_in_o,
   // Stall request from AXI
+  input logic                           stallreq_fom_imem,
   input logic                           stallreq_from_if,
   input logic                           stallreq_from_mem
 );
@@ -131,6 +132,7 @@ module CPU(
   ifetch ifetch0(
     .clk(clk), .rst(rst),
 
+    .stallreq_fom_imem(stallreq_fom_imem),
     .stall(stallreq), .flush(flush),
     .branch_target_addr_i(id_branch_target_addr),
     .branch_taken_i(id_branch_taken),
