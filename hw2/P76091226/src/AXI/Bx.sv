@@ -4,7 +4,7 @@ module Bx
 	import axi_pkg::*;
 (
 	input logic clk,
-	input logic rst,
+	input logic rstn,
 		// Master 0
 	output logic [`AXI_ID_BITS-1:0] BID_M1,
 	output logic [1:0] BRESP_M1,

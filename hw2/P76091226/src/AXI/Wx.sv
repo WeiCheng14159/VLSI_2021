@@ -4,7 +4,7 @@ module Wx
 	import axi_pkg::*;
 (
 	input logic clk,
-	input logic rst,
+	input logic rstn,
 		// Master 1
 	input logic [`AXI_DATA_BITS-1:0] WDATA_M1,
 	input logic [`AXI_STRB_BITS-1:0] WSTRB_M1,
@@ -46,8 +46,8 @@ logic WVALID_M;
 
 data_arb_lock_t data_arb_lock_next;
 
-always_ff @(posedge clk, posedge rst) begin
-  if(rst) begin
+always_ff @(posedge clk, negedge rstn) begin
+  if(!rstn) begin
     data_arb_lock <= LOCK_NO;
   end else begin
     data_arb_lock <= data_arb_lock_next;

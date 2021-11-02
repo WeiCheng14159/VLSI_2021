@@ -4,7 +4,7 @@ module ARx
 	import axi_pkg::*;
 (
 	input logic clk,
-	input logic rst,
+	input logic rstn,
     // Master0 interface
 	input logic [`AXI_ID_BITS-1:0] ID_M0,
 	input logic [`AXI_ADDR_BITS-1:0] ADDR_M0,
@@ -58,8 +58,8 @@ logic READY_from_slave;
 
 addr_arb_lock_t addr_arb_lock, addr_arb_lock_next;
 
-always_ff @(posedge clk, posedge rst) begin
-  if(rst) begin
+always_ff @(posedge clk, negedge rstn) begin
+  if(!rstn) begin
     addr_arb_lock <= LOCK_FREE;
   end else begin
     addr_arb_lock <= addr_arb_lock_next;

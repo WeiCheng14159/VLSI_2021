@@ -198,7 +198,7 @@ localparam EMPTY_ADDR = 32'h0, EMPTY_DATA = 32'h0;
 // ARx
 ARx ARx(
 	.clk(ACLK),
-	.rst(ARESETn),
+	.rstn(ARESETn),
     // Master 0
 	.ID_M0(ARID_M0),
 	.ADDR_M0(ARADDR_M0),
@@ -245,7 +245,7 @@ ARx ARx(
 // Rx
 Rx Rx(
 	.clk(ACLK),
-	.rst(ARESETn),
+	.rstn(ARESETn),
 		// Master 0 
 	.RID_M0(RID_M0),
 	.RDATA_M0(RDATA_M0),
@@ -286,7 +286,7 @@ Rx Rx(
 // AWx
 AWx AWx(
 	.clk(ACLK),
-	.rst(ARESETn),
+	.rstn(ARESETn),
     // Master1
 	.ID_M1(AWID_M1),
 	.ADDR_M1(AWADDR_M1),
@@ -326,7 +326,7 @@ data_arb_lock_t Wx_data_arb_lock;
 
 Wx Wx(
 	.clk(ACLK),
-	.rst(ARESETn),
+	.rstn(ARESETn),
 		// Master 1
 	.WDATA_M1(WDATA_M1),
 	.WSTRB_M1(WSTRB_M1),
@@ -363,7 +363,7 @@ Wx Wx(
 
 Bx Bx(
 	.clk(ACLK),
-	.rst(ARESETn),
+	.rstn(ARESETn),
 		// Master 1
 	.BID_M1(BID_M1),
 	.BRESP_M1(BRESP_M1),

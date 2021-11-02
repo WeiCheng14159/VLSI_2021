@@ -4,7 +4,7 @@ module Rx
 	import axi_pkg::*;
 (
 	input logic clk,
-	input logic rst,
+	input logic rstn,
 		// Master 0 
 	output logic [`AXI_ID_BITS-1:0] RID_M0,
 	output logic [`AXI_DATA_BITS-1:0] RDATA_M0,
@@ -52,8 +52,8 @@ logic READY_from_master;
 
 data_arb_lock_t data_arb_lock, data_arb_lock_next;
 
-always_ff @(posedge clk, posedge rst) begin
-  if(rst) begin
+always_ff @(posedge clk, negedge rstn) begin
+  if(!rstn) begin
     data_arb_lock <= LOCK_NO;
   end else begin
     data_arb_lock <= data_arb_lock_next;

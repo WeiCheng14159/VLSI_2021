@@ -28,7 +28,7 @@ CPU_wrapper cpu0 (
 );
 
 AXI axi (
-  .ACLK(clk), .ARESETn(rst),
+  .ACLK(clk), .ARESETn(~rst),
   
 	// AXI to master 0 (IF-stage)
 		// READ ADDRESS0
