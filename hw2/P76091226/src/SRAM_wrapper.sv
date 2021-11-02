@@ -1,4 +1,9 @@
-module SRAM_wrapper (
+`include "AXI_define.svh"
+`include "sram_pkg.sv"
+
+module SRAM_wrapper 
+  import sram_pkg::*;
+(
   input logic clk,
   input logic rst,
   AXI2SRAM_interface.sram_ports sram2axi_interface
@@ -7,16 +12,118 @@ module SRAM_wrapper (
   logic CK;
   logic CS;
   logic OE;
-  logic [3:0] WEB;
-  logic [13:0] A;
-  logic [31:0] DI;
-  logic [31:0] DO;
-
+  logic [WEB_SIZE-1:0] WEB;
+  logic [ADDR_SIZE-1:0] A;
+  logic [DATA_SIZE-1:0] DI;
+  logic [DATA_SIZE-1:0] DO;
   assign CK = clk;
-  assign CS = 1'b1;
-  assign OE = 1'b1;
   assign DI = sram2axi_interface.WDATA;
-  assign sram2axi_interface.RDATA = DO;
+  
+  localparam  IDLEE_BIT = 0,
+              RADDR_BIT = 1,
+              WRITE_BIT = 2;
+    
+  typedef enum logic [2:0] {
+    IDLEE = 1 << IDLEE_BIT,
+    RADDR = 1 << RADDR_BIT,
+    WRITE = 1 << WRITE_BIT
+  } AR_state_t;
+  
+  AR_state_t curr_state, next_state;
+  
+  // State logic
+  always_ff @( posedge clk, posedge rst ) begin
+    if(rst)
+      curr_state <= IDLEE;
+    else
+      curr_state <= next_state;
+  end
+
+  // Read channel (next stage logic)
+  // Next state logic
+  always_comb begin
+    unique case(1'b1)
+      curr_state[IDLEE_BIT]: next_state = (sram2axi_interface.ARVALID) ? RADDR : IDLEE;
+      curr_state[RADDR_BIT]: next_state = WRITE;
+      curr_state[WRITE_BIT]: next_state = (sram2axi_interface.RREADY) ? IDLEE : WRITE;
+    endcase
+  end
+
+  // latch input value
+  logic [`AXI_ADDR_BITS-1:0] ARADDR_r;
+  logic [`AXI_IDS_BITS-1:0] ARID_r;
+  always_ff @(posedge clk, posedge rst) begin
+    if(rst) begin
+      {ARADDR_r ,ARID_r} <= {1'b0, 1'b0};
+    end else if(sram2axi_interface.ARVALID) begin
+      {ARADDR_r ,ARID_r} <= {sram2axi_interface.ARADDR, sram2axi_interface.ARID};
+    end
+  end
+
+  // latch data out
+  logic [DATA_SIZE-1:0] DO_r;
+  always_ff @(posedge clk, posedge rst) begin
+    if(rst)
+      DO_r <= 0;
+    else if(curr_state[RADDR_BIT])
+      DO_r <= DO;
+  end
+
+  // AXI output (C)
+  always_comb begin
+    sram2axi_interface.ARREADY = 0;
+    sram2axi_interface.RVALID = 0;
+    sram2axi_interface.RID = 0;
+    sram2axi_interface.RDATA = 0;
+    sram2axi_interface.RLAST = 0;
+    sram2axi_interface.RRESP = 0;
+
+    unique case(1'b1)
+      curr_state[IDLEE_BIT]: begin
+      end
+    
+      curr_state[RADDR_BIT]: begin     
+        sram2axi_interface.ARREADY = 1;
+      end
+    
+      curr_state[WRITE_BIT]: begin     
+        sram2axi_interface.RVALID = 1;
+        sram2axi_interface.RID = ARID_r;
+        sram2axi_interface.RDATA = DO_r;
+        sram2axi_interface.RLAST = 1;
+        sram2axi_interface.RRESP = `AXI_RESP_OKAY;
+      end
+    
+    endcase
+
+  end
+
+  // Memory output (C)
+  always_comb begin
+    A = EMPTY_ADDR; 
+    OE = OE_DIS;
+    CS = CS_DIS;
+    WEB = EMPTY_WEB;
+
+    unique case(1'b1)    
+      curr_state[IDLEE_BIT]: begin
+        CS = sram2axi_interface.AWVALID | sram2axi_interface.ARVALID;
+        OE = ~sram2axi_interface.AWVALID & sram2axi_interface.ARVALID;
+        A = (sram2axi_interface.AWVALID | sram2axi_interface.ARVALID ) ? 
+          sram2axi_interface.ARADDR[ADDR_SIZE-1:2] : EMPTY_ADDR; 
+        // WEB = (sram2axi_interface.AWVALID & ~sram2axi_interface.ARVALID) ? 
+      end
+    
+      curr_state[RADDR_BIT]: begin // send address to SRAM 
+        CS = CS_ENB;
+        OE = OE_ENB;
+      end
+    
+      curr_state[WRITE_BIT]: begin // store RW value
+      
+      end
+    endcase
+  end
 
   SRAM i_SRAM (
     .A0   (A[0]  ),
@@ -97,7 +204,7 @@ module SRAM_wrapper (
     .DI29 (DI[29]),
     .DI30 (DI[30]),
     .DI31 (DI[31]),
-    .CK   (CK    ),
+    .CK   (clk   ),
     .WEB0 (WEB[0]),
     .WEB1 (WEB[1]),
     .WEB2 (WEB[2]),

@@ -3,7 +3,7 @@ module ifetch(
   input logic                           clk,
   input logic                           rst,
 
-  input logic                           stallreq_fom_imem,
+  input logic                           stallreq_from_im,
   input logic          [`STAGE_NUM-1:0] stall,
   input logic                           flush,
   input logic                 [`RegBus] branch_target_addr_i,
@@ -39,7 +39,7 @@ module ifetch(
     if(rst) begin
       fetch_pc <= `StartAddr;
     end else begin
-      fetch_pc <= (stallreq_fom_imem == `Stop) ? fetch_pc :
+      fetch_pc <= (stallreq_from_im == `Stop) ? fetch_pc :
                   (flush == `True) ? new_pc_i :
                   (stall[`IF_STAGE] == `Stop) ? id_pc_i + 4 :
                   (branch_taken_i == `BranchTaken) ? branch_target_addr_i :
