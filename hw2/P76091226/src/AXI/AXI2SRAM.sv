@@ -2,24 +2,24 @@
 
 interface AXI2SRAM_interface();
   //WRITE ADDRESS
-	logic             [`AXI_IDS_BITS-1:0] AWID;
-	logic            [`AXI_ADDR_BITS-1:0] AWADDR;
-	logic             [`AXI_LEN_BITS-1:0] AWLEN;
-	logic            [`AXI_SIZE_BITS-1:0] AWSIZE;
-	logic                           [1:0] AWBURST;
-	logic                                 AWVALID;
-	logic                                 AWREADY;
-	//WRITE DATA
-	logic            [`AXI_DATA_BITS-1:0] WDATA;
-	logic            [`AXI_STRB_BITS-1:0] WSTRB;
-	logic                                 WLAST;
-	logic                                 WVALID;
-	logic                                 WREADY;
-	//WRITE RESPONSE
-	logic             [`AXI_IDS_BITS-1:0] BID;
-	logic                           [1:0] BRESP;
-	logic                                 BVALID;
-	logic                                 BREADY;
+  logic             [`AXI_IDS_BITS-1:0] AWID;
+  logic            [`AXI_ADDR_BITS-1:0] AWADDR;
+  logic             [`AXI_LEN_BITS-1:0] AWLEN;
+  logic            [`AXI_SIZE_BITS-1:0] AWSIZE;
+  logic                           [1:0] AWBURST;
+  logic                                 AWVALID;
+  logic                                 AWREADY;
+  //WRITE DATA
+  logic            [`AXI_DATA_BITS-1:0] WDATA;
+  logic            [`AXI_STRB_BITS-1:0] WSTRB;
+  logic                                 WLAST;
+  logic                                 WVALID;
+  logic                                 WREADY;
+  //WRITE RESPONSE
+  logic             [`AXI_IDS_BITS-1:0] BID;
+  logic                           [1:0] BRESP;
+  logic                                 BVALID;
+  logic                                 BREADY;
 
   //READ ADDRESS
   logic             [`AXI_IDS_BITS-1:0] ARID;
