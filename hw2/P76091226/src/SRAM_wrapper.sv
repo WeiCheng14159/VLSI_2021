@@ -27,9 +27,9 @@ module SRAM_wrapper
     IDLEE = 1 << IDLEE_BIT,
     RADDR = 1 << RADDR_BIT,
     WRITE = 1 << WRITE_BIT
-  } AR_state_t;
+  } sram_wrapper_state_t;
   
-  AR_state_t curr_state, next_state;
+  sram_wrapper_state_t curr_state, next_state;
   
   // State logic
   always_ff @( posedge clk, posedge rst ) begin
