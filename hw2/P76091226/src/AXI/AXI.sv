@@ -322,7 +322,7 @@ AWx AWx(
 	.VALID_S2(AWVALID_DEFAULT)
 );
 
-data_arb_lock_t Wx_data_arb_lock;
+write_data_arb_lock_t Wx_data_arb_lock;
 
 Wx Wx(
 	.clk(ACLK),
@@ -358,7 +358,7 @@ Wx Wx(
 	.AWVALID_S2(AWVALID_DEFAULT),
 	.BVALID_S2(BVALID_DEFAULT),
 		// Data lock
-	.data_arb_lock(Wx_data_arb_lock)
+	.write_data_arb_lock(Wx_data_arb_lock)
 );
 
 Bx Bx(
@@ -385,7 +385,7 @@ Bx Bx(
 	.BVALID_S2(BVALID_DEFAULT),
 	.BREADY_S2(BREADY_DEFAULT),
 		// Data lock
-	.data_arb_lock(Wx_data_arb_lock)
+	.write_data_arb_lock(Wx_data_arb_lock)
 );
 
 
