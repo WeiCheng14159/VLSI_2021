@@ -91,6 +91,15 @@ always_comb begin
 end
 
 always_comb begin
+  // Default
+  {ID_S0, ID_S1, ID_S2} = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
+  {ADDR_S0, ADDR_S1, ADDR_S2} = {`AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0};
+  {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0};
+  {SIZE_S0, SIZE_S1, SIZE_S2} = {`AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0};
+  {BURST_S0, BURST_S1, BURST_S2} = {2'b0, 2'b0, 2'b0};
+  {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b0, 1'b0};
+  READY_from_slave = 1'b0;
+
   unique case(ADDR_DECODER(ADDR_M))
     SLAVE_0: begin
       {ID_S0, ID_S1, ID_S2} = {ID_M, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};

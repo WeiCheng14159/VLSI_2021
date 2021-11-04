@@ -75,6 +75,7 @@ always_comb begin
   BID_M1 = 0;
   BRESP_M1 = 0;
   BVALID_M1 = 0;
+  
   unique case(DATA_DECODER(BID_S))
     MASTER_0: ;
     MASTER_1: begin

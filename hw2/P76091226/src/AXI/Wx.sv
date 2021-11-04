@@ -80,6 +80,7 @@ always_comb begin
   {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {`AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0};
   {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, 1'b0};
   {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, 1'b0};
+  WREADY_M1 = 1'b0;
   
   unique case(write_data_arb_lock)
     WLOCK_S0: begin

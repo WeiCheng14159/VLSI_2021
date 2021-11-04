@@ -113,6 +113,14 @@ always_comb begin
 end
 
 always_comb begin
+  // Default
+  {RID_M0, RID_M1} = {`AXI_ID_BITS'b0, `AXI_ID_BITS'b0};
+  {RDATA_M0, RDATA_M1} = {`AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0};
+  {RRESP_M0, RRESP_M1} = {2'b0, 2'b0};
+  {RLAST_M0, RLAST_M1} = {1'b0, 1'b0};
+  {RVALID_M0, RVALID_M1} = {1'b0, 1'b0};
+  READY_from_master = 1'b0;
+
   unique case(DATA_DECODER(RID_S))
     MASTER_0: begin
       {RID_M0, RID_M1} = {RID_S, `AXI_ID_BITS'b0};
