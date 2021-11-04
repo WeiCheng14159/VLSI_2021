@@ -69,8 +69,8 @@ end // State
 always_comb begin 
   addr_arb_lock_next = LOCK_FREE;
   unique case(addr_arb_lock)
-    LOCK_M0: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0;
-    LOCK_M1: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M1;
+    LOCK_M0: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0; // ? READY_S0
+    LOCK_M1: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M1; // ? READY_S1
     LOCK_FREE: begin
       case({VALID_M0, VALID_M1}) 
         2'b11: addr_arb_lock_next = LOCK_M0; // M0 has higher priority
@@ -90,7 +90,7 @@ always_comb begin
       LEN_M = LEN_M0;
       SIZE_M = SIZE_M0;
       BURST_M = BURST_M0;
-      VALID_M = VALID_M0;
+      VALID_M = VALID_M0; // 1'b1
       {READY_M0, READY_M1} = {READY_from_slave, 1'b0};
     end
     LOCK_M1: begin
