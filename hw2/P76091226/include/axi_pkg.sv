@@ -82,7 +82,7 @@ package axi_pkg;
 
   // Data Decoder
   typedef enum logic [2:0] {
-    MASTER_0, MASTER_1, MASTER_2
+    MASTER_0, MASTER_1, MASTER_2, MASTER_U
   } data_dec_result_t;
 
   function automatic data_dec_result_t DATA_DECODER (logic [`AXI_IDS_BITS-1:0] IDS);
@@ -91,8 +91,10 @@ package axi_pkg;
       DATA_DECODER = MASTER_0;
     else if (IDS_UPPER == AXI_MASTER_1_ID)
       DATA_DECODER = MASTER_1;
-    else 
+    else if (IDS_UPPER == AXI_MASTER_2_ID)
       DATA_DECODER = MASTER_2;
+    else
+      DATA_DECODER = MASTER_U;
   endfunction
 
 endpackage : axi_pkg
