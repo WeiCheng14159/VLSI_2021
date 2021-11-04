@@ -42,6 +42,12 @@ module Rx
   output logic RREADY_S2
 );
 
+logic [`AXI_IDS_BITS-1:0] RID_S;
+logic [`AXI_DATA_BITS-1:0] RDATA_S;
+logic [1:0] RRESP_S;
+logic RLAST_S;
+logic RVALID_S;
+
 logic READY_M;
 
 data_arb_lock_t data_arb_lock, data_arb_lock_next;
@@ -68,6 +74,31 @@ always_comb begin
     end
   endcase
 end // Next state (C)
+
+always_comb begin
+  // Default 
+  RVALID_S = 0;
+  {RREADY_S0, RREADY_S1, RREADY_S2} = {1'b0, 1'b0, 1'b0};
+ 
+  unique case(data_arb_lock)
+    LOCK_S0: begin
+      RVALID_S = 1'b1;
+      {RREADY_S0, RREADY_S1, RREADY_S2} = {READY_M, 1'b0, 1'b0};
+    end
+    LOCK_S1: begin
+      RVALID_S = 1'b1;
+      {RREADY_S0, RREADY_S1, RREADY_S2} = {1'b0, READY_M, 1'b0};
+    end
+    LOCK_S2: begin
+      RVALID_S = 1'b1;
+      {RREADY_S0, RREADY_S1, RREADY_S2} = {1'b0, 1'b0, READY_M};
+    end
+    LOCK_NO: begin 
+      RVALID_S = 0;
+      {RREADY_S0, RREADY_S1, RREADY_S2} = {1'b0, 1'b0, 1'b0};
+    end
+  endcase
+end
 
 // These variables are the latched value 
 logic [`AXI_IDS_BITS-1:0] RID_S_r;
