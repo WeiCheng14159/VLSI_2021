@@ -84,6 +84,7 @@ always_comb begin
       BVALID_M1 = BVALID_S;
     end
     MASTER_2: ;
+    MASTER_U: ;
   endcase
 end
 
