@@ -319,8 +319,6 @@ AWx AWx(
   .VALID_S2(AWVALID_DEFAULT)
 );
 
-write_data_arb_lock_t Wx_data_arb_lock;
-
 Wx Wx(
   .clk(ACLK),
   .rstn(ARESETn),
@@ -338,7 +336,6 @@ Wx Wx(
   .WREADY_S0(WREADY_S0),
   .AWVALID_S0(AWVALID_S0),
   .AWREADY_S0(AWREADY_S0),
-  .BVALID_S0(BVALID_S0),
     // Slave 1
   .WDATA_S1(WDATA_S1),
   .WSTRB_S1(WSTRB_S1),
@@ -347,7 +344,6 @@ Wx Wx(
   .WREADY_S1(WREADY_S1),
   .AWVALID_S1(AWVALID_S1),
   .AWREADY_S1(AWREADY_S1),
-  .BVALID_S1(BVALID_S1),
     // Slave 2
   .WDATA_S2(WDATA_DEFAULT),
   .WSTRB_S2(WSTRB_DEFAULT),
@@ -355,10 +351,7 @@ Wx Wx(
   .WVALID_S2(WVALID_DEFAULT),
   .WREADY_S2(WREADY_DEFAULT),
   .AWVALID_S2(AWVALID_DEFAULT),
-  .AWREADY_S2(AWREADY_DEFAULT),
-  .BVALID_S2(BVALID_DEFAULT),
-    // Data lock
-  .write_data_arb_lock(Wx_data_arb_lock)
+  .AWREADY_S2(AWREADY_DEFAULT)
 );
 
 Bx Bx(
@@ -383,9 +376,7 @@ Bx Bx(
   .BID_S2(BID_DEFAULT),
   .BRESP_S2(BRESP_DEFAULT),
   .BVALID_S2(BVALID_DEFAULT),
-  .BREADY_S2(BREADY_DEFAULT),
-    // Data lock
-  .write_data_arb_lock(Wx_data_arb_lock)
+  .BREADY_S2(BREADY_DEFAULT)
 );
 
 endmodule
