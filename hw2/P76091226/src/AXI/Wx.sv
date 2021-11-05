@@ -3,45 +3,45 @@
 module Wx
   import axi_pkg::*;
 (
-  input logic clk,
-  input logic rstn,
+  input logic                            clk,
+  input logic                            rstn,
     // Master 1
-  input logic [`AXI_DATA_BITS-1:0] WDATA_M1,
-  input logic [`AXI_STRB_BITS-1:0] WSTRB_M1,
-  input logic WLAST_M1,
-  input logic WVALID_M1,
-  output logic WREADY_M1,
+  input logic       [`AXI_DATA_BITS-1:0] WDATA_M1,
+  input logic       [`AXI_STRB_BITS-1:0] WSTRB_M1,
+  input logic                            WLAST_M1,
+  input logic                            WVALID_M1,
+  output logic                           WREADY_M1,
     // Slave 0
-  output logic [`AXI_DATA_BITS-1:0] WDATA_S0,
-  output logic [`AXI_STRB_BITS-1:0] WSTRB_S0,
-  output logic WLAST_S0,
-  output logic WVALID_S0,
-  input logic WREADY_S0,
-  input logic AWVALID_S0,
-  input logic AWREADY_S0,
+  output logic      [`AXI_DATA_BITS-1:0] WDATA_S0,
+  output logic      [`AXI_STRB_BITS-1:0] WSTRB_S0,
+  output logic                           WLAST_S0,
+  output logic                           WVALID_S0,
+  input logic                            WREADY_S0,
+  input logic                            AWVALID_S0,
+  input logic                            AWREADY_S0,
     // Slave 1
-  output logic [`AXI_DATA_BITS-1:0] WDATA_S1,
-  output logic [`AXI_STRB_BITS-1:0] WSTRB_S1,
-  output logic WLAST_S1,
-  output logic WVALID_S1,
-  input logic WREADY_S1,
-  input logic AWVALID_S1,
-  input logic AWREADY_S1,
+  output logic      [`AXI_DATA_BITS-1:0] WDATA_S1,
+  output logic      [`AXI_STRB_BITS-1:0] WSTRB_S1,
+  output logic                           WLAST_S1,
+  output logic                           WVALID_S1,
+  input logic                            WREADY_S1,
+  input logic                            AWVALID_S1,
+  input logic                            AWREADY_S1,
     // Slave 2
-  output logic [`AXI_DATA_BITS-1:0] WDATA_S2,
-  output logic [`AXI_STRB_BITS-1:0] WSTRB_S2,
-  output logic WLAST_S2,
-  output logic WVALID_S2,
-  input logic WREADY_S2,
-  input logic AWVALID_S2,
-  input logic AWREADY_S2
+  output logic      [`AXI_DATA_BITS-1:0] WDATA_S2,
+  output logic      [`AXI_STRB_BITS-1:0] WSTRB_S2,
+  output logic                           WLAST_S2,
+  output logic                           WVALID_S2,
+  input logic                            WREADY_S2,
+  input logic                            AWVALID_S2,
+  input logic                            AWREADY_S2
 );
 
-logic [`AXI_DATA_BITS-1:0] WDATA_M;
-logic [`AXI_STRB_BITS-1:0] WSTRB_M;
-logic WLAST_M;
-logic WVALID_M;
-logic WREADY_S;
+logic               [`AXI_DATA_BITS-1:0] WDATA_M;
+logic               [`AXI_STRB_BITS-1:0] WSTRB_M;
+logic                                    WLAST_M;
+logic                                    WVALID_M;
+logic                                    WREADY_S;
 
 data_arb_lock_t write_data_arb_lock, write_data_arb_lock_next;
 

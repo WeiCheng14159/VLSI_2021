@@ -3,8 +3,8 @@
 module ARx
   import axi_pkg::*;
 (
-  input logic clk,
-  input logic rstn,
+  input logic                           clk,
+  input logic                           rstn,
     // Master0 interface
   input logic        [`AXI_ID_BITS-1:0] ID_M0,
   input logic      [`AXI_ADDR_BITS-1:0] ADDR_M0,

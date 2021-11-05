@@ -3,50 +3,50 @@
 module AWx 
   import axi_pkg::*;
 (
-  input logic clk,
-  input logic rstn,
+  input logic                           clk,
+  input logic                           rstn,
     // Master 1 
-  input logic [`AXI_ID_BITS-1:0] ID_M1,
-  input logic [`AXI_ADDR_BITS-1:0] ADDR_M1,
-  input logic [`AXI_LEN_BITS-1:0] LEN_M1,
-  input logic [`AXI_SIZE_BITS-1:0] SIZE_M1,
-  input logic [1:0] BURST_M1,
-  input logic VALID_M1,
-  output logic READY_M1,
+  input logic        [`AXI_ID_BITS-1:0] ID_M1,
+  input logic      [`AXI_ADDR_BITS-1:0] ADDR_M1,
+  input logic       [`AXI_LEN_BITS-1:0] LEN_M1,
+  input logic      [`AXI_SIZE_BITS-1:0] SIZE_M1,
+  input logic                     [1:0] BURST_M1,
+  input logic                           VALID_M1,
+  output logic                          READY_M1,
     // Slave resp
-  input logic READY_S0,
-  input logic READY_S1,
-  input logic READY_S2,
+  input logic                           READY_S0,
+  input logic                           READY_S1,
+  input logic                           READY_S2,
     // Slave 0
-  output logic [`AXI_IDS_BITS-1:0] ID_S0,
-  output logic [`AXI_ADDR_BITS-1:0] ADDR_S0,
-  output logic [`AXI_LEN_BITS-1:0] LEN_S0,
-  output logic [`AXI_SIZE_BITS-1:0] SIZE_S0,
-  output logic [1:0] BURST_S0,
-  output logic VALID_S0,
+  output logic      [`AXI_IDS_BITS-1:0] ID_S0,
+  output logic     [`AXI_ADDR_BITS-1:0] ADDR_S0,
+  output logic      [`AXI_LEN_BITS-1:0] LEN_S0,
+  output logic     [`AXI_SIZE_BITS-1:0] SIZE_S0,
+  output logic                    [1:0] BURST_S0,
+  output logic                          VALID_S0,
     // Slave 1
-  output logic [`AXI_IDS_BITS-1:0] ID_S1,
-  output logic [`AXI_ADDR_BITS-1:0] ADDR_S1,
-  output logic [`AXI_LEN_BITS-1:0] LEN_S1,
-  output logic [`AXI_SIZE_BITS-1:0] SIZE_S1,
-  output logic [1:0] BURST_S1,
-  output logic VALID_S1,
+  output logic      [`AXI_IDS_BITS-1:0] ID_S1,
+  output logic     [`AXI_ADDR_BITS-1:0] ADDR_S1,
+  output logic      [`AXI_LEN_BITS-1:0] LEN_S1,
+  output logic     [`AXI_SIZE_BITS-1:0] SIZE_S1,
+  output logic                    [1:0] BURST_S1,
+  output logic                          VALID_S1,
     // Default Slave
-  output logic [`AXI_IDS_BITS-1:0] ID_S2,
-  output logic [`AXI_ADDR_BITS-1:0] ADDR_S2,
-  output logic [`AXI_LEN_BITS-1:0] LEN_S2,
-  output logic [`AXI_SIZE_BITS-1:0] SIZE_S2,
-  output logic [1:0] BURST_S2,
-  output logic VALID_S2
+  output logic      [`AXI_IDS_BITS-1:0] ID_S2,
+  output logic     [`AXI_ADDR_BITS-1:0] ADDR_S2,
+  output logic      [`AXI_LEN_BITS-1:0] LEN_S2,
+  output logic     [`AXI_SIZE_BITS-1:0] SIZE_S2,
+  output logic                    [1:0] BURST_S2,
+  output logic                          VALID_S2
 );
 
-logic [`AXI_IDS_BITS-1:0] ID_M;
-logic [`AXI_ADDR_BITS-1:0] ADDR_M;
-logic [`AXI_LEN_BITS-1:0 ] LEN_M;  
-logic [`AXI_SIZE_BITS-1:0] SIZE_M; 
-logic [1:0] BURST_M;               
-logic VALID_M;
-logic READY_from_slave;
+logic               [`AXI_IDS_BITS-1:0] ID_M;
+logic              [`AXI_ADDR_BITS-1:0] ADDR_M;
+logic              [`AXI_LEN_BITS-1:0 ] LEN_M;  
+logic              [`AXI_SIZE_BITS-1:0] SIZE_M; 
+logic                             [1:0] BURST_M;               
+logic                                   VALID_M;
+logic                                   READY_from_slave;
 
 addr_arb_lock_t addr_arb_lock, addr_arb_lock_next;
 
