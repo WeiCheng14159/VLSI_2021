@@ -82,7 +82,7 @@ interface AXI2CPU_interface ();
   );
 
   modport axi_ports (
-    /* Master 0 = MEM stage */
+    /* Master 1 = MEM stage */
     // AWx
     output AWREADY_M1,
     input AWID_M1, AWADDR_M1, AWLEN_M1, AWSIZE_M1, AWBURST_M1, AWVALID_M1,
@@ -98,7 +98,7 @@ interface AXI2CPU_interface ();
     // Rx
     output RID_M1, RDATA_M1, RRESP_M1, RLAST_M1, RVALID_M1,
     input RREADY_M1,
-    /* Master 1 = IF stage */
+    /* Master 0 = IF stage */
     // ARx
     output ARREADY_M0,
     input ARID_M0, ARADDR_M0, ARLEN_M0, ARSIZE_M0, ARBURST_M0, ARVALID_M0,
