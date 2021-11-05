@@ -55,7 +55,7 @@ package axi_pkg;
   } axi_master_id_t;
 
   typedef enum logic [2:0] {
-    LOCK_M0, LOCK_M1, LOCK_FREE
+    LOCK_M0, LOCK_M1, LOCK_M2, LOCK_FREE
   } addr_arb_lock_t;
   
   typedef enum logic [3:0] {

@@ -83,6 +83,15 @@ always_comb begin
 end // Next state (C)
 
 always_comb begin
+  // Default 
+  ID_M = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
+  ADDR_M = 0;
+  LEN_M = 0;
+  SIZE_M = 0;
+  BURST_M = 0;
+  VALID_M = 0;
+  {READY_M0, READY_M1} = {1'b0, 1'b0};
+  
   unique case(addr_arb_lock)
     LOCK_M0: begin
       ID_M = {AXI_MASTER_0_ID, ID_M0};
@@ -90,20 +99,29 @@ always_comb begin
       LEN_M = LEN_M0;
       SIZE_M = SIZE_M0;
       BURST_M = BURST_M0;
-      VALID_M = VALID_M0; // 1'b1
+      VALID_M = 1'b1; // 1'b1
       {READY_M0, READY_M1} = {READY_from_slave, 1'b0};
     end
     LOCK_M1: begin
-    ID_M = {AXI_MASTER_1_ID, ID_M1};
-    ADDR_M = ADDR_M1;
-    LEN_M = LEN_M1;
-    SIZE_M = SIZE_M1;
-    BURST_M = BURST_M1;
-    VALID_M = VALID_M1;
-    {READY_M0, READY_M1} = {1'b0, READY_from_slave};
+      ID_M = {AXI_MASTER_1_ID, ID_M1};
+      ADDR_M = ADDR_M1;
+      LEN_M = LEN_M1;
+      SIZE_M = SIZE_M1;
+      BURST_M = BURST_M1;
+      VALID_M = 1'b1;
+      {READY_M0, READY_M1} = {1'b0, READY_from_slave};
+    end
+    LOCK_M2: begin 
+      ID_M = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
+      ADDR_M = 0;
+      LEN_M = 0;
+      SIZE_M = 0;
+      BURST_M = 0;
+      VALID_M = 0;
+      {READY_M0, READY_M1} = {1'b0, 1'b0};
     end
     LOCK_FREE: begin 
-      ID_M = {AXI_MASTER_2_ID, 4'b0000};
+      ID_M = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
       ADDR_M = 0;
       LEN_M = 0;
       SIZE_M = 0;
