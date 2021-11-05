@@ -3,52 +3,52 @@
 module Rx
   import axi_pkg::*;
 (
-  input logic clk,
-  input logic rstn,
+  input logic                           clk,
+  input logic                           rstn,
     // Master 0 
-  output logic [`AXI_ID_BITS-1:0] RID_M0,
-  output logic [`AXI_DATA_BITS-1:0] RDATA_M0,
-  output logic [1:0] RRESP_M0,
-  output logic RLAST_M0,
-  output logic RVALID_M0,
-  input  logic RREADY_M0,
+  output logic       [`AXI_ID_BITS-1:0] RID_M0,
+  output logic     [`AXI_DATA_BITS-1:0] RDATA_M0,
+  output logic                    [1:0] RRESP_M0,
+  output logic                          RLAST_M0,
+  output logic                          RVALID_M0,
+  input  logic                          RREADY_M0,
     // Master 1
-  output logic [`AXI_ID_BITS-1:0] RID_M1,
-  output logic [`AXI_DATA_BITS-1:0] RDATA_M1,
-  output logic [1:0] RRESP_M1,
-  output logic RLAST_M1,
-  output logic RVALID_M1,
-  input logic RREADY_M1,
+  output logic       [`AXI_ID_BITS-1:0] RID_M1,
+  output logic     [`AXI_DATA_BITS-1:0] RDATA_M1,
+  output logic                    [1:0] RRESP_M1,
+  output logic                          RLAST_M1,
+  output logic                          RVALID_M1,
+  input logic                           RREADY_M1,
     // Slave 0
-  input logic [`AXI_IDS_BITS-1:0] RID_S0,
-  input logic [`AXI_DATA_BITS-1:0] RDATA_S0,
-  input logic [1:0] RRESP_S0,
-  input logic RLAST_S0,
-  input logic RVALID_S0,
-  output logic RREADY_S0,
+  input logic       [`AXI_IDS_BITS-1:0] RID_S0,
+  input logic      [`AXI_DATA_BITS-1:0] RDATA_S0,
+  input logic                     [1:0] RRESP_S0,
+  input logic                           RLAST_S0,
+  input logic                           RVALID_S0,
+  output logic                          RREADY_S0,
     // Slave 1
-  input logic [`AXI_IDS_BITS-1:0] RID_S1,
-  input logic [`AXI_DATA_BITS-1:0] RDATA_S1,
-  input logic [1:0] RRESP_S1,
-  input logic RLAST_S1,
-  input logic RVALID_S1,
-  output logic RREADY_S1,
+  input logic       [`AXI_IDS_BITS-1:0] RID_S1,
+  input logic      [`AXI_DATA_BITS-1:0] RDATA_S1,
+  input logic                     [1:0] RRESP_S1,
+  input logic                           RLAST_S1,
+  input logic                           RVALID_S1,
+  output logic                          RREADY_S1,
     // Slave 2
-  input logic [`AXI_IDS_BITS-1:0] RID_S2,
-  input logic [`AXI_DATA_BITS-1:0] RDATA_S2,
-  input logic [1:0] RRESP_S2,
-  input logic RLAST_S2,
-  input logic RVALID_S2,
-  output logic RREADY_S2
+  input logic       [`AXI_IDS_BITS-1:0] RID_S2,
+  input logic      [`AXI_DATA_BITS-1:0] RDATA_S2,
+  input logic                     [1:0] RRESP_S2,
+  input logic                           RLAST_S2,
+  input logic                           RVALID_S2,
+  output logic                          RREADY_S2
 );
 
-logic [`AXI_IDS_BITS-1:0] RID_S;
-logic [`AXI_DATA_BITS-1:0] RDATA_S;
-logic [1:0] RRESP_S;
-logic RLAST_S;
-logic RVALID_S;
+logic               [`AXI_IDS_BITS-1:0] RID_S;
+logic              [`AXI_DATA_BITS-1:0] RDATA_S;
+logic                             [1:0] RRESP_S;
+logic                                   RLAST_S;
+logic                                   RVALID_S;
 
-logic READY_M;
+logic                                   READY_M;
 
 data_arb_lock_t data_arb_lock, data_arb_lock_next;
 

@@ -3,34 +3,37 @@
 module Bx
   import axi_pkg::*;
 (
-  input logic clk,
-  input logic rstn,
+  input logic                           clk,
+  input logic                           rstn,
     // Master 0
-  output logic [`AXI_ID_BITS-1:0] BID_M1,
-  output logic [1:0] BRESP_M1,
-  output logic BVALID_M1,
-  input logic BREADY_M1,
+  output logic       [`AXI_ID_BITS-1:0] BID_M1,
+  output logic                    [1:0] BRESP_M1,
+  output logic                          BVALID_M1,
+  input logic                           BREADY_M1,
     // Slave 0
-  input logic [`AXI_IDS_BITS-1:0] BID_S0,
-  input logic [1:0] BRESP_S0,
-  input logic BVALID_S0,
-  output logic BREADY_S0,
+  input logic       [`AXI_IDS_BITS-1:0] BID_S0,
+  input logic                     [1:0] BRESP_S0,
+  input logic                           BVALID_S0,
+  output logic                          BREADY_S0,
     // Slave 1
-  input logic [`AXI_IDS_BITS-1:0] BID_S1,
-  input logic [1:0] BRESP_S1,
-  input logic BVALID_S1,
-  output logic BREADY_S1,
+  input logic       [`AXI_IDS_BITS-1:0] BID_S1,
+  input logic                     [1:0] BRESP_S1,
+  input logic                           BVALID_S1,
+  output logic                          BREADY_S1,
     // Slave 2
-  input logic [`AXI_IDS_BITS-1:0] BID_S2,
-  input logic [1:0] BRESP_S2,
-  input logic BVALID_S2,
-  output logic BREADY_S2
+  input logic       [`AXI_IDS_BITS-1:0] BID_S2,
+  input logic                     [1:0] BRESP_S2,
+  input logic                           BVALID_S2,
+  output logic                          BREADY_S2
 );
 
 logic [`AXI_IDS_BITS-1:0] BID_S;
 logic [1:0] BRESP_S;
 logic BVALID_S;
 logic BREADY_M;
+
+logic [`AXI_IDS_BITS-2:0] BID_S_r;
+logic [0:0] BRESP_S_r;
 
 assign BREADY_M = BREADY_M1;
 
@@ -84,8 +87,6 @@ always_comb begin
   endcase
 end
 
-logic [`AXI_IDS_BITS-1:0] BID_S_r;
-logic [1:0] BRESP_S_r;
 
 always_ff @(posedge clk, negedge rstn) begin
   if(!rstn) begin
