@@ -154,7 +154,7 @@ always_comb begin
 
   unique case(DATA_DECODER(RID_S_r))
     MASTER_0: begin
-      {RID_M0, RID_M1} = {RID_S_r, `AXI_ID_BITS'b0};
+      {RID_M0, RID_M1} = {RID_S_r[`AXI_IDS_BITS-1:`AXI_ID_BITS], `AXI_ID_BITS'b0 };
       {RDATA_M0, RDATA_M1} = {RDATA_S_r, `AXI_DATA_BITS'b0};
       {RRESP_M0, RRESP_M1} = {RRESP_S_r, 2'b0};
       {RLAST_M0, RLAST_M1} = {RLAST_S_r, 1'b0};
@@ -162,7 +162,7 @@ always_comb begin
       READY_M = RREADY_M0;
     end
     MASTER_1: begin
-      {RID_M0, RID_M1} = {`AXI_ID_BITS'b0, RID_S_r};
+      {RID_M0, RID_M1} = {`AXI_ID_BITS'b0, RID_S_r[`AXI_IDS_BITS-1:`AXI_ID_BITS]};
       {RDATA_M0, RDATA_M1} = {`AXI_DATA_BITS'b0, RDATA_S_r};
       {RRESP_M0, RRESP_M1} = {2'b0, RRESP_S_r};
       {RLAST_M0, RLAST_M1} = {1'b0, RLAST_S_r};
