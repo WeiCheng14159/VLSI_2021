@@ -1,3 +1,5 @@
+`ifndef SRAM_PKG_SV
+`define SRAM_PKG_SV
 package sram_pkg;
   localparam VERSION = "v1.0";
   localparam AUTHOR = "Wei Cheng";
@@ -15,3 +17,4 @@ package sram_pkg;
   localparam WEB_ENB = 1'b0, WEB_DIS = 1'b1;
 
 endpackage : sram_pkg
+`endif

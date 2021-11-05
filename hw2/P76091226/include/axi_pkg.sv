@@ -1,3 +1,6 @@
+`ifndef AXI_PKG_SV
+`define AXI_PKG_SV
+
 `include "AXI_define.svh"
 
 package axi_pkg;
@@ -98,3 +101,5 @@ package axi_pkg;
   endfunction
 
 endpackage : axi_pkg
+
+`endif
