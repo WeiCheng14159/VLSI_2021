@@ -124,7 +124,7 @@ always_comb begin
   unique case(DATA_DECODER(BID_S_r))
     MASTER_0: ;
     MASTER_1: begin
-      BID_M1 = BID_S_r[`AXI_IDS_BITS-1:4];
+      BID_M1 = BID_S_r[`AXI_ID_BITS-1:0];
       BRESP_M1 = BRESP_S_r;
       BVALID_M1 = BVALID_S;
     end
