@@ -164,10 +164,18 @@ module AWx
   assign slow_transaction = (addr_arb_lock == LOCK_M1);
   always_comb begin
     // Default
-    {ID_S0, ID_S1, ID_S2} = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
-    {ADDR_S0, ADDR_S1, ADDR_S2} = {`AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0};
-    {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0};
-    {SIZE_S0, SIZE_S1, SIZE_S2} = {`AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0};
+    {ID_S0, ID_S1, ID_S2} = {
+      `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0
+    };
+    {ADDR_S0, ADDR_S1, ADDR_S2} = {
+      `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
+    };
+    {LEN_S0, LEN_S1, LEN_S2} = {
+      `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0
+    };
+    {SIZE_S0, SIZE_S1, SIZE_S2} = {
+      `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
+    };
     {BURST_S0, BURST_S1, BURST_S2} = {2'b0, 2'b0, 2'b0};
     {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b0, 1'b0};
     READY_from_slave = 1'b0;
@@ -178,27 +186,45 @@ module AWx
       ))
         SLAVE_0: begin
           {ID_S0, ID_S1, ID_S2} = {ID_M, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
-          {ADDR_S0, ADDR_S1, ADDR_S2} = {ADDR_M, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0};
-          {LEN_S0, LEN_S1, LEN_S2} = {LEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0};
-          {SIZE_S0, SIZE_S1, SIZE_S2} = {SIZE_M, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0};
+          {ADDR_S0, ADDR_S1, ADDR_S2} = {
+            ADDR_M, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
+          };
+          {LEN_S0, LEN_S1, LEN_S2} = {
+            LEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0
+          };
+          {SIZE_S0, SIZE_S1, SIZE_S2} = {
+            SIZE_M, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
+          };
           {BURST_S0, BURST_S1, BURST_S2} = {BURST_M, 2'b0, 2'b0};
           {VALID_S0, VALID_S1, VALID_S2} = {VALID_M, 1'b0, 1'b0};
           READY_from_slave = READY_S0;
         end
         SLAVE_1: begin
           {ID_S0, ID_S1, ID_S2} = {`AXI_IDS_BITS'b0, ID_M, `AXI_IDS_BITS'b0};
-          {ADDR_S0, ADDR_S1, ADDR_S2} = {`AXI_ADDR_BITS'b0, ADDR_M, `AXI_ADDR_BITS'b0};
-          {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, LEN_M, `AXI_LEN_BITS'b0};
-          {SIZE_S0, SIZE_S1, SIZE_S2} = {`AXI_SIZE_BITS'b0, SIZE_M, `AXI_SIZE_BITS'b0};
+          {ADDR_S0, ADDR_S1, ADDR_S2} = {
+            `AXI_ADDR_BITS'b0, ADDR_M, `AXI_ADDR_BITS'b0
+          };
+          {LEN_S0, LEN_S1, LEN_S2} = {
+            `AXI_LEN_BITS'b0, LEN_M, `AXI_LEN_BITS'b0
+          };
+          {SIZE_S0, SIZE_S1, SIZE_S2} = {
+            `AXI_SIZE_BITS'b0, SIZE_M, `AXI_SIZE_BITS'b0
+          };
           {BURST_S0, BURST_S1, BURST_S2} = {2'b0, BURST_M, 2'b0};
           {VALID_S0, VALID_S1, VALID_S2} = {1'b0, VALID_M, 1'b0};
           READY_from_slave = READY_S1;
         end
         SLAVE_2: begin
           {ID_S0, ID_S1, ID_S2} = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, ID_M};
-          {ADDR_S0, ADDR_S1, ADDR_S2} = {`AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, ADDR_M};
-          {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, LEN_M};
-          {SIZE_S0, SIZE_S1, SIZE_S2} = {`AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, SIZE_M};
+          {ADDR_S0, ADDR_S1, ADDR_S2} = {
+            `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, ADDR_M
+          };
+          {LEN_S0, LEN_S1, LEN_S2} = {
+            `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, LEN_M
+          };
+          {SIZE_S0, SIZE_S1, SIZE_S2} = {
+            `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, SIZE_M
+          };
           {BURST_S0, BURST_S1, BURST_S2} = {2'b0, 2'b0, BURST_M};
           {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b0, VALID_M};
           READY_from_slave = READY_S2;
@@ -210,27 +236,45 @@ module AWx
       ))
         SLAVE_0: begin
           {ID_S0, ID_S1, ID_S2} = {ID_M_r, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
-          {ADDR_S0, ADDR_S1, ADDR_S2} = {ADDR_M_r, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0};
-          {LEN_S0, LEN_S1, LEN_S2} = {LEN_M_r, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0};
-          {SIZE_S0, SIZE_S1, SIZE_S2} = {SIZE_M_r, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0};
+          {ADDR_S0, ADDR_S1, ADDR_S2} = {
+            ADDR_M_r, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
+          };
+          {LEN_S0, LEN_S1, LEN_S2} = {
+            LEN_M_r, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0
+          };
+          {SIZE_S0, SIZE_S1, SIZE_S2} = {
+            SIZE_M_r, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
+          };
           {BURST_S0, BURST_S1, BURST_S2} = {BURST_M_r, 2'b0, 2'b0};
           {VALID_S0, VALID_S1, VALID_S2} = {1'b1, 1'b0, 1'b0};
           READY_from_slave = READY_S0;
         end
         SLAVE_1: begin
           {ID_S0, ID_S1, ID_S2} = {`AXI_IDS_BITS'b0, ID_M_r, `AXI_IDS_BITS'b0};
-          {ADDR_S0, ADDR_S1, ADDR_S2} = {`AXI_ADDR_BITS'b0, ADDR_M_r, `AXI_ADDR_BITS'b0};
-          {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, LEN_M_r, `AXI_LEN_BITS'b0};
-          {SIZE_S0, SIZE_S1, SIZE_S2} = {`AXI_SIZE_BITS'b0, SIZE_M_r, `AXI_SIZE_BITS'b0};
+          {ADDR_S0, ADDR_S1, ADDR_S2} = {
+            `AXI_ADDR_BITS'b0, ADDR_M_r, `AXI_ADDR_BITS'b0
+          };
+          {LEN_S0, LEN_S1, LEN_S2} = {
+            `AXI_LEN_BITS'b0, LEN_M_r, `AXI_LEN_BITS'b0
+          };
+          {SIZE_S0, SIZE_S1, SIZE_S2} = {
+            `AXI_SIZE_BITS'b0, SIZE_M_r, `AXI_SIZE_BITS'b0
+          };
           {BURST_S0, BURST_S1, BURST_S2} = {2'b0, BURST_M_r, 2'b0};
           {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b1, 1'b0};
           READY_from_slave = READY_S1;
         end
         SLAVE_2: begin
           {ID_S0, ID_S1, ID_S2} = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, ID_M_r};
-          {ADDR_S0, ADDR_S1, ADDR_S2} = {`AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, ADDR_M_r};
-          {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, LEN_M_r};
-          {SIZE_S0, SIZE_S1, SIZE_S2} = {`AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, SIZE_M_r};
+          {ADDR_S0, ADDR_S1, ADDR_S2} = {
+            `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, ADDR_M_r
+          };
+          {LEN_S0, LEN_S1, LEN_S2} = {
+            `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, LEN_M_r
+          };
+          {SIZE_S0, SIZE_S1, SIZE_S2} = {
+            `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, SIZE_M_r
+          };
           {BURST_S0, BURST_S1, BURST_S2} = {2'b0, 2'b0, BURST_M_r};
           {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b0, 1'b1};
           READY_from_slave = READY_S2;

@@ -75,15 +75,15 @@ module Bx
 
     unique case (data_arb_lock)
       LOCK_S0: begin
-        BVALID_S = 1'b1; // Value should hold
+        BVALID_S = 1'b1;  // Value should hold
         {BREADY_S0, BREADY_S1, BREADY_S2} = {BREADY_from_master, 1'b0, 1'b0};
       end
       LOCK_S1: begin
-        BVALID_S = 1'b1; // Value should hold
+        BVALID_S = 1'b1;  // Value should hold
         {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, BREADY_from_master, 1'b0};
       end
       LOCK_S2: begin
-        BVALID_S = 1'b1; // Value should hold
+        BVALID_S = 1'b1;  // Value should hold
         {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, 1'b0, BREADY_from_master};
       end
       LOCK_NO: begin

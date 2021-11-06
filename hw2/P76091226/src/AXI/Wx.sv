@@ -154,8 +154,12 @@ module Wx
   assign slow_transaction = (addr_arb_lock == LOCK_M1);
   always_comb begin
     // Default
-    {WDATA_S0, WDATA_S1, WDATA_S2} = {`AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0};
-    {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {`AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0};
+    {WDATA_S0, WDATA_S1, WDATA_S2} = {
+      `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0
+    };
+    {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
+      `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0
+    };
     {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, 1'b0};
     {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, 1'b0};
     WREADY_from_slave = 1'b0;
@@ -163,22 +167,34 @@ module Wx
     if (fast_transaction) begin
       unique case (AWx_slave_lock)
         LOCK_S0: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {WDATA_M, `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0};
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {WSTRB_M, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0};
+          {WDATA_S0, WDATA_S1, WDATA_S2} = {
+            WDATA_M, `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0
+          };
+          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
+            WSTRB_M, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0
+          };
           {WLAST_S0, WLAST_S1, WLAST_S2} = {WLAST_M, 1'b0, 1'b0};
           {WVALID_S0, WVALID_S1, WVALID_S2} = {WVALID_M, 1'b0, 1'b0};
           WREADY_from_slave = WREADY_S0;
         end
         LOCK_S1: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {`AXI_DATA_BITS'b0, WDATA_M, `AXI_DATA_BITS'b0};
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {`AXI_STRB_BITS'b0, WSTRB_M, `AXI_STRB_BITS'b0};
+          {WDATA_S0, WDATA_S1, WDATA_S2} = {
+            `AXI_DATA_BITS'b0, WDATA_M, `AXI_DATA_BITS'b0
+          };
+          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
+            `AXI_STRB_BITS'b0, WSTRB_M, `AXI_STRB_BITS'b0
+          };
           {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, WLAST_M, 1'b0};
           {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, WVALID_M, 1'b0};
           WREADY_from_slave = WREADY_S1;
         end
         LOCK_S2: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {`AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0, WDATA_M};
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {`AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, WSTRB_M};
+          {WDATA_S0, WDATA_S1, WDATA_S2} = {
+            `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0, WDATA_M
+          };
+          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
+            `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, WSTRB_M
+          };
           {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, WLAST_M};
           {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, WVALID_M};
           WREADY_from_slave = WREADY_S2;
@@ -188,22 +204,34 @@ module Wx
     end else if (slow_transaction) begin
       unique case (AWx_slave_lock_r)
         LOCK_S0: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {WDATA_M_r, `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0};
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {WSTRB_M_r, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0};
+          {WDATA_S0, WDATA_S1, WDATA_S2} = {
+            WDATA_M_r, `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0
+          };
+          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
+            WSTRB_M_r, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0
+          };
           {WLAST_S0, WLAST_S1, WLAST_S2} = {WLAST_M_r, 1'b0, 1'b0};
           {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b1, 1'b0, 1'b0};
           WREADY_from_slave = WREADY_S0;
         end
         LOCK_S1: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {`AXI_DATA_BITS'b0, WDATA_M_r, `AXI_DATA_BITS'b0};
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {`AXI_STRB_BITS'b0, WSTRB_M_r, `AXI_STRB_BITS'b0};
+          {WDATA_S0, WDATA_S1, WDATA_S2} = {
+            `AXI_DATA_BITS'b0, WDATA_M_r, `AXI_DATA_BITS'b0
+          };
+          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
+            `AXI_STRB_BITS'b0, WSTRB_M_r, `AXI_STRB_BITS'b0
+          };
           {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, WLAST_M_r, 1'b0};
           {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b1, 1'b0};
           WREADY_from_slave = WREADY_S1;
         end
         LOCK_S2: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {`AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0, WDATA_M_r};
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {`AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, WSTRB_M_r};
+          {WDATA_S0, WDATA_S1, WDATA_S2} = {
+            `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0, WDATA_M_r
+          };
+          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
+            `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, WSTRB_M_r
+          };
           {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, WLAST_M_r};
           {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, 1'b1};
           WREADY_from_slave = WREADY_S2;

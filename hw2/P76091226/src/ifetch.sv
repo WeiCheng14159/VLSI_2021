@@ -1,26 +1,26 @@
 `include "def.v"
-module ifetch(
-  input logic                           clk,
-  input logic                           rst,
+module ifetch (
+    input logic clk,
+    input logic rst,
 
-  input logic                           stallreq_from_im,
-  input logic          [`STAGE_NUM-1:0] stall,
-  input logic                           flush,
-  input logic                 [`RegBus] branch_target_addr_i,
-  input logic                           branch_taken_i,
-  input logic                 [`RegBus] new_pc_i,
-  input logic                [`InstBus] inst_i,
-  input logic                 [`RegBus] id_pc_i,
-  
-  output logic                [`RegBus] if_pc_o,
-  output logic                          inst_read_o,
-  output logic                [`RegBus] inst_addr_o,
-  output logic               [`InstBus] inst_o
+    input logic                  stallreq_from_im,
+    input logic [`STAGE_NUM-1:0] stall,
+    input logic                  flush,
+    input logic [       `RegBus] branch_target_addr_i,
+    input logic                  branch_taken_i,
+    input logic [       `RegBus] new_pc_i,
+    input logic [      `InstBus] inst_i,
+    input logic [       `RegBus] id_pc_i,
+
+    output logic [ `RegBus] if_pc_o,
+    output logic            inst_read_o,
+    output logic [ `RegBus] inst_addr_o,
+    output logic [`InstBus] inst_o
 );
 
-  logic                       [`RegBus] fetch_pc;
-  logic                [`STAGE_NUM-1:0] stall_prev;
-  logic                       [`RegBus] next_pc;
+  logic [       `RegBus]  fetch_pc;
+  logic [`STAGE_NUM-1:0 ] stall_prev;
+  logic [       `RegBus]  next_pc;
 
   assign inst_read_o = `ReadEnable;
   assign inst_addr_o = fetch_pc;
@@ -28,15 +28,13 @@ module ifetch(
 
   // stall_prev
   always_ff @(posedge clk, posedge rst) begin
-    if(rst)
-      stall_prev <= `STAGE_NUM'b0;
-    else
-      stall_prev <= stall;
+    if (rst) stall_prev <= `STAGE_NUM'b0;
+    else stall_prev <= stall;
   end
 
   // fetch_pc
   always_ff @(posedge clk, posedge rst) begin
-    if(rst) begin
+    if (rst) begin
       fetch_pc <= `StartAddr;
     end else begin
       fetch_pc <= (stallreq_from_im == `Stop) ? fetch_pc :
@@ -49,11 +47,10 @@ module ifetch(
 
   // if_pc_o
   always_ff @(posedge clk, posedge rst) begin
-    if(rst) begin
+    if (rst) begin
       if_pc_o <= `ZeroWord;
-   end else begin
-      if_pc_o <= (flush == `True) ? new_pc_i : 
-                 (stall[`IF_STAGE] == `Stop) ? `ZeroWord : fetch_pc;
+    end else begin
+      if_pc_o <= (flush == `True) ? new_pc_i : (stall[`IF_STAGE] == `Stop) ? `ZeroWord : fetch_pc;
     end
   end
 
