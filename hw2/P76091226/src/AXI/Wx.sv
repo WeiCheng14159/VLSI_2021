@@ -55,7 +55,7 @@ module Wx
   addr_arb_lock_t addr_arb_lock, addr_arb_lock_next;
 
   addr_arb_lock_t AWx_master_lock;
-  data_arb_lock_t AWx_slave_lock;
+  data_arb_lock_t AWx_slave_lock, AWx_slave_lock_r;
 
   // AWx channel lock to which slave
   always_comb begin
@@ -93,9 +93,9 @@ module Wx
     addr_arb_lock_next = LOCK_FREE;
     unique case (addr_arb_lock)
       LOCK_M0:   addr_arb_lock_next = LOCK_FREE;
-      LOCK_M1:   addr_arb_lock_next = (WREADY_S1) ? LOCK_FREE : LOCK_M1;
+      LOCK_M1:   addr_arb_lock_next = (WREADY_from_slave) ? LOCK_FREE : LOCK_M1;
       LOCK_M2:   addr_arb_lock_next = LOCK_FREE;
-      LOCK_FREE: addr_arb_lock_next = (WVALID_S1) ? LOCK_M1 : LOCK_FREE;
+      LOCK_FREE: addr_arb_lock_next = (WVALID_M1) ? LOCK_M1 : LOCK_FREE;
     endcase
   end  // Next state (C)
 
@@ -140,10 +140,12 @@ module Wx
       WDATA_M_r <= `AXI_DATA_BITS'b0;
       WSTRB_M_r <= `AXI_STRB_BITS'b0;
       WLAST_M_r <= 1'b0;
+      AWx_slave_lock_r <= LOCK_NO;
     end else if (addr_arb_lock == LOCK_FREE && addr_arb_lock_next == LOCK_M1) begin
       WDATA_M_r <= WDATA_M1;
       WSTRB_M_r <= WSTRB_M1;
       WLAST_M_r <= WLAST_M1;
+      AWx_slave_lock_r <= AWx_slave_lock;
     end
   end
 
@@ -184,7 +186,7 @@ module Wx
         LOCK_NO: ;
       endcase
     end else if (slow_transaction) begin
-      unique case (AWx_slave_lock)
+      unique case (AWx_slave_lock_r)
         LOCK_S0: begin
           {WDATA_S0, WDATA_S1, WDATA_S2} = {WDATA_M_r, `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0};
           {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {WSTRB_M_r, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0};
