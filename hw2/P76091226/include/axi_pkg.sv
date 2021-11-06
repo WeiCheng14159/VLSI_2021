@@ -65,10 +65,6 @@ package axi_pkg;
     LOCK_S0, LOCK_S1, LOCK_S2, LOCK_NO
   } data_arb_lock_t;
 
-  typedef enum logic [6:0] {
-    WLOCK_S0, WLOCK_S0_WVALID, WLOCK_S1, WLOCK_S1_WVALID, WLOCK_S2, WLOCK_S2_WVALID, WLOCK_NO
-  } write_data_arb_lock_t;
-
   // Address Decoder
   typedef enum logic [2:0] {
     SLAVE_0, SLAVE_1, SLAVE_2
