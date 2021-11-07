@@ -183,13 +183,13 @@ module ARx
       LEN_M_r <= 0;
       SIZE_M_r <= 0;
       BURST_M_r <= 0;
-    end else if (addr_arb_lock == LOCK_FREE && addr_arb_lock_next == LOCK_M0) begin
+    end else if (addr_arb_lock != LOCK_M0 && addr_arb_lock_next == LOCK_M0) begin
       ID_M_r <= {AXI_MASTER_0_ID, ID_M0};
       ADDR_M_r <= ADDR_M0;
       LEN_M_r <= LEN_M0;
       SIZE_M_r <= SIZE_M0;
       BURST_M_r <= BURST_M0;
-    end else if (addr_arb_lock == LOCK_FREE && addr_arb_lock_next == LOCK_M1) begin
+    end else if (addr_arb_lock != LOCK_M1 && addr_arb_lock_next == LOCK_M1) begin
       ID_M_r <= {AXI_MASTER_1_ID, ID_M1};
       ADDR_M_r <= ADDR_M1;
       LEN_M_r <= LEN_M1;

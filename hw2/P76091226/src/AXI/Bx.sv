@@ -132,27 +132,27 @@ module Bx
       unique case (DATA_DECODER(
           BID_S
       ))
-        MASTER_0: ;
-        MASTER_1: begin
+        AXI_MASTER_0_ID: ;
+        AXI_MASTER_1_ID: begin
           BID_M1 = BID_S[`AXI_ID_BITS-1:0];
           BRESP_M1 = BRESP_S;
           BVALID_M1 = BVALID_S;
         end
-        MASTER_2: ;
-        MASTER_U: ;
+        AXI_MASTER_2_ID: ;
+        AXI_MASTER_U_ID: ;
       endcase
     end else if (slow_transaction) begin
       unique case (DATA_DECODER(
           BID_S_r
       ))
-        MASTER_0: ;
-        MASTER_1: begin
+        AXI_MASTER_0_ID: ;
+        AXI_MASTER_1_ID: begin
           BID_M1 = BID_S_r[`AXI_ID_BITS-1:0];
           BRESP_M1 = BRESP_S_r;
           BVALID_M1 = 1'b1;
         end
-        MASTER_2: ;
-        MASTER_U: ;
+        AXI_MASTER_2_ID: ;
+        AXI_MASTER_U_ID: ;
       endcase
     end
   end

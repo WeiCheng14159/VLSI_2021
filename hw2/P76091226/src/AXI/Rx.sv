@@ -78,9 +78,9 @@ module Rx
       LOCK_S2:
       data_arb_lock_next = (READY_from_master) ? (RVALID_S0) ? LOCK_S0 : (RVALID_S1) ? LOCK_S1 : LOCK_NO : LOCK_S2;
       LOCK_NO: begin
-        if (RVALID_S0) data_arb_lock_next = LOCK_S0;
-        else if (RVALID_S1) data_arb_lock_next = LOCK_S1;
-        else if (RVALID_S2) data_arb_lock_next = LOCK_S2;
+        if (RVALID_S0) data_arb_lock_next =  (READY_from_master) ? LOCK_NO : LOCK_S0;
+        else if (RVALID_S1) data_arb_lock_next = (READY_from_master) ? LOCK_NO :LOCK_S1;
+        else if (RVALID_S2) data_arb_lock_next = (READY_from_master) ? LOCK_NO :LOCK_S2;
         else data_arb_lock_next = LOCK_NO;
       end
     endcase
@@ -157,17 +157,17 @@ module Rx
       RDATA_S_r <= 0;
       RRESP_S_r <= 0;
       RLAST_S_r <= 0;
-    end else if (data_arb_lock == LOCK_NO && data_arb_lock_next == LOCK_S0) begin
+    end else if (data_arb_lock != LOCK_S0 && data_arb_lock_next == LOCK_S0) begin
       RID_S_r   <= RID_S0;
       RDATA_S_r <= RDATA_S0;
       RRESP_S_r <= RRESP_S0;
       RLAST_S_r <= RLAST_S0;
-    end else if (data_arb_lock == LOCK_NO && data_arb_lock_next == LOCK_S1) begin
+    end else if (data_arb_lock != LOCK_S1 && data_arb_lock_next == LOCK_S1) begin
       RID_S_r   <= RID_S1;
       RDATA_S_r <= RDATA_S1;
       RRESP_S_r <= RRESP_S1;
       RLAST_S_r <= RLAST_S1;
-    end else if (data_arb_lock == LOCK_NO && data_arb_lock_next == LOCK_S2) begin
+    end else if (data_arb_lock != LOCK_S2 && data_arb_lock_next == LOCK_S2) begin
       RID_S_r   <= RID_S2;
       RDATA_S_r <= RDATA_S2;
       RRESP_S_r <= RRESP_S2;
@@ -192,7 +192,7 @@ module Rx
       unique case (DATA_DECODER(
           RID_S
       ))
-        MASTER_0: begin
+        AXI_MASTER_0_ID: begin
           {RID_M0, RID_M1} = {RID_S[`AXI_ID_BITS-1:0], `AXI_ID_BITS'b0};
           {RDATA_M0, RDATA_M1} = {RDATA_S, `AXI_DATA_BITS'b0};
           {RRESP_M0, RRESP_M1} = {RRESP_S, 2'b0};
@@ -200,7 +200,7 @@ module Rx
           {RVALID_M0, RVALID_M1} = {RVALID_S, 1'b0};
           READY_from_master = RREADY_M0;
         end
-        MASTER_1: begin
+        AXI_MASTER_1_ID: begin
           {RID_M0, RID_M1} = {`AXI_ID_BITS'b0, RID_S[`AXI_ID_BITS-1:0]};
           {RDATA_M0, RDATA_M1} = {`AXI_DATA_BITS'b0, RDATA_S};
           {RRESP_M0, RRESP_M1} = {2'b0, RRESP_S};
@@ -208,14 +208,14 @@ module Rx
           {RVALID_M0, RVALID_M1} = {1'b0, RVALID_S};
           READY_from_master = RREADY_M1;
         end
-        MASTER_2: ;
-        MASTER_U: ;
+        AXI_MASTER_2_ID: ;
+        AXI_MASTER_U_ID: ;
       endcase
     end else if (slow_transaction) begin  // Use latched value
       unique case (DATA_DECODER(
           RID_S_r
       ))
-        MASTER_0: begin
+        AXI_MASTER_0_ID: begin
           {RID_M0, RID_M1} = {RID_S_r[`AXI_ID_BITS-1:0], `AXI_ID_BITS'b0};
           {RDATA_M0, RDATA_M1} = {RDATA_S_r, `AXI_DATA_BITS'b0};
           {RRESP_M0, RRESP_M1} = {RRESP_S_r, 2'b0};
@@ -223,7 +223,7 @@ module Rx
           {RVALID_M0, RVALID_M1} = {1'b1, 1'b0};
           READY_from_master = RREADY_M0;
         end
-        MASTER_1: begin
+        AXI_MASTER_1_ID: begin
           {RID_M0, RID_M1} = {`AXI_ID_BITS'b0, RID_S_r[`AXI_ID_BITS-1:0]};
           {RDATA_M0, RDATA_M1} = {`AXI_DATA_BITS'b0, RDATA_S_r};
           {RRESP_M0, RRESP_M1} = {2'b0, RRESP_S_r};
@@ -231,8 +231,8 @@ module Rx
           {RVALID_M0, RVALID_M1} = {1'b0, 1'b1};
           READY_from_master = RREADY_M1;
         end
-        MASTER_2: ;
-        MASTER_U: ;
+        AXI_MASTER_2_ID: ;
+        AXI_MASTER_U_ID: ;
       endcase
     end
   end  // always_comb
