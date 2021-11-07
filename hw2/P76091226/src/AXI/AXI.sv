@@ -6,6 +6,7 @@
 //================================================
 `include "AXI_define.svh"
 `include "axi_pkg.sv"
+`include "default_slave.sv"
 `include "ARx.sv"
 `include "Rx.sv"
 `include "AWx.sv"
@@ -185,7 +186,41 @@ module AXI
   logic                      RVALID_DEFAULT;
   logic                      RREADY_DEFAULT;
 
-  // localparam EMPTY_ADDR = 32'h0, EMPTY_DATA = 32'h0;
+
+  default_slave default_slave0 (
+      .clk(ACLK),
+      .rst(ARESETn),  // Default Slave 
+      .ARID_DEFAULT(ARID_DEFAULT),
+      .ARADDR_DEFAULT(ARADDR_DEFAULT),
+      .ARLEN_DEFAULT(ARLEN_DEFAULT),
+      .ARSIZE_DEFAULT(ARSIZE_DEFAULT),
+      .ARBURST_DEFAULT(ARBURST_DEFAULT),
+      .ARVALID_DEFAULT(ARVALID_DEFAULT),
+      .ARREADY_DEFAULT(ARREADY_DEFAULT),
+      .AWID_DEFAULT(AWID_DEFAULT),
+      .AWADDR_DEFAULT(AWADDR_DEFAULT),
+      .AWLEN_DEFAULT(AWLEN_DEFAULT),
+      .AWSIZE_DEFAULT(AWSIZE_DEFAULT),
+      .AWBURST_DEFAULT(AWBURST_DEFAULT),
+      .AWVALID_DEFAULT(AWVALID_DEFAULT),
+      .AWREADY_DEFAULT(AWREADY_DEFAULT),
+      .BID_DEFAULT(BID_DEFAULT),
+      .BRESP_DEFAULT(BRESP_DEFAULT),
+      .BVALID_DEFAULT(BVALID_DEFAULT),
+      .BREADY_DEFAULT(BREADY_DEFAULT),
+      .RID_DEFAULT(RID_DEFAULT),
+      .RDATA_DEFAULT(RDATA_DEFAULT),
+      .RRESP_DEFAULT(RRESP_DEFAULT),
+      .RLAST_DEFAULT(RLAST_DEFAULT),
+      .RVALID_DEFAULT(RVALID_DEFAULT),
+      .RREADY_DEFAULT(RREADY_DEFAULT),
+      .WDATA_DEFAULT(WDATA_DEFAULT),
+      .WSTRB_DEFAULT(WSTRB_DEFAULT),
+      .WLAST_DEFAULT(WLAST_DEFAULT),
+      .WVALID_DEFAULT(WVALID_DEFAULT),
+      .WREADY_DEFAULT(WREADY_DEFAULT)
+  );
+
 
   // ARx
   ARx ARx (
