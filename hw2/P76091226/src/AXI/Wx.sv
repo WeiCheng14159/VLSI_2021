@@ -151,7 +151,8 @@ module Wx
 
   // Decoder
   assign fast_transaction = (addr_arb_lock == LOCK_FREE && WVALID_M1);
-  assign slow_transaction = (addr_arb_lock == LOCK_M1);
+  assign slow_transaction = (addr_arb_lock == LOCK_M1 && WVALID_M1);
+  
   always_comb begin
     // Default
     {WDATA_S0, WDATA_S1, WDATA_S2} = {
@@ -210,7 +211,7 @@ module Wx
           {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
             WSTRB_M_r, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0
           };
-          {WLAST_S0, WLAST_S1, WLAST_S2} = {WLAST_M_r, 1'b0, 1'b0};
+          {WLAST_S0, WLAST_S1, WLAST_S2} = {WLAST_M, 1'b0, 1'b0};
           {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b1, 1'b0, 1'b0};
           WREADY_from_slave = WREADY_S0;
         end
@@ -221,7 +222,7 @@ module Wx
           {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
             `AXI_STRB_BITS'b0, WSTRB_M_r, `AXI_STRB_BITS'b0
           };
-          {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, WLAST_M_r, 1'b0};
+          {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, WLAST_M, 1'b0};
           {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b1, 1'b0};
           WREADY_from_slave = WREADY_S1;
         end
@@ -232,7 +233,7 @@ module Wx
           {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
             `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, WSTRB_M_r
           };
-          {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, WLAST_M_r};
+          {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, WLAST_M};
           {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, 1'b1};
           WREADY_from_slave = WREADY_S2;
         end
