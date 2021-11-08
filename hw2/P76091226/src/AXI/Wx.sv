@@ -152,7 +152,7 @@ module Wx
   // Decoder
   assign fast_transaction = (addr_arb_lock == LOCK_FREE && WVALID_M1);
   assign slow_transaction = (addr_arb_lock == LOCK_M1 && WVALID_M1);
-  
+
   always_comb begin
     // Default
     {WDATA_S0, WDATA_S1, WDATA_S2} = {
