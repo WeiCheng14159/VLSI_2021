@@ -48,11 +48,11 @@ module default_slave
   assign RDATA_DEFAULT = `AXI_DATA_BITS'b0;
   //assign RLAST_DEFAULT = 1'b1;
 
-  logic [ `AXI_LEN_BITS-1:0] ARLEN_cnt;
+  logic [`AXI_LEN_BITS-1:0] ARLEN_cnt;
   assign RLAST_DEFAULT = (RVALID_DEFAULT && ARLEN_cnt == 0) ? 1'b1 : 1'b0;
-  
+
   always_ff @(posedge clk or negedge rst) begin
-    if(~rst) begin
+    if (~rst) begin
       ARLEN_cnt <= 0;
     end else begin
       ARLEN_cnt <= (ARREADY_DEFAULT & ARVALID_DEFAULT) ? ARLEN_DEFAULT : (RREADY_DEFAULT) ? (ARLEN_cnt - 1) : ARLEN_cnt;

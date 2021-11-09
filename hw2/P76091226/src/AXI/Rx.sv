@@ -78,9 +78,12 @@ module Rx
       LOCK_S2:
       data_arb_lock_next = (READY_from_master) ? (RVALID_S0) ? LOCK_S0 : (RVALID_S1) ? LOCK_S1 : LOCK_NO : LOCK_S2;
       LOCK_NO: begin
-        if (RVALID_S0) data_arb_lock_next =  (READY_from_master) ? LOCK_NO : LOCK_S0;
-        else if (RVALID_S1) data_arb_lock_next = (READY_from_master) ? LOCK_NO :LOCK_S1;
-        else if (RVALID_S2) data_arb_lock_next = (READY_from_master) ? LOCK_NO :LOCK_S2;
+        if (RVALID_S0)
+          data_arb_lock_next = (READY_from_master) ? LOCK_NO : LOCK_S0;
+        else if (RVALID_S1)
+          data_arb_lock_next = (READY_from_master) ? LOCK_NO : LOCK_S1;
+        else if (RVALID_S2)
+          data_arb_lock_next = (READY_from_master) ? LOCK_NO : LOCK_S2;
         else data_arb_lock_next = LOCK_NO;
       end
     endcase
