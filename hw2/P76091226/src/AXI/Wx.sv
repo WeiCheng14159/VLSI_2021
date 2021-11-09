@@ -54,8 +54,8 @@ module Wx
 
   addr_arb_lock_t addr_arb_lock, addr_arb_lock_next;
 
-  addr_arb_lock_t AWx_master_lock;
   data_arb_lock_t AWx_slave_lock, AWx_slave_lock_r;
+  data_arb_lock_t Wx_slave_lock;
 
   // AWx channel lock to which slave
   always_comb begin
@@ -70,17 +70,6 @@ module Wx
     endcase
   end
 
-  // AWx channel lock to which master
-  always_comb begin
-    AWx_master_lock = LOCK_FREE;
-    case ({
-      1'b0, AWVALID_M1
-    })
-      2'b01:   AWx_master_lock = LOCK_M1;
-      default: AWx_master_lock = LOCK_FREE;
-    endcase
-  end
-
   always_ff @(posedge clk, negedge rstn) begin
     if (!rstn) begin
       addr_arb_lock <= LOCK_FREE;
@@ -92,67 +81,31 @@ module Wx
   always_comb begin
     addr_arb_lock_next = LOCK_FREE;
     unique case (addr_arb_lock)
-      LOCK_M0:   addr_arb_lock_next = LOCK_FREE;
-      LOCK_M1:   addr_arb_lock_next = (WREADY_from_slave) ? LOCK_FREE : LOCK_M1;
-      LOCK_M2:   addr_arb_lock_next = LOCK_FREE;
-      LOCK_FREE: addr_arb_lock_next = (WVALID_M1) ? LOCK_M1 : LOCK_FREE;
+      LOCK_M1:   addr_arb_lock_next = (WREADY_from_slave && WLAST_M1) ? LOCK_FREE : LOCK_M1;
+      LOCK_FREE: addr_arb_lock_next = (WVALID_M1) ? (WREADY_from_slave && WLAST_M1) ? LOCK_FREE : LOCK_M1 : LOCK_FREE;
     endcase
   end  // Next state (C)
 
   // Arbiter
-  always_comb begin
-    WDATA_M   = `AXI_DATA_BITS'b0;
-    WSTRB_M   = `AXI_STRB_BITS'b0;
-    WLAST_M   = 1'b0;
-    WVALID_M  = 1'b0;
-    WREADY_M1 = 1'b0;
-
-    unique case (addr_arb_lock)
-      LOCK_M0: ;
-      LOCK_M1: begin
-        WDATA_M   = WDATA_M1;
-        WSTRB_M   = WSTRB_M1;
-        WLAST_M   = WLAST_M1;
-        WVALID_M  = 1'b1;  // Valid should hold
-        WREADY_M1 = WREADY_from_slave;
-      end
-      LOCK_M2: ;
-      LOCK_FREE: begin
-        unique case (AWx_master_lock)
-          LOCK_M0:   ;
-          LOCK_M1: begin
-            WDATA_M   = WDATA_M1;
-            WSTRB_M   = WSTRB_M1;
-            WLAST_M   = WLAST_M1;
-            WVALID_M  = WVALID_M1;
-            WREADY_M1 = WREADY_from_slave;
-          end
-          LOCK_M2:   ;
-          LOCK_FREE: ;
-        endcase
-      end
-    endcase
-  end
+  assign WDATA_M   = WDATA_M1;
+  assign WSTRB_M   = WSTRB_M1;
+  assign WLAST_M   = WLAST_M1;
+  assign WVALID_M  = WVALID_M1;  // Valid should hold
+  assign WREADY_M1 = WREADY_from_slave;
 
   // Latch data at the first rising edge after VALID_Mx is asserted
   always_ff @(posedge clk, negedge rstn) begin
     if (!rstn) begin
-      WDATA_M_r <= `AXI_DATA_BITS'b0;
-      WSTRB_M_r <= `AXI_STRB_BITS'b0;
-      WLAST_M_r <= 1'b0;
       AWx_slave_lock_r <= LOCK_NO;
-    end else if (addr_arb_lock == LOCK_FREE && addr_arb_lock_next == LOCK_M1) begin
-      WDATA_M_r <= WDATA_M1;
-      WSTRB_M_r <= WSTRB_M1;
-      WLAST_M_r <= WLAST_M1;
+    end else if (addr_arb_lock != LOCK_M1 && addr_arb_lock_next == LOCK_M1) begin
       AWx_slave_lock_r <= AWx_slave_lock;
     end
   end
 
   // Decoder
-  assign fast_transaction = (addr_arb_lock == LOCK_FREE && WVALID_M1);
-  assign slow_transaction = (addr_arb_lock == LOCK_M1 && WVALID_M1);
-
+  assign fast_transaction = WVALID_M1 & AWVALID_M1; 
+  assign slow_transaction = (addr_arb_lock == LOCK_M1);
+  assign Wx_slave_lock = (fast_transaction) ? AWx_slave_lock : (slow_transaction) ? AWx_slave_lock_r : LOCK_NO; 
   always_comb begin
     // Default
     {WDATA_S0, WDATA_S1, WDATA_S2} = {
@@ -165,81 +118,42 @@ module Wx
     {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, 1'b0};
     WREADY_from_slave = 1'b0;
 
-    if (fast_transaction) begin
-      unique case (AWx_slave_lock)
-        LOCK_S0: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {
-            WDATA_M, `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0
-          };
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
-            WSTRB_M, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0
-          };
-          {WLAST_S0, WLAST_S1, WLAST_S2} = {WLAST_M, 1'b0, 1'b0};
-          {WVALID_S0, WVALID_S1, WVALID_S2} = {WVALID_M, 1'b0, 1'b0};
-          WREADY_from_slave = WREADY_S0;
-        end
-        LOCK_S1: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {
-            `AXI_DATA_BITS'b0, WDATA_M, `AXI_DATA_BITS'b0
-          };
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
-            `AXI_STRB_BITS'b0, WSTRB_M, `AXI_STRB_BITS'b0
-          };
-          {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, WLAST_M, 1'b0};
-          {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, WVALID_M, 1'b0};
-          WREADY_from_slave = WREADY_S1;
-        end
-        LOCK_S2: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {
-            `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0, WDATA_M
-          };
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
-            `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, WSTRB_M
-          };
-          {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, WLAST_M};
-          {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, WVALID_M};
-          WREADY_from_slave = WREADY_S2;
-        end
-        LOCK_NO: ;
-      endcase
-    end else if (slow_transaction) begin
-      unique case (AWx_slave_lock_r)
-        LOCK_S0: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {
-            WDATA_M_r, `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0
-          };
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
-            WSTRB_M_r, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0
-          };
-          {WLAST_S0, WLAST_S1, WLAST_S2} = {WLAST_M, 1'b0, 1'b0};
-          {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b1, 1'b0, 1'b0};
-          WREADY_from_slave = WREADY_S0;
-        end
-        LOCK_S1: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {
-            `AXI_DATA_BITS'b0, WDATA_M_r, `AXI_DATA_BITS'b0
-          };
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
-            `AXI_STRB_BITS'b0, WSTRB_M_r, `AXI_STRB_BITS'b0
-          };
-          {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, WLAST_M, 1'b0};
-          {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b1, 1'b0};
-          WREADY_from_slave = WREADY_S1;
-        end
-        LOCK_S2: begin
-          {WDATA_S0, WDATA_S1, WDATA_S2} = {
-            `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0, WDATA_M_r
-          };
-          {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
-            `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, WSTRB_M_r
-          };
-          {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, WLAST_M};
-          {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, 1'b1};
-          WREADY_from_slave = WREADY_S2;
-        end
-        LOCK_NO: ;
-      endcase
-    end
+    unique case (Wx_slave_lock)
+      LOCK_S0: begin
+        {WDATA_S0, WDATA_S1, WDATA_S2} = {
+          WDATA_M, `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0
+        };
+        {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
+          WSTRB_M, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0
+        };
+        {WLAST_S0, WLAST_S1, WLAST_S2} = {WLAST_M, 1'b0, 1'b0};
+        {WVALID_S0, WVALID_S1, WVALID_S2} = {WVALID_M, 1'b0, 1'b0};
+        WREADY_from_slave = WREADY_S0;
+      end
+      LOCK_S1: begin
+        {WDATA_S0, WDATA_S1, WDATA_S2} = {
+          `AXI_DATA_BITS'b0, WDATA_M, `AXI_DATA_BITS'b0
+        };
+        {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
+          `AXI_STRB_BITS'b0, WSTRB_M, `AXI_STRB_BITS'b0
+        };
+        {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, WLAST_M, 1'b0};
+        {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, WVALID_M, 1'b0};
+        WREADY_from_slave = WREADY_S1;
+      end
+      LOCK_S2: begin
+        {WDATA_S0, WDATA_S1, WDATA_S2} = {
+          `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0, WDATA_M
+        };
+        {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
+          `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, WSTRB_M
+        };
+        {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, WLAST_M};
+        {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, WVALID_M};
+        WREADY_from_slave = WREADY_S2;
+      end
+      LOCK_NO: ;
+    endcase
   end
 
 endmodule
