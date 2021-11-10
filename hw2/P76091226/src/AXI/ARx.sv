@@ -13,6 +13,8 @@ module ARx
     input  logic [               1:0] BURST_M0,
     input  logic                      VALID_M0,
     output logic                      READY_M0,
+    input  logic                      RREADY_M0,
+    input  logic                      RLAST_M0,
     // Master1_interface
     input  logic [  `AXI_ID_BITS-1:0] ID_M1,
     input  logic [`AXI_ADDR_BITS-1:0] ADDR_M1,
@@ -21,6 +23,8 @@ module ARx
     input  logic [               1:0] BURST_M1,
     input  logic                      VALID_M1,
     output logic                      READY_M1,
+    input  logic                      RREADY_M1,
+    input  logic                      RLAST_M1,
     // Slave0 resp
     input  logic                      READY_S0,
     input  logic                      READY_S1,
@@ -63,6 +67,7 @@ module ARx
   logic                      READY_from_slave;
 
   logic lock_VALID_S0, lock_VALID_S1, lock_VALID_S2;
+  logic lock_READY_M0, lock_READY_M1;
   
   addr_arb_lock_t addr_arb_lock, addr_arb_lock_next;
 
@@ -108,6 +113,16 @@ module ARx
       lock_VALID_S2 <= (lock_VALID_S2) ? (RREADY_S2 & RLAST_S2) ? 1'b0 : 1'b1 : (VALID_S2 & READY_S2) ? 1'b1 : 1'b0; 
     end
   end
+ 
+  // Lock ARREADY (master) if there are outstanding requests
+  always_ff @(posedge clk, negedge rstn) begin
+    if(~rstn) begin
+      {lock_READY_M0, lock_READY_M1} <= 2'b0;
+    end else begin
+      lock_READY_M0 <= (lock_READY_M0) ? (RREADY_M0 & RLAST_M0) ? 1'b0 : 1'b1 : (VALID_M0 & READY_M0) ? 1'b1 : 1'b0; 
+      lock_READY_M1 <= (lock_READY_M1) ? (RREADY_M1 & RLAST_M1) ? 1'b0 : 1'b1 : (VALID_M1 & READY_M1) ? 1'b1 : 1'b0; 
+    end
+  end
   
   // Arbiter
   always_comb begin
@@ -128,7 +143,7 @@ module ARx
         SIZE_M = SIZE_M0;
         BURST_M = BURST_M0;
         VALID_M = VALID_M0;  // Valid should hold
-        {READY_M0, READY_M1} = {READY_from_slave, 1'b0};
+        {READY_M0, READY_M1} = {READY_from_slave & ~lock_READY_M0, 1'b0};
       end
       LOCK_M1: begin
         ID_M = {AXI_MASTER_1_ID, ID_M1};
@@ -137,7 +152,7 @@ module ARx
         SIZE_M = SIZE_M1;
         BURST_M = BURST_M1;
         VALID_M = VALID_M1;  // Valid should hold
-        {READY_M0, READY_M1} = {1'b0, READY_from_slave};
+        {READY_M0, READY_M1} = {1'b0, READY_from_slave & ~lock_READY_M1};
       end
       LOCK_M2: ;
       LOCK_FREE: begin
@@ -151,7 +166,7 @@ module ARx
             SIZE_M = SIZE_M0;
             BURST_M = BURST_M0;
             VALID_M = VALID_M0;
-            {READY_M0, READY_M1} = {READY_from_slave, 1'b0};
+            {READY_M0, READY_M1} = {READY_from_slave & ~lock_READY_M0, 1'b0};
           end
           2'b01: begin  // M1
             ID_M = {AXI_MASTER_1_ID, ID_M1};
@@ -160,7 +175,7 @@ module ARx
             SIZE_M = SIZE_M1;
             BURST_M = BURST_M1;
             VALID_M = VALID_M1;
-            {READY_M0, READY_M1} = {1'b0, READY_from_slave};
+            {READY_M0, READY_M1} = {1'b0, READY_from_slave & ~lock_READY_M1};
           end
           2'b10: begin  // M0
             ID_M = {AXI_MASTER_0_ID, ID_M0};
@@ -169,7 +184,7 @@ module ARx
             SIZE_M = SIZE_M0;
             BURST_M = BURST_M0;
             VALID_M = VALID_M0;
-            {READY_M0, READY_M1} = {READY_from_slave, 1'b0};
+            {READY_M0, READY_M1} = {READY_from_slave & ~lock_READY_M0, 1'b0};
           end
           default: ;
         endcase

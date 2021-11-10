@@ -234,6 +234,8 @@ module AXI
       .BURST_M0(ARBURST_M0),
       .VALID_M0(ARVALID_M0),
       .READY_M0(ARREADY_M0),
+      .RREADY_M0(RREADY_M0),
+      .RLAST_M0(RLAST_M0),
       // Master 1
       .ID_M1(ARID_M1),
       .ADDR_M1(ARADDR_M1),
@@ -242,6 +244,8 @@ module AXI
       .BURST_M1(ARBURST_M1),
       .VALID_M1(ARVALID_M1),
       .READY_M1(ARREADY_M1),
+      .RREADY_M1(RREADY_M1),
+      .RLAST_M1(RLAST_M1),
       // Slave resp
       .READY_S0(ARREADY_S0),
       .READY_S1(ARREADY_S1),
