@@ -332,6 +332,8 @@ module AXI
       .BURST_M1(AWBURST_M1),
       .VALID_M1(AWVALID_M1),
       .READY_M1(AWREADY_M1),
+      .BREADY_M1(BREADY_M1),
+      .BVALID_M1(BVALID_M1),
       // Slave resp
       .READY_S0(AWREADY_S0),
       .READY_S1(AWREADY_S1),

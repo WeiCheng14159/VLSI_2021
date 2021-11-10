@@ -13,6 +13,8 @@ module AWx
     input  logic [               1:0] BURST_M1,
     input  logic                      VALID_M1,
     output logic                      READY_M1,
+    input logic                       BREADY_M1,
+    input logic                       BVALID_M1,
     // Slave resp
     input  logic                      READY_S0,
     input  logic                      READY_S1,
@@ -62,13 +64,22 @@ module AWx
   always_comb begin
     addr_arb_lock_next = LOCK_FREE;
     unique case (addr_arb_lock)
-      LOCK_M0:
-      addr_arb_lock_next = (READY_from_slave) ? ((VALID_M1) ? LOCK_M1 : LOCK_FREE) : LOCK_M0;
+      LOCK_M0: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0;
       LOCK_M1: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M1;
       LOCK_M2: addr_arb_lock_next = LOCK_FREE;
       LOCK_FREE: addr_arb_lock_next = (VALID_M1) ? LOCK_M1 : LOCK_FREE;
     endcase
   end  // Next state (C)
+ 
+  // Lock AWREADY (master) if there are outstanding requests
+  logic lock_AWREADY_M1;
+  always_ff @(posedge clk, negedge rstn) begin
+    if(~rstn) begin
+      lock_AWREADY_M1 <= 1'b0;
+    end else begin
+      lock_AWREADY_M1 <= (lock_AWREADY_M1) ? (BREADY_M1 & BVALID_M1) ? 1'b0 : 1'b1 : (VALID_M1 & READY_M1) ? 1'b1 : 1'b0; 
+    end
+  end
 
   // Arbiter
   always_comb begin
@@ -89,7 +100,7 @@ module AWx
         SIZE_M = SIZE_M1;
         BURST_M = BURST_M1;
         VALID_M = VALID_M1;  // Valid should hold
-        READY_M1 = READY_from_slave;
+        READY_M1 = READY_from_slave & ~lock_AWREADY_M1;
       end
       LOCK_M2: ;
       LOCK_FREE: begin
@@ -103,7 +114,7 @@ module AWx
             SIZE_M = SIZE_M1;
             BURST_M = BURST_M1;
             VALID_M = VALID_M1;
-            READY_M1 = READY_from_slave;
+            READY_M1 = READY_from_slave & ~lock_AWREADY_M1;
           end
           default: ;
         endcase
