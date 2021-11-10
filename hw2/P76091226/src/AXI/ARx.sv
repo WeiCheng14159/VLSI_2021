@@ -32,6 +32,8 @@ module ARx
     output logic [`AXI_SIZE_BITS-1:0] SIZE_S0,
     output logic [               1:0] BURST_S0,
     output logic                      VALID_S0,
+    input  logic                      RLAST_S0,
+    input  logic                      RREADY_S0,
     // Slave1
     output logic [ `AXI_IDS_BITS-1:0] ID_S1,
     output logic [`AXI_ADDR_BITS-1:0] ADDR_S1,
@@ -39,13 +41,17 @@ module ARx
     output logic [`AXI_SIZE_BITS-1:0] SIZE_S1,
     output logic [               1:0] BURST_S1,
     output logic                      VALID_S1,
+    input  logic                      RLAST_S1,
+    input  logic                      RREADY_S1,
     // Default Slave
     output logic [ `AXI_IDS_BITS-1:0] ID_S2,
     output logic [`AXI_ADDR_BITS-1:0] ADDR_S2,
     output logic [ `AXI_LEN_BITS-1:0] LEN_S2,
     output logic [`AXI_SIZE_BITS-1:0] SIZE_S2,
     output logic [               1:0] BURST_S2,
-    output logic                      VALID_S2
+    output logic                      VALID_S2,
+    input  logic                      RLAST_S2,
+    input  logic                      RREADY_S2
 );
 
   logic [ `AXI_IDS_BITS-1:0] ID_M;
@@ -56,6 +62,8 @@ module ARx
   logic                      VALID_M;
   logic                      READY_from_slave;
 
+  logic lock_VALID_S0, lock_VALID_S1, lock_VALID_S2;
+  
   addr_arb_lock_t addr_arb_lock, addr_arb_lock_next;
 
   always_ff @(posedge clk, negedge rstn) begin
@@ -71,25 +79,36 @@ module ARx
     addr_arb_lock_next = LOCK_FREE;
     unique case (addr_arb_lock)
       LOCK_M0:
-      addr_arb_lock_next = (READY_from_slave) ? (VALID_M1) ? LOCK_M1 : LOCK_FREE : LOCK_M0;
+      addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0;
       LOCK_M1:
-      addr_arb_lock_next = (READY_from_slave) ? (VALID_M0) ? LOCK_M0 : LOCK_FREE : LOCK_M1;
+      addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M1;
       LOCK_M2: ;
       LOCK_FREE: begin
         case ({
           VALID_M0, VALID_M1
         })
           2'b11:
-          addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0;  // M0 has higher priority
-          2'b01: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M1;
-          2'b10: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0;
+          addr_arb_lock_next        = LOCK_M0;  // M0 has higher priority
+          2'b01: addr_arb_lock_next = LOCK_M1;
+          2'b10: addr_arb_lock_next = LOCK_M0;
           default: addr_arb_lock_next = LOCK_FREE;
         endcase
       end
       default: ;
     endcase
   end  // Next state (C)
-
+  
+  // Lock ARVALID (slave) if there are outstanding requests
+  always_ff @(posedge clk, negedge rstn) begin
+    if(~rstn) begin
+      {lock_VALID_S0, lock_VALID_S1, lock_VALID_S2} <= 3'b0;
+    end else begin
+      lock_VALID_S0 <= (lock_VALID_S0) ? (RREADY_S0 & RLAST_S0) ? 1'b0 : 1'b1 : (VALID_S0 & READY_S0) ? 1'b1 : 1'b0; 
+      lock_VALID_S1 <= (lock_VALID_S1) ? (RREADY_S1 & RLAST_S1) ? 1'b0 : 1'b1 : (VALID_S1 & READY_S1) ? 1'b1 : 1'b0; 
+      lock_VALID_S2 <= (lock_VALID_S2) ? (RREADY_S2 & RLAST_S2) ? 1'b0 : 1'b1 : (VALID_S2 & READY_S2) ? 1'b1 : 1'b0; 
+    end
+  end
+  
   // Arbiter
   always_comb begin
     // Default
@@ -192,7 +211,7 @@ module ARx
           SIZE_M, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
         };
         {BURST_S0, BURST_S1, BURST_S2} = {BURST_M, 2'b0, 2'b0};
-        {VALID_S0, VALID_S1, VALID_S2} = {VALID_M, 1'b0, 1'b0};
+        {VALID_S0, VALID_S1, VALID_S2} = {VALID_M & ~lock_VALID_S0, 1'b0, 1'b0};
         READY_from_slave = READY_S0;
       end
       SLAVE_1: begin
@@ -207,7 +226,7 @@ module ARx
           `AXI_SIZE_BITS'b0, SIZE_M, `AXI_SIZE_BITS'b0
         };
         {BURST_S0, BURST_S1, BURST_S2} = {2'b0, BURST_M, 2'b0};
-        {VALID_S0, VALID_S1, VALID_S2} = {1'b0, VALID_M, 1'b0};
+        {VALID_S0, VALID_S1, VALID_S2} = {1'b0, VALID_M & ~lock_VALID_S1, 1'b0};
         READY_from_slave = READY_S1;
       end
       SLAVE_2: begin
@@ -222,7 +241,7 @@ module ARx
           `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, SIZE_M
         };
         {BURST_S0, BURST_S1, BURST_S2} = {2'b0, 2'b0, BURST_M};
-        {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b0, VALID_M};
+        {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b0, VALID_M & ~lock_VALID_S2};
         READY_from_slave = READY_S2;
       end
       LOCK_NO: ;

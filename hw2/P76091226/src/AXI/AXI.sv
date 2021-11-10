@@ -253,6 +253,8 @@ module AXI
       .SIZE_S0(ARSIZE_S0),
       .BURST_S0(ARBURST_S0),
       .VALID_S0(ARVALID_S0),
+      .RLAST_S0(RLAST_S0),
+      .RREADY_S0(RREADY_S0),
       // Slave 1
       .ID_S1(ARID_S1),
       .ADDR_S1(ARADDR_S1),
@@ -260,13 +262,17 @@ module AXI
       .SIZE_S1(ARSIZE_S1),
       .BURST_S1(ARBURST_S1),
       .VALID_S1(ARVALID_S1),
+      .RLAST_S1(RLAST_S1),
+      .RREADY_S1(RREADY_S1),
       // Default Slave 
       .ID_S2(ARID_DEFAULT),
       .ADDR_S2(ARADDR_DEFAULT),
       .LEN_S2(ARLEN_DEFAULT),
       .SIZE_S2(ARSIZE_DEFAULT),
       .BURST_S2(ARBURST_DEFAULT),
-      .VALID_S2(ARVALID_DEFAULT)
+      .VALID_S2(ARVALID_DEFAULT),
+      .RLAST_S2(RLAST_DEFAULT),
+      .RREADY_S2(RREADY_DEFAULT)
   );
 
   // Rx
