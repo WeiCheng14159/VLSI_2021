@@ -68,7 +68,7 @@ module ARx
 
   logic lock_VALID_S0, lock_VALID_S1, lock_VALID_S2;
   logic lock_READY_M0, lock_READY_M1;
-  
+
   addr_arb_lock_t addr_arb_lock, addr_arb_lock_next;
 
   always_ff @(posedge clk, negedge rstn) begin
@@ -83,47 +83,44 @@ module ARx
   always_comb begin
     addr_arb_lock_next = LOCK_FREE;
     unique case (addr_arb_lock)
-      LOCK_M0:
-      addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0;
-      LOCK_M1:
-      addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M1;
+      LOCK_M0: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0;
+      LOCK_M1: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M1;
       LOCK_M2: ;
       LOCK_FREE: begin
         case ({
           VALID_M0, VALID_M1
         })
-          2'b11:
-          addr_arb_lock_next        = LOCK_M0;  // M0 has higher priority
-          2'b01: addr_arb_lock_next = LOCK_M1;
-          2'b10: addr_arb_lock_next = LOCK_M0;
+          2'b11:   addr_arb_lock_next = LOCK_M0;  // M0 has higher priority
+          2'b01:   addr_arb_lock_next = LOCK_M1;
+          2'b10:   addr_arb_lock_next = LOCK_M0;
           default: addr_arb_lock_next = LOCK_FREE;
         endcase
       end
       default: ;
     endcase
   end  // Next state (C)
-  
+
   // Lock ARVALID (slave) if there are outstanding requests
   always_ff @(posedge clk, negedge rstn) begin
-    if(~rstn) begin
+    if (~rstn) begin
       {lock_VALID_S0, lock_VALID_S1, lock_VALID_S2} <= 3'b0;
     end else begin
-      lock_VALID_S0 <= (lock_VALID_S0) ? (RREADY_S0 & RLAST_S0) ? 1'b0 : 1'b1 : (VALID_S0 & READY_S0) ? 1'b1 : 1'b0; 
-      lock_VALID_S1 <= (lock_VALID_S1) ? (RREADY_S1 & RLAST_S1) ? 1'b0 : 1'b1 : (VALID_S1 & READY_S1) ? 1'b1 : 1'b0; 
-      lock_VALID_S2 <= (lock_VALID_S2) ? (RREADY_S2 & RLAST_S2) ? 1'b0 : 1'b1 : (VALID_S2 & READY_S2) ? 1'b1 : 1'b0; 
+      lock_VALID_S0 <= (lock_VALID_S0) ? (RREADY_S0 & RLAST_S0) ? 1'b0 : 1'b1 : (VALID_S0 & READY_S0) ? 1'b1 : 1'b0;
+      lock_VALID_S1 <= (lock_VALID_S1) ? (RREADY_S1 & RLAST_S1) ? 1'b0 : 1'b1 : (VALID_S1 & READY_S1) ? 1'b1 : 1'b0;
+      lock_VALID_S2 <= (lock_VALID_S2) ? (RREADY_S2 & RLAST_S2) ? 1'b0 : 1'b1 : (VALID_S2 & READY_S2) ? 1'b1 : 1'b0;
     end
   end
- 
+
   // Lock ARREADY (master) if there are outstanding requests
   always_ff @(posedge clk, negedge rstn) begin
-    if(~rstn) begin
+    if (~rstn) begin
       {lock_READY_M0, lock_READY_M1} <= 2'b0;
     end else begin
-      lock_READY_M0 <= (lock_READY_M0) ? (RREADY_M0 & RLAST_M0) ? 1'b0 : 1'b1 : (VALID_M0 & READY_M0) ? 1'b1 : 1'b0; 
-      lock_READY_M1 <= (lock_READY_M1) ? (RREADY_M1 & RLAST_M1) ? 1'b0 : 1'b1 : (VALID_M1 & READY_M1) ? 1'b1 : 1'b0; 
+      lock_READY_M0 <= (lock_READY_M0) ? (RREADY_M0 & RLAST_M0) ? 1'b0 : 1'b1 : (VALID_M0 & READY_M0) ? 1'b1 : 1'b0;
+      lock_READY_M1 <= (lock_READY_M1) ? (RREADY_M1 & RLAST_M1) ? 1'b0 : 1'b1 : (VALID_M1 & READY_M1) ? 1'b1 : 1'b0;
     end
   end
-  
+
   // Arbiter
   always_comb begin
     // Default
@@ -219,9 +216,7 @@ module ARx
         {ADDR_S0, ADDR_S1, ADDR_S2} = {
           ADDR_M, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {
-          LEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0
-        };
+        {LEN_S0, LEN_S1, LEN_S2} = {LEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0};
         {SIZE_S0, SIZE_S1, SIZE_S2} = {
           SIZE_M, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
         };
@@ -234,9 +229,7 @@ module ARx
         {ADDR_S0, ADDR_S1, ADDR_S2} = {
           `AXI_ADDR_BITS'b0, ADDR_M, `AXI_ADDR_BITS'b0
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {
-          `AXI_LEN_BITS'b0, LEN_M, `AXI_LEN_BITS'b0
-        };
+        {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, LEN_M, `AXI_LEN_BITS'b0};
         {SIZE_S0, SIZE_S1, SIZE_S2} = {
           `AXI_SIZE_BITS'b0, SIZE_M, `AXI_SIZE_BITS'b0
         };
@@ -249,9 +242,7 @@ module ARx
         {ADDR_S0, ADDR_S1, ADDR_S2} = {
           `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, ADDR_M
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {
-          `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, LEN_M
-        };
+        {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, LEN_M};
         {SIZE_S0, SIZE_S1, SIZE_S2} = {
           `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, SIZE_M
         };

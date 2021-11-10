@@ -53,9 +53,12 @@ module Bx
       LOCK_S2:
       data_arb_lock_next = (BREADY_from_master) ? (BVALID_S0) ? LOCK_S0 : (BVALID_S1) ? LOCK_S1 : LOCK_NO : LOCK_S2;
       LOCK_NO: begin
-        if (BVALID_S0)      data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S0;
-        else if (BVALID_S1) data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S1;
-        else if (BVALID_S2) data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S2;
+        if (BVALID_S0)
+          data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S0;
+        else if (BVALID_S1)
+          data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S1;
+        else if (BVALID_S2)
+          data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S2;
         else data_arb_lock_next = LOCK_NO;
       end
     endcase
@@ -65,43 +68,43 @@ module Bx
   always_comb begin
     // Default
     BVALID_S = 1'b0;
-    BID_S = 0; 
+    BID_S = 0;
     BRESP_S = `AXI_RESP_SLVERR;
     {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, 1'b0, 1'b0};
 
     unique case (data_arb_lock)
       LOCK_S0: begin
         BVALID_S = BVALID_S0;
-        BID_S = BID_S0; 
+        BID_S = BID_S0;
         BRESP_S = BRESP_S0;
         {BREADY_S0, BREADY_S1, BREADY_S2} = {BREADY_from_master, 1'b0, 1'b0};
       end
       LOCK_S1: begin
         BVALID_S = BVALID_S1;
-        BID_S = BID_S1; 
+        BID_S = BID_S1;
         BRESP_S = BRESP_S1;
         {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, BREADY_from_master, 1'b0};
       end
       LOCK_S2: begin
         BVALID_S = BVALID_S2;
-        BID_S = BID_S2; 
+        BID_S = BID_S2;
         BRESP_S = BRESP_S2;
         {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, 1'b0, BREADY_from_master};
       end
       LOCK_NO: begin
         if (BVALID_S0) begin
           BVALID_S = BVALID_S0;
-          BID_S = BID_S0; 
+          BID_S = BID_S0;
           BRESP_S = BRESP_S0;
           {BREADY_S0, BREADY_S1, BREADY_S2} = {BREADY_from_master, 1'b0, 1'b0};
         end else if (BVALID_S1) begin
           BVALID_S = BVALID_S1;
-          BID_S = BID_S1; 
+          BID_S = BID_S1;
           BRESP_S = BRESP_S1;
           {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, BREADY_from_master, 1'b0};
         end else if (BVALID_S2) begin
           BVALID_S = BVALID_S2;
-          BID_S = BID_S2; 
+          BID_S = BID_S2;
           BRESP_S = BRESP_S2;
           {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, 1'b0, BREADY_from_master};
         end else begin

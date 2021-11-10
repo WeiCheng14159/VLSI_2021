@@ -81,8 +81,10 @@ module Wx
   always_comb begin
     addr_arb_lock_next = LOCK_FREE;
     unique case (addr_arb_lock)
-      LOCK_M1:   addr_arb_lock_next = (WREADY_from_slave && WLAST_M1) ? LOCK_FREE : LOCK_M1;
-      LOCK_FREE: addr_arb_lock_next = (WVALID_M1) ? (WREADY_from_slave && WLAST_M1) ? LOCK_FREE : LOCK_M1 : LOCK_FREE;
+      LOCK_M1:
+      addr_arb_lock_next = (WREADY_from_slave && WLAST_M1) ? LOCK_FREE : LOCK_M1;
+      LOCK_FREE:
+      addr_arb_lock_next = (WVALID_M1) ? (WREADY_from_slave && WLAST_M1) ? LOCK_FREE : LOCK_M1 : LOCK_FREE;
     endcase
   end  // Next state (C)
 
@@ -103,9 +105,9 @@ module Wx
   end
 
   // Decoder
-  assign fast_transaction = WVALID_M1 & AWVALID_M1; 
+  assign fast_transaction = WVALID_M1 & AWVALID_M1;
   assign slow_transaction = (addr_arb_lock == LOCK_M1);
-  assign Wx_slave_lock = (fast_transaction) ? AWx_slave_lock : (slow_transaction) ? AWx_slave_lock_r : LOCK_NO; 
+  assign Wx_slave_lock = (fast_transaction) ? AWx_slave_lock : (slow_transaction) ? AWx_slave_lock_r : LOCK_NO;
   always_comb begin
     // Default
     {WDATA_S0, WDATA_S1, WDATA_S2} = {

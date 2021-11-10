@@ -13,8 +13,8 @@ module AWx
     input  logic [               1:0] BURST_M1,
     input  logic                      VALID_M1,
     output logic                      READY_M1,
-    input logic                       BREADY_M1,
-    input logic                       BVALID_M1,
+    input  logic                      BREADY_M1,
+    input  logic                      BVALID_M1,
     // Slave resp
     input  logic                      READY_S0,
     input  logic                      READY_S1,
@@ -64,20 +64,20 @@ module AWx
   always_comb begin
     addr_arb_lock_next = LOCK_FREE;
     unique case (addr_arb_lock)
-      LOCK_M0: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0;
-      LOCK_M1: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M1;
-      LOCK_M2: addr_arb_lock_next = LOCK_FREE;
+      LOCK_M0:   addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0;
+      LOCK_M1:   addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M1;
+      LOCK_M2:   addr_arb_lock_next = LOCK_FREE;
       LOCK_FREE: addr_arb_lock_next = (VALID_M1) ? LOCK_M1 : LOCK_FREE;
     endcase
   end  // Next state (C)
- 
+
   // Lock AWREADY (master) if there are outstanding requests
   logic lock_AWREADY_M1;
   always_ff @(posedge clk, negedge rstn) begin
-    if(~rstn) begin
+    if (~rstn) begin
       lock_AWREADY_M1 <= 1'b0;
     end else begin
-      lock_AWREADY_M1 <= (lock_AWREADY_M1) ? (BREADY_M1 & BVALID_M1) ? 1'b0 : 1'b1 : (VALID_M1 & READY_M1) ? 1'b1 : 1'b0; 
+      lock_AWREADY_M1 <= (lock_AWREADY_M1) ? (BREADY_M1 & BVALID_M1) ? 1'b0 : 1'b1 : (VALID_M1 & READY_M1) ? 1'b1 : 1'b0;
     end
   end
 
@@ -149,9 +149,7 @@ module AWx
         {ADDR_S0, ADDR_S1, ADDR_S2} = {
           ADDR_M, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {
-          LEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0
-        };
+        {LEN_S0, LEN_S1, LEN_S2} = {LEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0};
         {SIZE_S0, SIZE_S1, SIZE_S2} = {
           SIZE_M, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
         };
@@ -164,9 +162,7 @@ module AWx
         {ADDR_S0, ADDR_S1, ADDR_S2} = {
           `AXI_ADDR_BITS'b0, ADDR_M, `AXI_ADDR_BITS'b0
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {
-          `AXI_LEN_BITS'b0, LEN_M, `AXI_LEN_BITS'b0
-        };
+        {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, LEN_M, `AXI_LEN_BITS'b0};
         {SIZE_S0, SIZE_S1, SIZE_S2} = {
           `AXI_SIZE_BITS'b0, SIZE_M, `AXI_SIZE_BITS'b0
         };
@@ -179,9 +175,7 @@ module AWx
         {ADDR_S0, ADDR_S1, ADDR_S2} = {
           `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, ADDR_M
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {
-          `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, LEN_M
-        };
+        {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, LEN_M};
         {SIZE_S0, SIZE_S1, SIZE_S2} = {
           `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, SIZE_M
         };

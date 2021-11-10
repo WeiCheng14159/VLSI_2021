@@ -147,7 +147,7 @@ module Rx
 
   // Decoder
   axi_master_id_t decode_result;
-  assign decode_result = DATA_DECODER(RID_S); 
+  assign decode_result = DATA_DECODER(RID_S);
   always_comb begin
     // Default
     {RID_M0, RID_M1} = {`AXI_ID_BITS'b0, `AXI_ID_BITS'b0};
@@ -157,7 +157,7 @@ module Rx
     {RVALID_M0, RVALID_M1} = {1'b0, 1'b0};
     READY_from_master = 1'b0;
 
-    unique case (decode_result) 
+    unique case (decode_result)
       AXI_MASTER_0_ID: begin
         {RID_M0, RID_M1} = {RID_S[`AXI_ID_BITS-1:0], `AXI_ID_BITS'b0};
         {RDATA_M0, RDATA_M1} = {RDATA_S, `AXI_DATA_BITS'b0};
