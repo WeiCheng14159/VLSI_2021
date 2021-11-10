@@ -123,7 +123,8 @@ module AWx
   end
 
   // Decoder
-  addr_dec_result_t decode_result = ADDR_DECODER(ADDR_M);
+  addr_dec_result_t decode_result;
+  assign decode_result = ADDR_DECODER(ADDR_M);
   always_comb begin
     // Default
     {ID_S0, ID_S1, ID_S2} = {

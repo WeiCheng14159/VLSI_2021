@@ -98,7 +98,8 @@ module Bx
   end
 
   // Decoder
-  axi_master_id_t decode_result = DATA_DECODER(BID_S);
+  axi_master_id_t decode_result;
+  assign decode_result = DATA_DECODER(BID_S);
   always_comb begin
     // Default
     BID_M1 = `AXI_ID_BITS'b0;

@@ -146,7 +146,8 @@ module Rx
   end
 
   // Decoder
-  axi_master_id_t decode_result = DATA_DECODER(RID_S); 
+  axi_master_id_t decode_result;
+  assign decode_result = DATA_DECODER(RID_S); 
   always_comb begin
     // Default
     {RID_M0, RID_M1} = {`AXI_ID_BITS'b0, `AXI_ID_BITS'b0};
