@@ -31,13 +31,7 @@ module Bx
   logic [              1:0] BRESP_S;
   logic                     BVALID_S;
 
-  logic [`AXI_IDS_BITS-2:0] BID_S_r;
-  logic [              0:0] BRESP_S_r;
-
   logic                     BREADY_from_master;
-
-  logic                     fast_transaction;
-  logic                     slow_transaction;
 
   data_arb_lock_t data_arb_lock, data_arb_lock_next;
 
@@ -59,9 +53,9 @@ module Bx
       LOCK_S2:
       data_arb_lock_next = (BREADY_from_master) ? (BVALID_S0) ? LOCK_S0 : (BVALID_S1) ? LOCK_S1 : LOCK_NO : LOCK_S2;
       LOCK_NO: begin
-        if (BVALID_S0) data_arb_lock_next = LOCK_S0;
-        else if (BVALID_S1) data_arb_lock_next = LOCK_S1;
-        else if (BVALID_S2) data_arb_lock_next = LOCK_S2;
+        if (BVALID_S0)      data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S0;
+        else if (BVALID_S1) data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S1;
+        else if (BVALID_S2) data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S2;
         else data_arb_lock_next = LOCK_NO;
       end
     endcase
@@ -75,15 +69,15 @@ module Bx
 
     unique case (data_arb_lock)
       LOCK_S0: begin
-        BVALID_S = 1'b1;  // Value should hold
+        BVALID_S = BVALID_S0;
         {BREADY_S0, BREADY_S1, BREADY_S2} = {BREADY_from_master, 1'b0, 1'b0};
       end
       LOCK_S1: begin
-        BVALID_S = 1'b1;  // Value should hold
+        BVALID_S = BVALID_S1;
         {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, BREADY_from_master, 1'b0};
       end
       LOCK_S2: begin
-        BVALID_S = 1'b1;  // Value should hold
+        BVALID_S = BVALID_S2;
         {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, 1'b0, BREADY_from_master};
       end
       LOCK_NO: begin
@@ -103,58 +97,26 @@ module Bx
     endcase
   end
 
-  // Latch data at the first rising edge after BVALID_Sx is asserted
-  always_ff @(posedge clk, negedge rstn) begin
-    if (!rstn) begin
-      BID_S_r   <= 0;
-      BRESP_S_r <= 0;
-    end else if (data_arb_lock == LOCK_NO && data_arb_lock_next == LOCK_S0) begin
-      BID_S_r   <= BID_S0;
-      BRESP_S_r <= BRESP_S0;
-    end else if (data_arb_lock == LOCK_NO && data_arb_lock_next == LOCK_S1) begin
-      BID_S_r   <= BID_S1;
-      BRESP_S_r <= BRESP_S1;
-    end else if (data_arb_lock == LOCK_NO && data_arb_lock_next == LOCK_S2) begin
-      BID_S_r   <= BID_S2;
-      BRESP_S_r <= BRESP_S2;
-    end
-  end
-
   // Decoder
+  axi_master_id_t decode_result = DATA_DECODER(BID_S);
   always_comb begin
     // Default
     BID_M1 = `AXI_ID_BITS'b0;
-    BRESP_M1 = 2'b0;
+    BRESP_M1 = `AXI_RESP_SLVERR;
     BVALID_M1 = 1'b0;
-    BREADY_from_master = BREADY_M1;
+    BREADY_from_master = 1'b0;
 
-    if (fast_transaction) begin
-      unique case (DATA_DECODER(
-          BID_S
-      ))
-        AXI_MASTER_0_ID: ;
-        AXI_MASTER_1_ID: begin
-          BID_M1 = BID_S[`AXI_ID_BITS-1:0];
-          BRESP_M1 = BRESP_S;
-          BVALID_M1 = BVALID_S;
-        end
-        AXI_MASTER_2_ID: ;
-        AXI_MASTER_U_ID: ;
-      endcase
-    end else if (slow_transaction) begin
-      unique case (DATA_DECODER(
-          BID_S_r
-      ))
-        AXI_MASTER_0_ID: ;
-        AXI_MASTER_1_ID: begin
-          BID_M1 = BID_S_r[`AXI_ID_BITS-1:0];
-          BRESP_M1 = BRESP_S_r;
-          BVALID_M1 = 1'b1;
-        end
-        AXI_MASTER_2_ID: ;
-        AXI_MASTER_U_ID: ;
-      endcase
-    end
+    unique case (decode_result)
+      AXI_MASTER_0_ID: ;
+      AXI_MASTER_1_ID: begin
+        BID_M1 = BID_S[`AXI_ID_BITS-1:0];
+        BRESP_M1 = BRESP_S;
+        BVALID_M1 = BVALID_S;
+        BREADY_from_master = BREADY_M1;
+      end
+      AXI_MASTER_2_ID: ;
+      AXI_MASTER_U_ID: ;
+    endcase
   end
 
 endmodule
