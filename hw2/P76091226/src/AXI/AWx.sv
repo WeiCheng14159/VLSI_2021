@@ -112,6 +112,7 @@ module AWx
   end
 
   // Decoder
+  addr_dec_result_t decode_result = ADDR_DECODER(ADDR_M);
   always_comb begin
     // Default
     {ID_S0, ID_S1, ID_S2} = {
@@ -130,9 +131,7 @@ module AWx
     {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b0, 1'b0};
     READY_from_slave = 1'b0;
 
-    unique case (ADDR_DECODER(
-        ADDR_M
-    ))
+    unique case (decode_result)
       SLAVE_0: begin
         {ID_S0, ID_S1, ID_S2} = {ID_M, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
         {ADDR_S0, ADDR_S1, ADDR_S2} = {
