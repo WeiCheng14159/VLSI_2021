@@ -51,11 +51,11 @@ package axi_pkg;
   //   logic                               BREADY;
   // } Bx_bus_t;
 
-  typedef enum logic [3:0] {
-    AXI_MASTER_0_ID  = 4'b0001, 
-    AXI_MASTER_1_ID  = 4'b0010, 
-    AXI_MASTER_2_ID  = 4'b0100,
-    AXI_MASTER_U_ID  = 4'b1111  
+  typedef enum logic [`AXI_ID_BITS-1:0] {
+    AXI_MASTER_0_ID  = `AXI_ID_BITS'b0001, 
+    AXI_MASTER_1_ID  = `AXI_ID_BITS'b0010, 
+    AXI_MASTER_2_ID  = `AXI_ID_BITS'b0100,
+    AXI_MASTER_U_ID  = `AXI_ID_BITS'b1111  
   } axi_master_id_t;
 
   typedef enum logic [2:0] {
@@ -81,7 +81,7 @@ package axi_pkg;
   endfunction
 
   function automatic axi_master_id_t DATA_DECODER (logic [`AXI_IDS_BITS-1:0] IDS);
-    logic IDS_UPPER = IDS[`AXI_IDS_BITS-1:`AXI_ID_BITS];
+    logic [`AXI_ID_BITS-1:0] IDS_UPPER = IDS[`AXI_IDS_BITS-1:`AXI_ID_BITS];
     if (IDS_UPPER == AXI_MASTER_0_ID)
       DATA_DECODER = AXI_MASTER_0_ID;
     else if (IDS_UPPER == AXI_MASTER_1_ID)
