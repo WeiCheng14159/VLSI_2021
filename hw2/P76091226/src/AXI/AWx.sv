@@ -6,51 +6,54 @@ module AWx
     input  logic                      clk,
     input  logic                      rstn,
     // Master 1 
-    input  logic [  `AXI_ID_BITS-1:0] ID_M1,
-    input  logic [`AXI_ADDR_BITS-1:0] ADDR_M1,
-    input  logic [ `AXI_LEN_BITS-1:0] LEN_M1,
-    input  logic [`AXI_SIZE_BITS-1:0] SIZE_M1,
-    input  logic [               1:0] BURST_M1,
-    input  logic                      VALID_M1,
-    output logic                      READY_M1,
+    input  logic [  `AXI_ID_BITS-1:0] AWID_M1,
+    input  logic [`AXI_ADDR_BITS-1:0] AWADDR_M1,
+    input  logic [ `AXI_LEN_BITS-1:0] AWLEN_M1,
+    input  logic [`AXI_SIZE_BITS-1:0] AWSIZE_M1,
+    input  logic [               1:0] AWBURST_M1,
+    input  logic                      AWVALID_M1,
+    output logic                      AWREADY_M1,
     input  logic                      BREADY_M1,
     input  logic                      BVALID_M1,
     // Slave resp
-    input  logic                      READY_S0,
-    input  logic                      READY_S1,
-    input  logic                      READY_S2,
+    input  logic                      AWREADY_S0,
+    input  logic                      AWREADY_S1,
+    input  logic                      AWREADY_S2,
     // Slave 0
-    output logic [ `AXI_IDS_BITS-1:0] ID_S0,
-    output logic [`AXI_ADDR_BITS-1:0] ADDR_S0,
-    output logic [ `AXI_LEN_BITS-1:0] LEN_S0,
-    output logic [`AXI_SIZE_BITS-1:0] SIZE_S0,
-    output logic [               1:0] BURST_S0,
-    output logic                      VALID_S0,
+    output logic [ `AXI_IDS_BITS-1:0] AWID_S0,
+    output logic [`AXI_ADDR_BITS-1:0] AWADDR_S0,
+    output logic [ `AXI_LEN_BITS-1:0] AWLEN_S0,
+    output logic [`AXI_SIZE_BITS-1:0] AWSIZE_S0,
+    output logic [               1:0] AWBURST_S0,
+    output logic                      AWVALID_S0,
     // Slave 1
-    output logic [ `AXI_IDS_BITS-1:0] ID_S1,
-    output logic [`AXI_ADDR_BITS-1:0] ADDR_S1,
-    output logic [ `AXI_LEN_BITS-1:0] LEN_S1,
-    output logic [`AXI_SIZE_BITS-1:0] SIZE_S1,
-    output logic [               1:0] BURST_S1,
-    output logic                      VALID_S1,
+    output logic [ `AXI_IDS_BITS-1:0] AWID_S1,
+    output logic [`AXI_ADDR_BITS-1:0] AWADDR_S1,
+    output logic [ `AXI_LEN_BITS-1:0] AWLEN_S1,
+    output logic [`AXI_SIZE_BITS-1:0] AWSIZE_S1,
+    output logic [               1:0] AWBURST_S1,
+    output logic                      AWVALID_S1,
     // Default Slave
-    output logic [ `AXI_IDS_BITS-1:0] ID_S2,
-    output logic [`AXI_ADDR_BITS-1:0] ADDR_S2,
-    output logic [ `AXI_LEN_BITS-1:0] LEN_S2,
-    output logic [`AXI_SIZE_BITS-1:0] SIZE_S2,
-    output logic [               1:0] BURST_S2,
-    output logic                      VALID_S2
+    output logic [ `AXI_IDS_BITS-1:0] AWID_S2,
+    output logic [`AXI_ADDR_BITS-1:0] AWADDR_S2,
+    output logic [ `AXI_LEN_BITS-1:0] AWLEN_S2,
+    output logic [`AXI_SIZE_BITS-1:0] AWSIZE_S2,
+    output logic [               1:0] AWBURST_S2,
+    output logic                      AWVALID_S2
 );
 
-  logic [ `AXI_IDS_BITS-1:0] ID_M;
-  logic [`AXI_ADDR_BITS-1:0] ADDR_M;
-  logic [ `AXI_LEN_BITS-1:0] LEN_M;
-  logic [`AXI_SIZE_BITS-1:0] SIZE_M;
-  logic [               1:0] BURST_M;
-  logic                      VALID_M;
-  logic                      READY_from_slave;
+  logic [ `AXI_IDS_BITS-1:0] AWID_M;
+  logic [`AXI_ADDR_BITS-1:0] AWADDR_M;
+  logic [ `AXI_LEN_BITS-1:0] AWLEN_M;
+  logic [`AXI_SIZE_BITS-1:0] AWSIZE_M;
+  logic [               1:0] AWBURST_M;
+  logic                      AWVALID_M;
+  logic                      AWREADY_from_slave;
+
+  logic                      lock_AWREADY_M1;
 
   addr_arb_lock_t addr_arb_lock, addr_arb_lock_next;
+  addr_dec_result_t decode_result;
 
   always_ff @(posedge clk, negedge rstn) begin
     if (!rstn) begin
@@ -64,57 +67,56 @@ module AWx
   always_comb begin
     addr_arb_lock_next = LOCK_FREE;
     unique case (addr_arb_lock)
-      LOCK_M0:   addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0;
-      LOCK_M1:   addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M1;
-      LOCK_M2:   addr_arb_lock_next = LOCK_FREE;
-      LOCK_FREE: addr_arb_lock_next = (VALID_M1) ? LOCK_M1 : LOCK_FREE;
+      LOCK_M0: addr_arb_lock_next = (AWREADY_from_slave) ? LOCK_FREE : LOCK_M0;
+      LOCK_M1: addr_arb_lock_next = (AWREADY_from_slave) ? LOCK_FREE : LOCK_M1;
+      LOCK_M2: addr_arb_lock_next = LOCK_FREE;
+      LOCK_FREE: addr_arb_lock_next = (AWVALID_M1) ? LOCK_M1 : LOCK_FREE;
     endcase
   end  // Next state (C)
 
   // Lock AWREADY (master) if there are outstanding requests
-  logic lock_AWREADY_M1;
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
       lock_AWREADY_M1 <= 1'b0;
     end else begin
-      lock_AWREADY_M1 <= (lock_AWREADY_M1) ? (BREADY_M1 & BVALID_M1) ? 1'b0 : 1'b1 : (VALID_M1 & READY_M1) ? 1'b1 : 1'b0;
+      lock_AWREADY_M1 <= (lock_AWREADY_M1) ? (BREADY_M1 & BVALID_M1) ? 1'b0 : 1'b1 : (AWVALID_M1 & AWREADY_M1) ? 1'b1 : 1'b0;
     end
   end
 
   // Arbiter
   always_comb begin
-    ID_M = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
-    ADDR_M = 0;
-    LEN_M = 0;
-    SIZE_M = 0;
-    BURST_M = 0;
-    VALID_M = 0;
-    READY_M1 = 1'b0;
+    AWID_M = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
+    AWADDR_M = 0;
+    AWLEN_M = 0;
+    AWSIZE_M = 0;
+    AWBURST_M = 0;
+    AWVALID_M = 0;
+    AWREADY_M1 = 1'b0;
 
     unique case (addr_arb_lock)
       LOCK_M0: ;
       LOCK_M1: begin
-        ID_M = {AXI_MASTER_1_ID, ID_M1};
-        ADDR_M = ADDR_M1;
-        LEN_M = LEN_M1;
-        SIZE_M = SIZE_M1;
-        BURST_M = BURST_M1;
-        VALID_M = VALID_M1;  // Valid should hold
-        READY_M1 = READY_from_slave & ~lock_AWREADY_M1;
+        AWID_M = {AXI_MASTER_1_ID, AWID_M1};
+        AWADDR_M = AWADDR_M1;
+        AWLEN_M = AWLEN_M1;
+        AWSIZE_M = AWSIZE_M1;
+        AWBURST_M = AWBURST_M1;
+        AWVALID_M = AWVALID_M1;  // Valid should hold
+        AWREADY_M1 = AWREADY_from_slave & ~lock_AWREADY_M1;
       end
       LOCK_M2: ;
       LOCK_FREE: begin
         case ({
-          1'b0, VALID_M1
+          1'b0, AWVALID_M1
         })
           2'b01: begin  // M1
-            ID_M = {AXI_MASTER_1_ID, ID_M1};
-            ADDR_M = ADDR_M1;
-            LEN_M = LEN_M1;
-            SIZE_M = SIZE_M1;
-            BURST_M = BURST_M1;
-            VALID_M = VALID_M1;
-            READY_M1 = READY_from_slave & ~lock_AWREADY_M1;
+            AWID_M = {AXI_MASTER_1_ID, AWID_M1};
+            AWADDR_M = AWADDR_M1;
+            AWLEN_M = AWLEN_M1;
+            AWSIZE_M = AWSIZE_M1;
+            AWBURST_M = AWBURST_M1;
+            AWVALID_M = AWVALID_M1;
+            AWREADY_M1 = AWREADY_from_slave & ~lock_AWREADY_M1;
           end
           default: ;
         endcase
@@ -123,65 +125,76 @@ module AWx
   end
 
   // Decoder
-  addr_dec_result_t decode_result;
-  assign decode_result = ADDR_DECODER(ADDR_M);
+  assign decode_result = ADDR_DECODER(AWADDR_M);
   always_comb begin
     // Default
-    {ID_S0, ID_S1, ID_S2} = {
+    {AWID_S0, AWID_S1, AWID_S2} = {
       `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0
     };
-    {ADDR_S0, ADDR_S1, ADDR_S2} = {
+    {AWADDR_S0, AWADDR_S1, AWADDR_S2} = {
       `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
     };
-    {LEN_S0, LEN_S1, LEN_S2} = {
+    {AWLEN_S0, AWLEN_S1, AWLEN_S2} = {
       `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0
     };
-    {SIZE_S0, SIZE_S1, SIZE_S2} = {
+    {AWSIZE_S0, AWSIZE_S1, AWSIZE_S2} = {
       `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
     };
-    {BURST_S0, BURST_S1, BURST_S2} = {2'b0, 2'b0, 2'b0};
-    {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b0, 1'b0};
-    READY_from_slave = 1'b0;
+    {AWBURST_S0, AWBURST_S1, AWBURST_S2} = {2'b0, 2'b0, 2'b0};
+    {AWVALID_S0, AWVALID_S1, AWVALID_S2} = {1'b0, 1'b0, 1'b0};
+    AWREADY_from_slave = 1'b0;
 
     unique case (decode_result)
       SLAVE_0: begin
-        {ID_S0, ID_S1, ID_S2} = {ID_M, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
-        {ADDR_S0, ADDR_S1, ADDR_S2} = {
-          ADDR_M, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
+        {AWID_S0, AWID_S1, AWID_S2} = {
+          AWID_M, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {LEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0};
-        {SIZE_S0, SIZE_S1, SIZE_S2} = {
-          SIZE_M, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
+        {AWADDR_S0, AWADDR_S1, AWADDR_S2} = {
+          AWADDR_M, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
         };
-        {BURST_S0, BURST_S1, BURST_S2} = {BURST_M, 2'b0, 2'b0};
-        {VALID_S0, VALID_S1, VALID_S2} = {VALID_M, 1'b0, 1'b0};
-        READY_from_slave = READY_S0;
+        {AWLEN_S0, AWLEN_S1, AWLEN_S2} = {
+          AWLEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0
+        };
+        {AWSIZE_S0, AWSIZE_S1, AWSIZE_S2} = {
+          AWSIZE_M, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
+        };
+        {AWBURST_S0, AWBURST_S1, AWBURST_S2} = {AWBURST_M, 2'b0, 2'b0};
+        {AWVALID_S0, AWVALID_S1, AWVALID_S2} = {AWVALID_M, 1'b0, 1'b0};
+        AWREADY_from_slave = AWREADY_S0;
       end
       SLAVE_1: begin
-        {ID_S0, ID_S1, ID_S2} = {`AXI_IDS_BITS'b0, ID_M, `AXI_IDS_BITS'b0};
-        {ADDR_S0, ADDR_S1, ADDR_S2} = {
-          `AXI_ADDR_BITS'b0, ADDR_M, `AXI_ADDR_BITS'b0
+        {AWID_S0, AWID_S1, AWID_S2} = {
+          `AXI_IDS_BITS'b0, AWID_M, `AXI_IDS_BITS'b0
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, LEN_M, `AXI_LEN_BITS'b0};
-        {SIZE_S0, SIZE_S1, SIZE_S2} = {
-          `AXI_SIZE_BITS'b0, SIZE_M, `AXI_SIZE_BITS'b0
+        {AWADDR_S0, AWADDR_S1, AWADDR_S2} = {
+          `AXI_ADDR_BITS'b0, AWADDR_M, `AXI_ADDR_BITS'b0
         };
-        {BURST_S0, BURST_S1, BURST_S2} = {2'b0, BURST_M, 2'b0};
-        {VALID_S0, VALID_S1, VALID_S2} = {1'b0, VALID_M, 1'b0};
-        READY_from_slave = READY_S1;
+        {AWLEN_S0, AWLEN_S1, AWLEN_S2} = {
+          `AXI_LEN_BITS'b0, AWLEN_M, `AXI_LEN_BITS'b0
+        };
+        {AWSIZE_S0, AWSIZE_S1, AWSIZE_S2} = {
+          `AXI_SIZE_BITS'b0, AWSIZE_M, `AXI_SIZE_BITS'b0
+        };
+        {AWBURST_S0, AWBURST_S1, AWBURST_S2} = {2'b0, AWBURST_M, 2'b0};
+        {AWVALID_S0, AWVALID_S1, AWVALID_S2} = {1'b0, AWVALID_M, 1'b0};
+        AWREADY_from_slave = AWREADY_S1;
       end
       SLAVE_2: begin
-        {ID_S0, ID_S1, ID_S2} = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, ID_M};
-        {ADDR_S0, ADDR_S1, ADDR_S2} = {
-          `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, ADDR_M
+        {AWID_S0, AWID_S1, AWID_S2} = {
+          `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, AWID_M
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, LEN_M};
-        {SIZE_S0, SIZE_S1, SIZE_S2} = {
-          `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, SIZE_M
+        {AWADDR_S0, AWADDR_S1, AWADDR_S2} = {
+          `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, AWADDR_M
         };
-        {BURST_S0, BURST_S1, BURST_S2} = {2'b0, 2'b0, BURST_M};
-        {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b0, VALID_M};
-        READY_from_slave = READY_S2;
+        {AWLEN_S0, AWLEN_S1, AWLEN_S2} = {
+          `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, AWLEN_M
+        };
+        {AWSIZE_S0, AWSIZE_S1, AWSIZE_S2} = {
+          `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, AWSIZE_M
+        };
+        {AWBURST_S0, AWBURST_S1, AWBURST_S2} = {2'b0, 2'b0, AWBURST_M};
+        {AWVALID_S0, AWVALID_S1, AWVALID_S2} = {1'b0, 1'b0, AWVALID_M};
+        AWREADY_from_slave = AWREADY_S2;
       end
     endcase
   end

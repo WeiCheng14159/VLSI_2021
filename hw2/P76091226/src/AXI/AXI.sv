@@ -197,6 +197,7 @@ module AXI
   ARx ARx (
       .clk(ACLK),
       .rstn(ARESETn),
+      .ARREADY_S2(ARREADY_DEFAULT),
       .*,
       .ARID_S2(ARID_DEFAULT),
       .ARADDR_S2(ARADDR_DEFAULT),
@@ -225,41 +226,14 @@ module AXI
   AWx AWx (
       .clk(ACLK),
       .rstn(ARESETn),
-      // Master1
-      .ID_M1(AWID_M1),
-      .ADDR_M1(AWADDR_M1),
-      .LEN_M1(AWLEN_M1),
-      .SIZE_M1(AWSIZE_M1),
-      .BURST_M1(AWBURST_M1),
-      .VALID_M1(AWVALID_M1),
-      .READY_M1(AWREADY_M1),
-      .BREADY_M1(BREADY_M1),
-      .BVALID_M1(BVALID_M1),
-      // Slave resp
-      .READY_S0(AWREADY_S0),
-      .READY_S1(AWREADY_S1),
-      .READY_S2(AWREADY_DEFAULT),
-      // Slave 0
-      .ID_S0(AWID_S0),
-      .ADDR_S0(AWADDR_S0),
-      .LEN_S0(AWLEN_S0),
-      .SIZE_S0(AWSIZE_S0),
-      .BURST_S0(AWBURST_S0),
-      .VALID_S0(AWVALID_S0),
-      // Slave 1
-      .ID_S1(AWID_S1),
-      .ADDR_S1(AWADDR_S1),
-      .LEN_S1(AWLEN_S1),
-      .SIZE_S1(AWSIZE_S1),
-      .BURST_S1(AWBURST_S1),
-      .VALID_S1(AWVALID_S1),
-      // Default Slave
-      .ID_S2(AWID_DEFAULT),
-      .ADDR_S2(AWADDR_DEFAULT),
-      .LEN_S2(AWLEN_DEFAULT),
-      .SIZE_S2(AWSIZE_DEFAULT),
-      .BURST_S2(AWBURST_DEFAULT),
-      .VALID_S2(AWVALID_DEFAULT)
+      .AWREADY_S2(AWREADY_DEFAULT),
+      .*,
+      .AWID_S2(AWID_DEFAULT),
+      .AWADDR_S2(AWADDR_DEFAULT),
+      .AWLEN_S2(AWLEN_DEFAULT),
+      .AWSIZE_S2(AWSIZE_DEFAULT),
+      .AWBURST_S2(AWBURST_DEFAULT),
+      .AWVALID_S2(AWVALID_DEFAULT)
   );
 
   Wx Wx (
