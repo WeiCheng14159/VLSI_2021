@@ -239,30 +239,7 @@ module AXI
   Wx Wx (
       .clk(ACLK),
       .rstn(ARESETn),
-      // Master 1
-      .WDATA_M1(WDATA_M1),
-      .WSTRB_M1(WSTRB_M1),
-      .WLAST_M1(WLAST_M1),
-      .WVALID_M1(WVALID_M1),
-      .WREADY_M1(WREADY_M1),
-      .AWVALID_M1(AWVALID_M1),
-      // Slave 0
-      .WDATA_S0(WDATA_S0),
-      .WSTRB_S0(WSTRB_S0),
-      .WLAST_S0(WLAST_S0),
-      .WVALID_S0(WVALID_S0),
-      .WREADY_S0(WREADY_S0),
-      .AWVALID_S0(AWVALID_S0),
-      .AWREADY_S0(AWREADY_S0),
-      // Slave 1
-      .WDATA_S1(WDATA_S1),
-      .WSTRB_S1(WSTRB_S1),
-      .WLAST_S1(WLAST_S1),
-      .WVALID_S1(WVALID_S1),
-      .WREADY_S1(WREADY_S1),
-      .AWVALID_S1(AWVALID_S1),
-      .AWREADY_S1(AWREADY_S1),
-      // Slave 2
+      .*,
       .WDATA_S2(WDATA_DEFAULT),
       .WSTRB_S2(WSTRB_DEFAULT),
       .WLAST_S2(WLAST_DEFAULT),

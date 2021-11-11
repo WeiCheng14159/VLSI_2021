@@ -49,11 +49,9 @@ module Wx
 
   logic                      WREADY_from_slave;
 
-  logic                      fast_transaction;
-  logic                      slow_transaction;
+  logic slow_transaction, fast_transaction;
 
   addr_arb_lock_t addr_arb_lock, addr_arb_lock_next;
-
   data_arb_lock_t AWx_slave_lock, AWx_slave_lock_r;
   data_arb_lock_t Wx_slave_lock;
 
