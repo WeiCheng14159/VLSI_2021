@@ -146,54 +146,30 @@ module AWx
 
     unique case (decode_result)
       SLAVE_0: begin
-        {AWID_S0, AWID_S1, AWID_S2} = {
-          AWID_M, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0
-        };
-        {AWADDR_S0, AWADDR_S1, AWADDR_S2} = {
-          AWADDR_M, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
-        };
-        {AWLEN_S0, AWLEN_S1, AWLEN_S2} = {
-          AWLEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0
-        };
-        {AWSIZE_S0, AWSIZE_S1, AWSIZE_S2} = {
-          AWSIZE_M, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
-        };
-        {AWBURST_S0, AWBURST_S1, AWBURST_S2} = {AWBURST_M, 2'b0, 2'b0};
-        {AWVALID_S0, AWVALID_S1, AWVALID_S2} = {AWVALID_M, 1'b0, 1'b0};
+        AWID_S0 = AWID_M;
+        AWADDR_S0 = AWADDR_M;
+        AWLEN_S0 = AWLEN_M;
+        AWSIZE_S0 = AWSIZE_M;
+        AWBURST_S0 = AWBURST_M;
+        AWVALID_S0 = AWVALID_M;
         AWREADY_from_slave = AWREADY_S0;
       end
       SLAVE_1: begin
-        {AWID_S0, AWID_S1, AWID_S2} = {
-          `AXI_IDS_BITS'b0, AWID_M, `AXI_IDS_BITS'b0
-        };
-        {AWADDR_S0, AWADDR_S1, AWADDR_S2} = {
-          `AXI_ADDR_BITS'b0, AWADDR_M, `AXI_ADDR_BITS'b0
-        };
-        {AWLEN_S0, AWLEN_S1, AWLEN_S2} = {
-          `AXI_LEN_BITS'b0, AWLEN_M, `AXI_LEN_BITS'b0
-        };
-        {AWSIZE_S0, AWSIZE_S1, AWSIZE_S2} = {
-          `AXI_SIZE_BITS'b0, AWSIZE_M, `AXI_SIZE_BITS'b0
-        };
-        {AWBURST_S0, AWBURST_S1, AWBURST_S2} = {2'b0, AWBURST_M, 2'b0};
-        {AWVALID_S0, AWVALID_S1, AWVALID_S2} = {1'b0, AWVALID_M, 1'b0};
+        AWID_S1 = AWID_M;
+        AWADDR_S1 = AWADDR_M;
+        AWLEN_S1 = AWLEN_M;
+        AWSIZE_S1 = AWSIZE_M;
+        AWBURST_S1 = AWBURST_M;
+        AWVALID_S1 = AWVALID_M;
         AWREADY_from_slave = AWREADY_S1;
       end
       SLAVE_2: begin
-        {AWID_S0, AWID_S1, AWID_S2} = {
-          `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, AWID_M
-        };
-        {AWADDR_S0, AWADDR_S1, AWADDR_S2} = {
-          `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, AWADDR_M
-        };
-        {AWLEN_S0, AWLEN_S1, AWLEN_S2} = {
-          `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, AWLEN_M
-        };
-        {AWSIZE_S0, AWSIZE_S1, AWSIZE_S2} = {
-          `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, AWSIZE_M
-        };
-        {AWBURST_S0, AWBURST_S1, AWBURST_S2} = {2'b0, 2'b0, AWBURST_M};
-        {AWVALID_S0, AWVALID_S1, AWVALID_S2} = {1'b0, 1'b0, AWVALID_M};
+        AWID_S2 = AWID_M;
+        AWADDR_S2 = AWADDR_M;
+        AWLEN_S2 = AWLEN_M;
+        AWSIZE_S2 = AWSIZE_M;
+        AWBURST_S2 = AWBURST_M;
+        AWVALID_S2 = AWVALID_M;
         AWREADY_from_slave = AWREADY_S2;
       end
     endcase

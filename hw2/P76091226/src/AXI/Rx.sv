@@ -51,6 +51,7 @@ module Rx
   logic                      READY_from_master;
 
   data_arb_lock_t data_arb_lock, data_arb_lock_next;
+  axi_master_id_t decode_result;
 
   always_ff @(posedge clk, negedge rstn) begin
     if (!rstn) begin
@@ -97,24 +98,24 @@ module Rx
         RDATA_S = RDATA_S0;
         RRESP_S = RRESP_S0;
         RLAST_S = RLAST_S0;
-        RVALID_S = RVALID_S0;  // Valid should hold
-        {RREADY_S0, RREADY_S1, RREADY_S2} = {READY_from_master, 1'b0, 1'b0};
+        RVALID_S = RVALID_S0;
+        RREADY_S0 = READY_from_master;
       end
       LOCK_S1: begin
         RID_S = RID_S1;
         RDATA_S = RDATA_S1;
         RRESP_S = RRESP_S1;
         RLAST_S = RLAST_S1;
-        RVALID_S = RVALID_S1;  // Valid should hold
-        {RREADY_S0, RREADY_S1, RREADY_S2} = {1'b0, READY_from_master, 1'b0};
+        RVALID_S = RVALID_S1;
+        RREADY_S1 = READY_from_master;
       end
       LOCK_S2: begin
         RID_S = RID_S2;
         RDATA_S = RDATA_S2;
         RRESP_S = RRESP_S2;
         RLAST_S = RLAST_S2;
-        RVALID_S = RVALID_S2;  // Valid should hold
-        {RREADY_S0, RREADY_S1, RREADY_S2} = {1'b0, 1'b0, READY_from_master};
+        RVALID_S = RVALID_S2;
+        RREADY_S2 = READY_from_master;
       end
       LOCK_NO: begin
         if (RVALID_S0) begin  // S0 has higher priority
@@ -123,21 +124,21 @@ module Rx
           RRESP_S = RRESP_S0;
           RLAST_S = RLAST_S0;
           RVALID_S = RVALID_S0;
-          {RREADY_S0, RREADY_S1, RREADY_S2} = {READY_from_master, 1'b0, 1'b0};
+          RREADY_S0 = READY_from_master;
         end else if (RVALID_S1) begin
           RID_S = RID_S1;
           RDATA_S = RDATA_S1;
           RRESP_S = RRESP_S1;
           RLAST_S = RLAST_S1;
           RVALID_S = RVALID_S1;
-          {RREADY_S0, RREADY_S1, RREADY_S2} = {1'b0, READY_from_master, 1'b0};
+          RREADY_S1 = READY_from_master;
         end else if (RVALID_S2) begin
           RID_S = RID_S2;
           RDATA_S = RDATA_S2;
           RRESP_S = RRESP_S2;
           RLAST_S = RLAST_S2;
           RVALID_S = RVALID_S2;
-          {RREADY_S0, RREADY_S1, RREADY_S2} = {1'b0, 1'b0, READY_from_master};
+          RREADY_S2 = READY_from_master;
         end else begin
           // Nothing
         end
@@ -146,7 +147,6 @@ module Rx
   end
 
   // Decoder
-  axi_master_id_t decode_result;
   assign decode_result = DATA_DECODER(RID_S);
   always_comb begin
     // Default
@@ -159,19 +159,19 @@ module Rx
 
     unique case (decode_result)
       AXI_MASTER_0_ID: begin
-        {RID_M0, RID_M1} = {RID_S[`AXI_ID_BITS-1:0], `AXI_ID_BITS'b0};
-        {RDATA_M0, RDATA_M1} = {RDATA_S, `AXI_DATA_BITS'b0};
-        {RRESP_M0, RRESP_M1} = {RRESP_S, 2'b0};
-        {RLAST_M0, RLAST_M1} = {RLAST_S, 1'b0};
-        {RVALID_M0, RVALID_M1} = {RVALID_S, 1'b0};
+        RID_M0 = RID_S[`AXI_ID_BITS-1:0];
+        RDATA_M0 = RDATA_S;
+        RRESP_M0 = RRESP_S;
+        RLAST_M0 = RLAST_S;
+        RVALID_M0 = RVALID_S;
         READY_from_master = RREADY_M0;
       end
       AXI_MASTER_1_ID: begin
-        {RID_M0, RID_M1} = {`AXI_ID_BITS'b0, RID_S[`AXI_ID_BITS-1:0]};
-        {RDATA_M0, RDATA_M1} = {`AXI_DATA_BITS'b0, RDATA_S};
-        {RRESP_M0, RRESP_M1} = {2'b0, RRESP_S};
-        {RLAST_M0, RLAST_M1} = {1'b0, RLAST_S};
-        {RVALID_M0, RVALID_M1} = {1'b0, RVALID_S};
+        RID_M1 = RID_S[`AXI_ID_BITS-1:0];
+        RDATA_M1 = RDATA_S;
+        RRESP_M1 = RRESP_S;
+        RLAST_M1 = RLAST_S;
+        RVALID_M1 = RVALID_S;
         READY_from_master = RREADY_M1;
       end
       AXI_MASTER_2_ID: ;

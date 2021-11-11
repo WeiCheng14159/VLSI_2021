@@ -140,9 +140,7 @@ module ARx
         ARSIZE_M = ARSIZE_M0;
         ARBURST_M = ARBURST_M0;
         ARVALID_M = ARVALID_M0;
-        {ARREADY_M0, ARREADY_M1} = {
-          ARREADY_from_slave & ~lock_ARREADY_M0, 1'b0
-        };
+        ARREADY_M0 = ARREADY_from_slave & ~lock_ARREADY_M0;
       end
       LOCK_M1: begin
         ARID_M = {AXI_MASTER_1_ID, ARID_M1};
@@ -151,9 +149,7 @@ module ARx
         ARSIZE_M = ARSIZE_M1;
         ARBURST_M = ARBURST_M1;
         ARVALID_M = ARVALID_M1;
-        {ARREADY_M0, ARREADY_M1} = {
-          1'b0, ARREADY_from_slave & ~lock_ARREADY_M1
-        };
+        ARREADY_M1 = ARREADY_from_slave & ~lock_ARREADY_M1;
       end
       LOCK_M2: ;
       LOCK_FREE: begin
@@ -167,9 +163,7 @@ module ARx
             ARSIZE_M = ARSIZE_M0;
             ARBURST_M = ARBURST_M0;
             ARVALID_M = ARVALID_M0;
-            {ARREADY_M0, ARREADY_M1} = {
-              ARREADY_from_slave & ~lock_ARREADY_M0, 1'b0
-            };
+            ARREADY_M0 = ARREADY_from_slave & ~lock_ARREADY_M0;
           end
           2'b01: begin  // M1
             ARID_M = {AXI_MASTER_1_ID, ARID_M1};
@@ -178,9 +172,7 @@ module ARx
             ARSIZE_M = ARSIZE_M1;
             ARBURST_M = ARBURST_M1;
             ARVALID_M = ARVALID_M1;
-            {ARREADY_M0, ARREADY_M1} = {
-              1'b0, ARREADY_from_slave & ~lock_ARREADY_M1
-            };
+            ARREADY_M1 = ARREADY_from_slave & ~lock_ARREADY_M1;
           end
           2'b10: begin  // M0
             ARID_M = {AXI_MASTER_0_ID, ARID_M0};
@@ -189,9 +181,7 @@ module ARx
             ARSIZE_M = ARSIZE_M0;
             ARBURST_M = ARBURST_M0;
             ARVALID_M = ARVALID_M0;
-            {ARREADY_M0, ARREADY_M1} = {
-              ARREADY_from_slave & ~lock_ARREADY_M0, 1'b0
-            };
+            ARREADY_M0 = ARREADY_from_slave & ~lock_ARREADY_M0;
           end
           default: ;
         endcase
@@ -221,60 +211,30 @@ module ARx
 
     unique case (decode_result)
       SLAVE_0: begin
-        {ARID_S0, ARID_S1, ARID_S2} = {
-          ARID_M, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0
-        };
-        {ARADDR_S0, ARADDR_S1, ARADDR_S2} = {
-          ARADDR_M, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
-        };
-        {ARLEN_S0, ARLEN_S1, ARLEN_S2} = {
-          ARLEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0
-        };
-        {ARSIZE_S0, ARSIZE_S1, ARSIZE_S2} = {
-          ARSIZE_M, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
-        };
-        {ARBURST_S0, ARBURST_S1, ARBURST_S2} = {ARBURST_M, 2'b0, 2'b0};
-        {ARVALID_S0, ARVALID_S1, ARVALID_S2} = {
-          ARVALID_M & ~lock_ARVALID_S0, 1'b0, 1'b0
-        };
+        ARID_S0 = ARID_M;
+        ARADDR_S0 = ARADDR_M;
+        ARLEN_S0 = ARLEN_M;
+        ARSIZE_S0 = ARSIZE_M;
+        ARBURST_S0 = ARBURST_M;
+        ARVALID_S0 = ARVALID_M & ~lock_ARVALID_S0;
         ARREADY_from_slave = ARREADY_S0;
       end
       SLAVE_1: begin
-        {ARID_S0, ARID_S1, ARID_S2} = {
-          `AXI_IDS_BITS'b0, ARID_M, `AXI_IDS_BITS'b0
-        };
-        {ARADDR_S0, ARADDR_S1, ARADDR_S2} = {
-          `AXI_ADDR_BITS'b0, ARADDR_M, `AXI_ADDR_BITS'b0
-        };
-        {ARLEN_S0, ARLEN_S1, ARLEN_S2} = {
-          `AXI_LEN_BITS'b0, ARLEN_M, `AXI_LEN_BITS'b0
-        };
-        {ARSIZE_S0, ARSIZE_S1, ARSIZE_S2} = {
-          `AXI_SIZE_BITS'b0, ARSIZE_M, `AXI_SIZE_BITS'b0
-        };
-        {ARBURST_S0, ARBURST_S1, ARBURST_S2} = {2'b0, ARBURST_M, 2'b0};
-        {ARVALID_S0, ARVALID_S1, ARVALID_S2} = {
-          1'b0, ARVALID_M & ~lock_ARVALID_S1, 1'b0
-        };
+        ARID_S1 = ARID_M;
+        ARADDR_S1 = ARADDR_M;
+        ARLEN_S1 = ARLEN_M;
+        ARSIZE_S1 = ARSIZE_M;
+        ARBURST_S1 = ARBURST_M;
+        ARVALID_S1 = ARVALID_M & ~lock_ARVALID_S1;
         ARREADY_from_slave = ARREADY_S1;
       end
       SLAVE_2: begin
-        {ARID_S0, ARID_S1, ARID_S2} = {
-          `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, ARID_M
-        };
-        {ARADDR_S0, ARADDR_S1, ARADDR_S2} = {
-          `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, ARADDR_M
-        };
-        {ARLEN_S0, ARLEN_S1, ARLEN_S2} = {
-          `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, ARLEN_M
-        };
-        {ARSIZE_S0, ARSIZE_S1, ARSIZE_S2} = {
-          `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, ARSIZE_M
-        };
-        {ARBURST_S0, ARBURST_S1, ARBURST_S2} = {2'b0, 2'b0, ARBURST_M};
-        {ARVALID_S0, ARVALID_S1, ARVALID_S2} = {
-          1'b0, 1'b0, ARVALID_M & ~lock_ARVALID_S2
-        };
+        ARID_S2 = ARID_M;
+        ARADDR_S2 = ARADDR_M;
+        ARLEN_S2 = ARLEN_M;
+        ARSIZE_S2 = ARSIZE_M;
+        ARBURST_S2 = ARBURST_M;
+        ARVALID_S2 = ARVALID_M & ~lock_ARVALID_S2;
         ARREADY_from_slave = ARREADY_S2;
       end
       LOCK_NO: ;

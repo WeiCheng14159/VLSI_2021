@@ -90,19 +90,19 @@ module Bx
         BVALID_S = BVALID_S0;
         BID_S = BID_S0;
         BRESP_S = BRESP_S0;
-        {BREADY_S0, BREADY_S1, BREADY_S2} = {BREADY_from_master, 1'b0, 1'b0};
+        BREADY_S0 = BREADY_from_master;
       end
       LOCK_S1: begin
         BVALID_S = BVALID_S1;
         BID_S = BID_S1;
         BRESP_S = BRESP_S1;
-        {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, BREADY_from_master, 1'b0};
+        BREADY_S1 = BREADY_from_master;
       end
       LOCK_S2: begin
         BVALID_S = BVALID_S2;
         BID_S = BID_S2;
         BRESP_S = BRESP_S2;
-        {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, 1'b0, BREADY_from_master};
+        BREADY_S2 = BREADY_from_master;
       end
       LOCK_NO: ;
     endcase
@@ -111,7 +111,6 @@ module Bx
   // Decoder
   assign decode_result = DATA_DECODER(BID_S);
   always_comb begin
-    // Default
     BID_M1 = `AXI_ID_BITS'b0;
     BRESP_M1 = `AXI_RESP_SLVERR;
     BVALID_M1 = 1'b0;

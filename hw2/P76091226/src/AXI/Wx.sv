@@ -90,7 +90,7 @@ module Wx
   assign WDATA_M   = WDATA_M1;
   assign WSTRB_M   = WSTRB_M1;
   assign WLAST_M   = WLAST_M1;
-  assign WVALID_M  = WVALID_M1;  // Valid should hold
+  assign WVALID_M  = WVALID_M1;
   assign WREADY_M1 = WREADY_from_slave;
 
   // Latch data at the first rising edge after VALID_Mx is asserted
@@ -120,36 +120,24 @@ module Wx
 
     unique case (Wx_slave_lock)
       LOCK_S0: begin
-        {WDATA_S0, WDATA_S1, WDATA_S2} = {
-          WDATA_M, `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0
-        };
-        {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
-          WSTRB_M, `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0
-        };
-        {WLAST_S0, WLAST_S1, WLAST_S2} = {WLAST_M, 1'b0, 1'b0};
-        {WVALID_S0, WVALID_S1, WVALID_S2} = {WVALID_M, 1'b0, 1'b0};
+        WDATA_S0 = WDATA_M;
+        WSTRB_S0 = WSTRB_M;
+        WLAST_S0 = WLAST_M;
+        WVALID_S0 = WVALID_M;
         WREADY_from_slave = WREADY_S0;
       end
       LOCK_S1: begin
-        {WDATA_S0, WDATA_S1, WDATA_S2} = {
-          `AXI_DATA_BITS'b0, WDATA_M, `AXI_DATA_BITS'b0
-        };
-        {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
-          `AXI_STRB_BITS'b0, WSTRB_M, `AXI_STRB_BITS'b0
-        };
-        {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, WLAST_M, 1'b0};
-        {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, WVALID_M, 1'b0};
+        WDATA_S1 = WDATA_M;
+        WSTRB_S1 = WSTRB_M;
+        WLAST_S1 = WLAST_M;
+        WVALID_S1 = WVALID_M;
         WREADY_from_slave = WREADY_S1;
       end
       LOCK_S2: begin
-        {WDATA_S0, WDATA_S1, WDATA_S2} = {
-          `AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0, WDATA_M
-        };
-        {WSTRB_S0, WSTRB_S1, WSTRB_S2} = {
-          `AXI_STRB_BITS'b0, `AXI_STRB_BITS'b0, WSTRB_M
-        };
-        {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, WLAST_M};
-        {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, WVALID_M};
+        WDATA_S2 = WDATA_M;
+        WSTRB_S2 = WSTRB_M;
+        WLAST_S2 = WLAST_M;
+        WVALID_S2 = WVALID_M;
         WREADY_from_slave = WREADY_S2;
       end
       LOCK_NO: ;
