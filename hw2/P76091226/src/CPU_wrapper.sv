@@ -3,10 +3,78 @@
 `include "AXI_define.svh"
 
 module CPU_wrapper (
-    AXI2CPU_interface.cpu_ports cpu2axi_interface,
-    /* Others */
-    input clk,
-    input rst
+    input logic clk,
+    input logic rst,
+    // Master 1 (MEM-stage)
+    // AWx
+    output logic [`AXI_ID_BITS-1:0] AWID_M1,
+    output logic [`AXI_ADDR_BITS-1:0] AWADDR_M1,
+    output logic [`AXI_LEN_BITS-1:0] AWLEN_M1,
+    output logic [`AXI_SIZE_BITS-1:0] AWSIZE_M1,
+    output logic [1:0] AWBURST_M1,
+    output logic AWVALID_M1,
+    input logic AWREADY_M1,
+    // Wx
+    output logic [`AXI_DATA_BITS-1:0] WDATA_M1,
+    output logic [`AXI_STRB_BITS-1:0] WSTRB_M1,
+    output logic WLAST_M1,
+    output logic WVALID_M1,
+    input logic WREADY_M1,
+    // Bx
+    input logic [`AXI_ID_BITS-1:0] BID_M1,
+    input logic [1:0] BRESP_M1,
+    input logic BVALID_M1,
+    output logic BREADY_M1,
+    // ARx
+    output logic [`AXI_ID_BITS-1:0] ARID_M1,
+    output logic [`AXI_ADDR_BITS-1:0] ARADDR_M1,
+    output logic [`AXI_LEN_BITS-1:0] ARLEN_M1,
+    output logic [`AXI_SIZE_BITS-1:0] ARSIZE_M1,
+    output logic [1:0] ARBURST_M1,
+    output logic ARVALID_M1,
+    input logic ARREADY_M1,
+    // Rx
+    input logic [`AXI_ID_BITS-1:0] RID_M1,
+    input logic [`AXI_DATA_BITS-1:0] RDATA_M1,
+    input logic [1:0] RRESP_M1,
+    input logic RLAST_M1,
+    input logic RVALID_M1,
+    output logic RREADY_M1,
+    // Master 0 (IF-stage)
+    // Wx
+    output logic [`AXI_ID_BITS-1:0] AWID_M0,
+    output logic [`AXI_ADDR_BITS-1:0] AWADDR_M0,
+    output logic [`AXI_LEN_BITS-1:0] AWLEN_M0,
+    output logic [`AXI_SIZE_BITS-1:0] AWSIZE_M0,
+    output logic [1:0] AWBURST_M0,
+    output logic AWVALID_M0,
+    input logic AWREADY_M0,
+    // Wx
+    output logic [`AXI_DATA_BITS-1:0] WDATA_M0,
+    output logic [`AXI_STRB_BITS-1:0] WSTRB_M0,
+    output logic WLAST_M0,
+    output logic WVALID_M0,
+    input logic WREADY_M0,
+    // Bx
+    input logic [`AXI_ID_BITS-1:0] BID_M0,
+    input logic [1:0] BRESP_M0,
+    input logic BVALID_M0,
+    output logic BREADY_M0,
+    // ARx
+    output logic [`AXI_ID_BITS-1:0] ARID_M0,
+    output logic [`AXI_ADDR_BITS-1:0] ARADDR_M0,
+    output logic [`AXI_LEN_BITS-1:0] ARLEN_M0,
+    output logic [`AXI_SIZE_BITS-1:0] ARSIZE_M0,
+    output logic [1:0] ARBURST_M0,
+    output logic ARVALID_M0,
+    input logic ARREADY_M0,
+    // Rx
+    input logic [`AXI_ID_BITS-1:0] RID_M0,
+    input logic [`AXI_DATA_BITS-1:0] RDATA_M0,
+    input logic [1:0] RRESP_M0,
+    input logic RLAST_M0,
+    input logic RVALID_M0,
+    output logic RREADY_M0
 );
 
   logic [    `InstBus]  inst_out_i;
@@ -64,23 +132,21 @@ module CPU_wrapper (
   always_comb begin
     unique case (1'b1)
       if_curr_state[RESET_BIT]: if_next_state = (inst_read_o) ? SADDR : RESET;
-      if_curr_state[SADDR_BIT]:
-      if_next_state = (cpu2axi_interface.ARREADY_M0) ? SWAIT : SADDR;
-      if_curr_state[SWAIT_BIT]:
-      if_next_state = (cpu2axi_interface.RVALID_M0) ? STEPP : SWAIT;
+      if_curr_state[SADDR_BIT]: if_next_state = (ARREADY_M0) ? SWAIT : SADDR;
+      if_curr_state[SWAIT_BIT]: if_next_state = (RVALID_M0) ? STEPP : SWAIT;
       if_curr_state[STEPP_BIT]: if_next_state = SADDR;
     endcase
   end
 
   // Output logic (IF-stage)
   always_comb begin
-    cpu2axi_interface.ARADDR_M0 = 0;
-    cpu2axi_interface.ARID_M0 = 0;  // master 0
-    cpu2axi_interface.ARLEN_M0 = 0;  // Burst = 1
-    cpu2axi_interface.ARSIZE_M0 = 3'h4;  // 4B per transfer
-    cpu2axi_interface.ARBURST_M0 = `AXI_BURST_INC;
-    cpu2axi_interface.ARVALID_M0 = 1'b0;  // A3-39
-    cpu2axi_interface.RREADY_M0 = 1'b0;
+    ARADDR_M0 = 0;
+    ARID_M0 = 0;  // master 0
+    ARLEN_M0 = 0;  // Burst = 1
+    ARSIZE_M0 = 3'h4;  // 4B per transfer
+    ARBURST_M0 = `AXI_BURST_INC;
+    ARVALID_M0 = 1'b0;  // A3-39
+    RREADY_M0 = 1'b0;
     stallreq_from_im = `Stop;
     stallreq_from_if = `Stop;
 
@@ -89,11 +155,11 @@ module CPU_wrapper (
       if_curr_state[RESET_BIT]: begin
       end
       if_curr_state[SADDR_BIT]: begin
-        cpu2axi_interface.ARADDR_M0  = inst_addr_o;
-        cpu2axi_interface.ARVALID_M0 = 1'b1;  // A3-39
+        ARADDR_M0  = inst_addr_o;
+        ARVALID_M0 = 1'b1;  // A3-39
       end
       if_curr_state[SWAIT_BIT]: begin
-        cpu2axi_interface.RREADY_M0 = 1'b1;
+        RREADY_M0 = 1'b1;
       end
       if_curr_state[STEPP_BIT]: begin
         stallreq_from_im = `NoStop;
@@ -114,42 +180,39 @@ module CPU_wrapper (
   always_comb begin
     unique case (1'b1)
       me_curr_state[RESET_BIT]: me_next_state = (data_read_o) ? SADDR : RESET;
-      me_curr_state[SADDR_BIT]:
-      me_next_state = (cpu2axi_interface.ARREADY_M1) ? SWAIT : SADDR;
-      me_curr_state[SWAIT_BIT]:
-      me_next_state = (cpu2axi_interface.ARVALID_M1) ? STEPP : SWAIT;
-      me_curr_state[STEPP_BIT]:
-      me_next_state = (cpu2axi_interface.RLAST_M1) ? RESET : STEPP;
+      me_curr_state[SADDR_BIT]: me_next_state = (ARREADY_M1) ? SWAIT : SADDR;
+      me_curr_state[SWAIT_BIT]: me_next_state = (ARVALID_M1) ? STEPP : SWAIT;
+      me_curr_state[STEPP_BIT]: me_next_state = (RLAST_M1) ? RESET : STEPP;
     endcase
   end
 
   // Output logic (ME-stage)
   always_comb begin
 
-    cpu2axi_interface.ARADDR_M1 = 0;
-    cpu2axi_interface.ARID_M1 = 0;  // master 0
-    cpu2axi_interface.ARLEN_M1 = 0;  // Burst = 1
-    cpu2axi_interface.ARSIZE_M1 = 3'h4;  // 4B per transfer
-    cpu2axi_interface.ARBURST_M1 = `AXI_BURST_INC;
-    cpu2axi_interface.ARVALID_M1 = 1'b0;  // A3-39
-    cpu2axi_interface.RREADY_M1 = 1'b0;
+    ARADDR_M1 = 0;
+    ARID_M1 = 0;  // master 0
+    ARLEN_M1 = 0;  // Burst = 1
+    ARSIZE_M1 = 3'h4;  // 4B per transfer
+    ARBURST_M1 = `AXI_BURST_INC;
+    ARVALID_M1 = 1'b0;  // A3-39
+    RREADY_M1 = 1'b0;
 
     unique case (1'b1)
 
       me_curr_state[RESET_BIT]: begin
       end
       me_curr_state[SADDR_BIT]: begin
-        cpu2axi_interface.ARADDR_M1  = data_addr_o;
-        cpu2axi_interface.ARVALID_M1 = 1'b1;  // A3-39
+        ARADDR_M1  = data_addr_o;
+        ARVALID_M1 = 1'b1;  // A3-39
       end
       me_curr_state[SWAIT_BIT]: begin
-        cpu2axi_interface.ARADDR_M1  = 0;
-        cpu2axi_interface.ARVALID_M1 = 1'b0;  // A3-39
-        cpu2axi_interface.RREADY_M1  = 1'b1;
+        ARADDR_M1  = 0;
+        ARVALID_M1 = 1'b0;  // A3-39
+        RREADY_M1  = 1'b1;
       end
       me_curr_state[STEPP_BIT]: begin
-        cpu2axi_interface.ARADDR_M1  = 0;
-        cpu2axi_interface.ARVALID_M1 = 1'b0;  // A3-39
+        ARADDR_M1  = 0;
+        ARVALID_M1 = 1'b0;  // A3-39
       end
     endcase
   end

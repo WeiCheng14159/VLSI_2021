@@ -1,129 +1,211 @@
+// `include "sram_pkg.sv"
 `include "AXI_define.svh"
-`include "sram_pkg.sv"
+`define STATE_BITS 3
 
-module SRAM_wrapper 
-  import sram_pkg::*;
-(
-  input logic clk,
-  input logic rst,
-  AXI2SRAM_interface.sram_ports sram2axi_interface
+module SRAM_wrapper(
+    input logic clk,
+    input logic rst,
+	input logic [`AXI_IDS_BITS-1:0] AWID_S,
+	input logic [`AXI_ADDR_BITS-1:0] AWADDR_S,
+	input logic [`AXI_LEN_BITS-1:0] AWLEN_S,
+	input logic [`AXI_SIZE_BITS-1:0] AWSIZE_S,
+	input logic [1:0] AWBURST_S,
+	input logic AWVALID_S,
+	output logic AWREADY_S,
+	//WRITE DATA0
+	input logic [`AXI_DATA_BITS-1:0] WDATA_S,
+	input logic [`AXI_STRB_BITS-1:0] WSTRB_S,
+	input logic WLAST_S,
+	input logic WVALID_S,
+	output logic WREADY_S,
+	//WRITE RESPONSE0
+	output logic [`AXI_IDS_BITS-1:0] BID_S,
+	output logic [1:0] BRESP_S,
+	output logic BVALID_S,
+	input logic BREADY_S,
+	
+	//READ ADDRESS0
+	input logic [`AXI_IDS_BITS-1:0] ARID_S,
+	input logic [`AXI_ADDR_BITS-1:0] ARADDR_S,
+	input logic [`AXI_LEN_BITS-1:0] ARLEN_S,
+	input logic [`AXI_SIZE_BITS-1:0] ARSIZE_S,
+	input logic [1:0] ARBURST_S,
+	input logic ARVALID_S,
+	output logic ARREADY_S,
+	//READ DATA0
+	output logic [`AXI_IDS_BITS-1:0] RID_S,
+	output logic [`AXI_DATA_BITS-1:0] RDATA_S,
+	output logic [1:0] RRESP_S,
+	output logic RLAST_S,
+	output logic RVALID_S,
+	input logic RREADY_S
 );
 
-  logic CK;
-  logic CS;
-  logic OE;
-  logic [WEB_SIZE-1:0] WEB;
-  logic [ADDR_SIZE-1:0] A;
-  logic [DATA_SIZE-1:0] DI;
-  logic [DATA_SIZE-1:0] DO;
-  assign CK = clk;
-  assign DI = sram2axi_interface.WDATA;
-  
-  localparam  IDLEE_BIT = 0,
-              RADDR_BIT = 1,
-              WRITE_BIT = 2;
-    
-  typedef enum logic [2:0] {
-    IDLEE = 1 << IDLEE_BIT,
-    RADDR = 1 << RADDR_BIT,
-    WRITE = 1 << WRITE_BIT
-  } sram_wrapper_state_t;
-  
-  sram_wrapper_state_t curr_state, next_state;
-  
-  // State logic
-  always_ff @( posedge clk, posedge rst ) begin
-    if(rst)
-      curr_state <= IDLEE;
-    else
-      curr_state <= next_state;
-  end
+parameter STATE_IDLE = `STATE_BITS'b0,
+          STATE_READ = `STATE_BITS'b1,
+          STATE_WRITE = `STATE_BITS'b10;
 
-  // Read channel (next stage logic)
-  // Next state logic
-  always_comb begin
-    unique case(1'b1)
-      curr_state[IDLEE_BIT]: next_state = (sram2axi_interface.ARVALID) ? RADDR : IDLEE;
-      curr_state[RADDR_BIT]: next_state = WRITE;
-      curr_state[WRITE_BIT]: next_state = (sram2axi_interface.RREADY) ? IDLEE : WRITE;
+logic [13:0] A;
+logic [`AXI_DATA_BITS-1:0] DI;
+logic [`AXI_DATA_BITS-1:0] DO;
+logic [`AXI_STRB_BITS-1:0] WEB;
+logic CS;
+logic OE;
+logic [`STATE_BITS-1:0] state;
+logic [`STATE_BITS-1:0] nxt_state; 
+logic AWFin;
+logic WFin;
+logic BFin;
+logic RFin;
+logic ARFin;
+logic lockAW;
+logic lockAR;
+logic lockR;
+logic lockW;
+logic lockB;
+logic A_offset;
+logic [13:0] prev_A;
+logic [`AXI_IDS_BITS-1:0] prev_ID;
+logic [`AXI_LEN_BITS-1:0] prev_LEN;
+logic [`AXI_SIZE_BITS-1:0] prev_SIZE;
+logic [1:0] prev_BURST;
+logic [`AXI_LEN_BITS-1:0] cnt;
+logic read;
+logic write;
+logic [1:0]w_offset;
+logic prevWFin;
+logic prevAWFin;
+
+assign AWFin = AWVALID_S & AWREADY_S;
+assign WFin = WVALID_S & WREADY_S;
+assign BFin = BVALID_S & BREADY_S;
+assign ARFin = ARVALID_S & ARREADY_S;
+assign RFin = RVALID_S & RREADY_S;
+assign RLAST_S = cnt == prev_LEN;
+assign A_offset = ((cnt[1:0] == 2'b0)) ? ((RFin) ? cnt[1:0] + 2'b1 : cnt[1:0]) : cnt[1:0] + 2'b1;
+assign RDATA_S = DO;
+assign RID_S = prev_ID; 
+assign RRESP_S = `AXI_RESP_OKAY;
+assign BID_S = prev_ID;
+assign BRESP_S = `AXI_RESP_OKAY;
+assign DI = WDATA_S;
+
+always_ff@(posedge clk or negedge rst)begin
+	if(~rst)
+		state <= STATE_IDLE;
+	else 
+		state <= nxt_state;
+end
+
+always_comb begin
+    case(state)
+        STATE_IDLE: begin
+            nxt_state = (AWVALID_S) ? STATE_WRITE : (ARVALID_S) ? STATE_READ : STATE_IDLE;
+        end
+        STATE_READ: begin
+            nxt_state = (RFin & RLAST_S) ? ((AWVALID_S) ? STATE_WRITE : (ARVALID_S) ? STATE_READ : STATE_IDLE) : STATE_READ;
+        end
+        STATE_WRITE:
+            nxt_state = (BFin & WLAST_S) ? ((AWVALID_S) ? STATE_WRITE : (ARVALID_S) ? STATE_READ : STATE_IDLE): STATE_WRITE;
+        default:
+            nxt_state = state;
     endcase
-  end
+end
 
-  // latch input value
-  logic [`AXI_ADDR_BITS-1:0] ARADDR_r;
-  logic [`AXI_IDS_BITS-1:0] ARID_r;
-  always_ff @(posedge clk, posedge rst) begin
-    if(rst) begin
-      {ARADDR_r ,ARID_r} <= {1'b0, 1'b0};
-    end else if(sram2axi_interface.ARVALID) begin
-      {ARADDR_r ,ARID_r} <= {sram2axi_interface.ARADDR, sram2axi_interface.ARID};
+always_comb begin
+    case(state)
+        STATE_IDLE:begin
+            AWREADY_S = 1'b1;
+            ARREADY_S = ~AWVALID_S;
+            RVALID_S = 1'b0;
+            WREADY_S = 1'b1;
+            BVALID_S = 1'b0;
+            CS = AWVALID_S | ARVALID_S;
+            OE = ~AWVALID_S & ARVALID_S;
+            read = 1'b0;
+            write = 1'b0; 
+            A = (AWVALID_S) ? AWADDR_S[15:2] : ARADDR_S[15:2];
+        end
+        STATE_READ:begin
+            AWREADY_S = RLAST_S & RFin;
+            ARREADY_S = RLAST_S & RFin & ~AWVALID_S;
+            RVALID_S = 1'b1;
+            WREADY_S  = RLAST_S & RFin;
+            BVALID_S = 1'b0;
+            CS = 1'b1;
+            OE = 1'b1;
+            read = 1'b1;
+            write = 1'b0;
+            A = (RLAST_S & RFin) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2] ) :{prev_A[13:2],A_offset};
+        end
+        STATE_WRITE:begin
+            AWREADY_S = WLAST_S & BFin;
+            ARREADY_S = WLAST_S & BFin & ~AWVALID_S;
+            RVALID_S = 1'b0;
+            WREADY_S  = BFin;
+            BVALID_S = prevWFin;
+            CS = 1'b1;
+            OE = WLAST_S & BFin & ~AWVALID_S & ARVALID_S;
+            read = 1'b0;
+            write = 1'b1;
+            A = (WLAST_S & WFin) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2]) : {prev_A[13:2],cnt[1:0]};
+        end
+        default:begin
+            AWREADY_S = 1'b0;
+            ARREADY_S = 1'b0;
+            RVALID_S = 1'b0;
+            WREADY_S  = 1'b0;
+            BVALID_S = 1'b0;
+            CS = 1'b0;
+            OE = 1'b0;
+            read = 1'b0;
+            write = 1'b0;
+            A = prev_A;
+        end
+    endcase
+end
+
+
+always_ff@(posedge clk or negedge rst) begin
+    if(~rst) begin
+        cnt <= `AXI_LEN_BITS'b0;
     end
-  end
+    else if(read)begin
+        cnt <= (RLAST_S & RFin) ? `AXI_LEN_BITS'b0 : (RFin) ? cnt + `AXI_LEN_BITS'b1 : cnt; 
+    end
+    else if(write)begin
+        cnt <= (WLAST_S & BFin) ? `AXI_LEN_BITS'b0 : (BFin) ? cnt + `AXI_LEN_BITS'b1 : cnt; 
+    end
+end
 
-  // latch data out
-  logic [DATA_SIZE-1:0] DO_r;
-  always_ff @(posedge clk, posedge rst) begin
-    if(rst)
-      DO_r <= 0;
-    else if(curr_state[RADDR_BIT])
-      DO_r <= DO;
-  end
+always_ff@(posedge clk or negedge rst) begin
+    if(~rst) begin
+        w_offset <= 2'b0;
+        prevWFin <= 1'b0;
+    end
+    else 
+        w_offset  <= (AWFin) ? AWADDR_S[1:0] : w_offset;
+        prevWFin  <= (BFin) ? 1'b0 : (WFin) ? 1'b1 : prevWFin;
+end
 
-  // AXI output (C)
-  always_comb begin
-    sram2axi_interface.ARREADY = 0;
-    sram2axi_interface.RVALID = 0;
-    sram2axi_interface.RID = 0;
-    sram2axi_interface.RDATA = 0;
-    sram2axi_interface.RLAST = 0;
-    sram2axi_interface.RRESP = 0;
+always_ff@(posedge clk) begin
+    prev_A       <= (AWFin) ? AWADDR_S [15:2] : (ARFin) ? ARADDR_S [15:2] : prev_A;
+    prev_ID      <= (AWFin) ? AWID_S          : (ARFin) ? ARID_S          : prev_ID;
+    prev_LEN     <= (AWFin) ? AWLEN_S         : (ARFin) ? ARLEN_S         : prev_LEN;
+    prev_SIZE    <= (AWFin) ? AWSIZE_S        : (ARFin) ? ARSIZE_S        : prev_SIZE;
+    prev_BURST   <= (AWFin) ? AWBURST_S       : (ARFin) ? ARBURST_S       : prev_BURST;
+end
 
-    unique case(1'b1)
-      curr_state[IDLEE_BIT]: begin
-      end
-    
-      curr_state[RADDR_BIT]: begin     
-        sram2axi_interface.ARREADY = 1;
-      end
-    
-      curr_state[WRITE_BIT]: begin     
-        sram2axi_interface.RVALID = 1;
-        sram2axi_interface.RID = ARID_r;
-        sram2axi_interface.RDATA = DO_r;
-        sram2axi_interface.RLAST = 1;
-        sram2axi_interface.RRESP = `AXI_RESP_OKAY;
-      end
-    
-    endcase
-
-  end
-
-  // Memory output (C)
-  always_comb begin
-    A = EMPTY_ADDR; 
-    OE = OE_DIS;
-    CS = CS_DIS;
-    WEB = EMPTY_WEB;
-
-    unique case(1'b1)    
-      curr_state[IDLEE_BIT]: begin
-        CS = sram2axi_interface.AWVALID | sram2axi_interface.ARVALID;
-        OE = ~sram2axi_interface.AWVALID & sram2axi_interface.ARVALID;
-        A = (sram2axi_interface.AWVALID | sram2axi_interface.ARVALID ) ? 
-          sram2axi_interface.ARADDR[ADDR_SIZE-1:2] : EMPTY_ADDR; 
-        // WEB = (sram2axi_interface.AWVALID & ~sram2axi_interface.ARVALID) ? 
-      end
-    
-      curr_state[RADDR_BIT]: begin // send address to SRAM 
-        CS = CS_ENB;
-        OE = OE_ENB;
-      end
-    
-      curr_state[WRITE_BIT]: begin // store RW value
-      
-      end
-    endcase
-  end
+always_comb begin
+    WEB = 4'hf;
+    if(WVALID_S)
+        case(WSTRB_S)
+            `AXI_STRB_BYTE: WEB[w_offset] = 1'b0;
+            `AXI_STRB_HWORD: WEB[{w_offset[1],1'b0}+:2] = 2'b0;
+            default:WEB = 4'h0;
+        endcase
+    else WEB = 4'hf;
+end
 
   SRAM i_SRAM (
     .A0   (A[0]  ),
