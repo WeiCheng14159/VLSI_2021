@@ -275,25 +275,7 @@ module AXI
   Bx Bx (
       .clk(ACLK),
       .rstn(ARESETn),
-      // Master 1
-      .BID_M1(BID_M1),
-      .BRESP_M1(BRESP_M1),
-      .BVALID_M1(BVALID_M1),
-      .BREADY_M1(BREADY_M1),
-      .WVALID_M1(WVALID_M1),
-      .WREADY_M1(WREADY_M1),
-      .WLAST_M1(WLAST_M1),
-      // Slave 0
-      .BID_S0(BID_S0),
-      .BRESP_S0(BRESP_S0),
-      .BVALID_S0(BVALID_S0),
-      .BREADY_S0(BREADY_S0),
-      // Slave 1
-      .BID_S1(BID_S1),
-      .BRESP_S1(BRESP_S1),
-      .BVALID_S1(BVALID_S1),
-      .BREADY_S1(BREADY_S1),
-      // Slave 2
+      .*,
       .BID_S2(BID_DEFAULT),
       .BRESP_S2(BRESP_DEFAULT),
       .BVALID_S2(BVALID_DEFAULT),

@@ -38,6 +38,7 @@ module Bx
   logic                     Bx_enable;
 
   data_arb_lock_t data_arb_lock, data_arb_lock_next;
+  axi_master_id_t decode_result;
 
   always_ff @(posedge clk, negedge rstn) begin
     if (!rstn) begin
@@ -108,7 +109,6 @@ module Bx
   end
 
   // Decoder
-  axi_master_id_t decode_result;
   assign decode_result = DATA_DECODER(BID_S);
   always_comb begin
     // Default
