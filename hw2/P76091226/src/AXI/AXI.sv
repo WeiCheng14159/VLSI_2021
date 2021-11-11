@@ -405,6 +405,9 @@ module AXI
       .BRESP_M1(BRESP_M1),
       .BVALID_M1(BVALID_M1),
       .BREADY_M1(BREADY_M1),
+      .WVALID_M1(WVALID_M1),
+      .WREADY_M1(WREADY_M1),
+      .WLAST_M1(WLAST_M1),
       // Slave 0
       .BID_S0(BID_S0),
       .BRESP_S0(BRESP_S0),

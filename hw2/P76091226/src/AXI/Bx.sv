@@ -5,11 +5,14 @@ module Bx
 (
     input  logic                     clk,
     input  logic                     rstn,
-    // Master 0
+    // Master 1
     output logic [ `AXI_ID_BITS-1:0] BID_M1,
     output logic [              1:0] BRESP_M1,
     output logic                     BVALID_M1,
     input  logic                     BREADY_M1,
+    input  logic                     WVALID_M1,
+    input  logic                     WREADY_M1,
+    input  logic                     WLAST_M1,
     // Slave 0
     input  logic [`AXI_IDS_BITS-1:0] BID_S0,
     input  logic [              1:0] BRESP_S0,
@@ -32,6 +35,7 @@ module Bx
   logic                     BVALID_S;
 
   logic                     BREADY_from_master;
+  logic                     Bx_enable;
 
   data_arb_lock_t data_arb_lock, data_arb_lock_next;
 
@@ -43,6 +47,14 @@ module Bx
     end
   end  // State
 
+  // Bx_enable signal is 1'b1 only after Wx is done 
+  always_ff @(posedge clk, negedge rstn) begin
+    if(~rstn)
+      Bx_enable <= 1'b0;
+    else
+      Bx_enable <= (Bx_enable) ? (BVALID_S0|BVALID_S1|BVALID_S2) ? 1'b0 : Bx_enable : (WVALID_M1 & WREADY_M1 & WLAST_M1) ? 1'b1 :Bx_enable; 
+  end
+
   always_comb begin
     data_arb_lock_next = LOCK_NO;
     unique case (data_arb_lock)
@@ -53,13 +65,15 @@ module Bx
       LOCK_S2:
       data_arb_lock_next = (BREADY_from_master) ? (BVALID_S0) ? LOCK_S0 : (BVALID_S1) ? LOCK_S1 : LOCK_NO : LOCK_S2;
       LOCK_NO: begin
-        if (BVALID_S0)
-          data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S0;
-        else if (BVALID_S1)
-          data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S1;
-        else if (BVALID_S2)
-          data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S2;
-        else data_arb_lock_next = LOCK_NO;
+        if(Bx_enable) begin
+          if (BVALID_S0)
+            data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S0;
+          else if (BVALID_S1)
+            data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S1;
+          else if (BVALID_S2)
+            data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S2;
+        end else
+          data_arb_lock_next = LOCK_NO;
       end
     endcase
   end  // Next state (C)
@@ -91,26 +105,7 @@ module Bx
         BRESP_S = BRESP_S2;
         {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, 1'b0, BREADY_from_master};
       end
-      LOCK_NO: begin
-        if (BVALID_S0) begin
-          BVALID_S = BVALID_S0;
-          BID_S = BID_S0;
-          BRESP_S = BRESP_S0;
-          {BREADY_S0, BREADY_S1, BREADY_S2} = {BREADY_from_master, 1'b0, 1'b0};
-        end else if (BVALID_S1) begin
-          BVALID_S = BVALID_S1;
-          BID_S = BID_S1;
-          BRESP_S = BRESP_S1;
-          {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, BREADY_from_master, 1'b0};
-        end else if (BVALID_S2) begin
-          BVALID_S = BVALID_S2;
-          BID_S = BID_S2;
-          BRESP_S = BRESP_S2;
-          {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, 1'b0, BREADY_from_master};
-        end else begin
-          // Nothing
-        end
-      end
+      LOCK_NO: ;
     endcase
   end
 
