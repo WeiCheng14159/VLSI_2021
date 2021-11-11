@@ -193,13 +193,11 @@ module AXI
       .*
   );
 
-
   // ARx
   ARx ARx (
       .clk(ACLK),
       .rstn(ARESETn),
       .*,
-      // Default Slave 
       .ARID_S2(ARID_DEFAULT),
       .ARADDR_S2(ARADDR_DEFAULT),
       .ARLEN_S2(ARLEN_DEFAULT),
@@ -214,35 +212,7 @@ module AXI
   Rx Rx (
       .clk(ACLK),
       .rstn(ARESETn),
-      // Master 0 
-      .RID_M0(RID_M0),
-      .RDATA_M0(RDATA_M0),
-      .RLAST_M0(RLAST_M0),
-      .RRESP_M0(RRESP_M0),
-      .RVALID_M0(RVALID_M0),
-      .RREADY_M0(RREADY_M0),
-      // Master 1
-      .RID_M1(RID_M1),
-      .RDATA_M1(RDATA_M1),
-      .RRESP_M1(RRESP_M1),
-      .RLAST_M1(RLAST_M1),
-      .RVALID_M1(RVALID_M1),
-      .RREADY_M1(RREADY_M1),
-      // Slave 0
-      .RID_S0(RID_S0),
-      .RDATA_S0(RDATA_S0),
-      .RRESP_S0(RRESP_S0),
-      .RLAST_S0(RLAST_S0),
-      .RVALID_S0(RVALID_S0),
-      .RREADY_S0(RREADY_S0),
-      // Slave 1
-      .RID_S1(RID_S1),
-      .RDATA_S1(RDATA_S1),
-      .RRESP_S1(RRESP_S1),
-      .RLAST_S1(RLAST_S1),
-      .RVALID_S1(RVALID_S1),
-      .RREADY_S1(RREADY_S1),
-      // Slave 2
+      .*,
       .RID_S2(RID_DEFAULT),
       .RDATA_S2(RDATA_DEFAULT),
       .RRESP_S2(RRESP_DEFAULT),

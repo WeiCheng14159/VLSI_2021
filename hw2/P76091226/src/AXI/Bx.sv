@@ -49,10 +49,9 @@ module Bx
 
   // Bx_enable signal is 1'b1 only after Wx is done 
   always_ff @(posedge clk, negedge rstn) begin
-    if(~rstn)
-      Bx_enable <= 1'b0;
+    if (~rstn) Bx_enable <= 1'b0;
     else
-      Bx_enable <= (Bx_enable) ? (BVALID_S0|BVALID_S1|BVALID_S2) ? 1'b0 : Bx_enable : (WVALID_M1 & WREADY_M1 & WLAST_M1) ? 1'b1 :Bx_enable; 
+      Bx_enable <= (Bx_enable) ? (BVALID_S0|BVALID_S1|BVALID_S2) ? 1'b0 : Bx_enable : (WVALID_M1 & WREADY_M1 & WLAST_M1) ? 1'b1 :Bx_enable;
   end
 
   always_comb begin
@@ -65,15 +64,14 @@ module Bx
       LOCK_S2:
       data_arb_lock_next = (BREADY_from_master) ? (BVALID_S0) ? LOCK_S0 : (BVALID_S1) ? LOCK_S1 : LOCK_NO : LOCK_S2;
       LOCK_NO: begin
-        if(Bx_enable) begin
+        if (Bx_enable) begin
           if (BVALID_S0)
             data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S0;
           else if (BVALID_S1)
             data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S1;
           else if (BVALID_S2)
             data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S2;
-        end else
-          data_arb_lock_next = LOCK_NO;
+        end else data_arb_lock_next = LOCK_NO;
       end
     endcase
   end  // Next state (C)
