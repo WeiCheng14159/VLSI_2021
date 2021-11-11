@@ -6,69 +6,69 @@ module ARx
     input  logic                      clk,
     input  logic                      rstn,
     // Master0 interface
-    input  logic [  `AXI_ID_BITS-1:0] ID_M0,
-    input  logic [`AXI_ADDR_BITS-1:0] ADDR_M0,
-    input  logic [ `AXI_LEN_BITS-1:0] LEN_M0,
-    input  logic [`AXI_SIZE_BITS-1:0] SIZE_M0,
-    input  logic [               1:0] BURST_M0,
-    input  logic                      VALID_M0,
-    output logic                      READY_M0,
+    input  logic [  `AXI_ID_BITS-1:0] ARID_M0,
+    input  logic [`AXI_ADDR_BITS-1:0] ARADDR_M0,
+    input  logic [ `AXI_LEN_BITS-1:0] ARLEN_M0,
+    input  logic [`AXI_SIZE_BITS-1:0] ARSIZE_M0,
+    input  logic [               1:0] ARBURST_M0,
+    input  logic                      ARVALID_M0,
+    output logic                      ARREADY_M0,
     input  logic                      RREADY_M0,
     input  logic                      RLAST_M0,
     // Master1_interface
-    input  logic [  `AXI_ID_BITS-1:0] ID_M1,
-    input  logic [`AXI_ADDR_BITS-1:0] ADDR_M1,
-    input  logic [ `AXI_LEN_BITS-1:0] LEN_M1,
-    input  logic [`AXI_SIZE_BITS-1:0] SIZE_M1,
-    input  logic [               1:0] BURST_M1,
-    input  logic                      VALID_M1,
-    output logic                      READY_M1,
+    input  logic [  `AXI_ID_BITS-1:0] ARID_M1,
+    input  logic [`AXI_ADDR_BITS-1:0] ARADDR_M1,
+    input  logic [ `AXI_LEN_BITS-1:0] ARLEN_M1,
+    input  logic [`AXI_SIZE_BITS-1:0] ARSIZE_M1,
+    input  logic [               1:0] ARBURST_M1,
+    input  logic                      ARVALID_M1,
+    output logic                      ARREADY_M1,
     input  logic                      RREADY_M1,
     input  logic                      RLAST_M1,
     // Slave0 resp
-    input  logic                      READY_S0,
-    input  logic                      READY_S1,
-    input  logic                      READY_S2,
+    input  logic                      ARREADY_S0,
+    input  logic                      ARREADY_S1,
+    input  logic                      ARREADY_S2,
     // Slave0
-    output logic [ `AXI_IDS_BITS-1:0] ID_S0,
-    output logic [`AXI_ADDR_BITS-1:0] ADDR_S0,
-    output logic [ `AXI_LEN_BITS-1:0] LEN_S0,
-    output logic [`AXI_SIZE_BITS-1:0] SIZE_S0,
-    output logic [               1:0] BURST_S0,
-    output logic                      VALID_S0,
+    output logic [ `AXI_IDS_BITS-1:0] ARID_S0,
+    output logic [`AXI_ADDR_BITS-1:0] ARADDR_S0,
+    output logic [ `AXI_LEN_BITS-1:0] ARLEN_S0,
+    output logic [`AXI_SIZE_BITS-1:0] ARSIZE_S0,
+    output logic [               1:0] ARBURST_S0,
+    output logic                      ARVALID_S0,
     input  logic                      RLAST_S0,
     input  logic                      RREADY_S0,
     // Slave1
-    output logic [ `AXI_IDS_BITS-1:0] ID_S1,
-    output logic [`AXI_ADDR_BITS-1:0] ADDR_S1,
-    output logic [ `AXI_LEN_BITS-1:0] LEN_S1,
-    output logic [`AXI_SIZE_BITS-1:0] SIZE_S1,
-    output logic [               1:0] BURST_S1,
-    output logic                      VALID_S1,
+    output logic [ `AXI_IDS_BITS-1:0] ARID_S1,
+    output logic [`AXI_ADDR_BITS-1:0] ARADDR_S1,
+    output logic [ `AXI_LEN_BITS-1:0] ARLEN_S1,
+    output logic [`AXI_SIZE_BITS-1:0] ARSIZE_S1,
+    output logic [               1:0] ARBURST_S1,
+    output logic                      ARVALID_S1,
     input  logic                      RLAST_S1,
     input  logic                      RREADY_S1,
     // Default Slave
-    output logic [ `AXI_IDS_BITS-1:0] ID_S2,
-    output logic [`AXI_ADDR_BITS-1:0] ADDR_S2,
-    output logic [ `AXI_LEN_BITS-1:0] LEN_S2,
-    output logic [`AXI_SIZE_BITS-1:0] SIZE_S2,
-    output logic [               1:0] BURST_S2,
-    output logic                      VALID_S2,
+    output logic [ `AXI_IDS_BITS-1:0] ARID_S2,
+    output logic [`AXI_ADDR_BITS-1:0] ARADDR_S2,
+    output logic [ `AXI_LEN_BITS-1:0] ARLEN_S2,
+    output logic [`AXI_SIZE_BITS-1:0] ARSIZE_S2,
+    output logic [               1:0] ARBURST_S2,
+    output logic                      ARVALID_S2,
     input  logic                      RLAST_S2,
     input  logic                      RREADY_S2
 );
 
-  logic [ `AXI_IDS_BITS-1:0] ID_M;
-  logic [`AXI_ADDR_BITS-1:0] ADDR_M;
-  logic [ `AXI_LEN_BITS-1:0] LEN_M;
-  logic [`AXI_SIZE_BITS-1:0] SIZE_M;
-  logic [               1:0] BURST_M;
-  logic                      VALID_M;
-  logic                      READY_from_slave;
+  logic [ `AXI_IDS_BITS-1:0] ARID_M;
+  logic [`AXI_ADDR_BITS-1:0] ARADDR_M;
+  logic [ `AXI_LEN_BITS-1:0] ARLEN_M;
+  logic [`AXI_SIZE_BITS-1:0] ARSIZE_M;
+  logic [               1:0] ARBURST_M;
+  logic                      ARVALID_M;
+  logic                      ARREADY_from_slave;
 
-  logic lock_VALID_S0, lock_VALID_S1, lock_VALID_S2;
-  logic lock_READY_M0, lock_READY_M1;
-
+  logic lock_ARVALID_S0, lock_ARVALID_S1, lock_ARVALID_S2;
+  logic lock_ARREADY_M0, lock_ARREADY_M1;
+  addr_dec_result_t decode_result;
   addr_arb_lock_t addr_arb_lock, addr_arb_lock_next;
 
   always_ff @(posedge clk, negedge rstn) begin
@@ -83,12 +83,12 @@ module ARx
   always_comb begin
     addr_arb_lock_next = LOCK_FREE;
     unique case (addr_arb_lock)
-      LOCK_M0: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M0;
-      LOCK_M1: addr_arb_lock_next = (READY_from_slave) ? LOCK_FREE : LOCK_M1;
+      LOCK_M0: addr_arb_lock_next = (ARREADY_from_slave) ? LOCK_FREE : LOCK_M0;
+      LOCK_M1: addr_arb_lock_next = (ARREADY_from_slave) ? LOCK_FREE : LOCK_M1;
       LOCK_M2: ;
       LOCK_FREE: begin
         case ({
-          VALID_M0, VALID_M1
+          ARVALID_M0, ARVALID_M1
         })
           2'b11:   addr_arb_lock_next = LOCK_M0;  // M0 has higher priority
           2'b01:   addr_arb_lock_next = LOCK_M1;
@@ -103,85 +103,95 @@ module ARx
   // Lock ARVALID (slave) if there are outstanding requests
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
-      {lock_VALID_S0, lock_VALID_S1, lock_VALID_S2} <= 3'b0;
+      {lock_ARVALID_S0, lock_ARVALID_S1, lock_ARVALID_S2} <= 3'b0;
     end else begin
-      lock_VALID_S0 <= (lock_VALID_S0) ? (RREADY_S0 & RLAST_S0) ? 1'b0 : 1'b1 : (VALID_S0 & READY_S0) ? 1'b1 : 1'b0;
-      lock_VALID_S1 <= (lock_VALID_S1) ? (RREADY_S1 & RLAST_S1) ? 1'b0 : 1'b1 : (VALID_S1 & READY_S1) ? 1'b1 : 1'b0;
-      lock_VALID_S2 <= (lock_VALID_S2) ? (RREADY_S2 & RLAST_S2) ? 1'b0 : 1'b1 : (VALID_S2 & READY_S2) ? 1'b1 : 1'b0;
+      lock_ARVALID_S0 <= (lock_ARVALID_S0) ? (RREADY_S0 & RLAST_S0) ? 1'b0 : 1'b1 : (ARVALID_S0 & ARREADY_S0) ? 1'b1 : 1'b0;
+      lock_ARVALID_S1 <= (lock_ARVALID_S1) ? (RREADY_S1 & RLAST_S1) ? 1'b0 : 1'b1 : (ARVALID_S1 & ARREADY_S1) ? 1'b1 : 1'b0;
+      lock_ARVALID_S2 <= (lock_ARVALID_S2) ? (RREADY_S2 & RLAST_S2) ? 1'b0 : 1'b1 : (ARVALID_S2 & ARREADY_S2) ? 1'b1 : 1'b0;
     end
   end
 
   // Lock ARREADY (master) if there are outstanding requests
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
-      {lock_READY_M0, lock_READY_M1} <= 2'b0;
+      {lock_ARREADY_M0, lock_ARREADY_M1} <= 2'b0;
     end else begin
-      lock_READY_M0 <= (lock_READY_M0) ? (RREADY_M0 & RLAST_M0) ? 1'b0 : 1'b1 : (VALID_M0 & READY_M0) ? 1'b1 : 1'b0;
-      lock_READY_M1 <= (lock_READY_M1) ? (RREADY_M1 & RLAST_M1) ? 1'b0 : 1'b1 : (VALID_M1 & READY_M1) ? 1'b1 : 1'b0;
+      lock_ARREADY_M0 <= (lock_ARREADY_M0) ? (RREADY_M0 & RLAST_M0) ? 1'b0 : 1'b1 : (ARVALID_M0 & ARREADY_M0) ? 1'b1 : 1'b0;
+      lock_ARREADY_M1 <= (lock_ARREADY_M1) ? (RREADY_M1 & RLAST_M1) ? 1'b0 : 1'b1 : (ARVALID_M1 & ARREADY_M1) ? 1'b1 : 1'b0;
     end
   end
 
   // Arbiter
   always_comb begin
     // Default
-    ID_M = {`AXI_ID_BITS'b0, `AXI_ID_BITS'b0};
-    ADDR_M = 0;
-    LEN_M = 0;
-    SIZE_M = 0;
-    BURST_M = 0;
-    VALID_M = 0;
-    {READY_M0, READY_M1} = {1'b0, 1'b0};
+    ARID_M = {`AXI_ID_BITS'b0, `AXI_ID_BITS'b0};
+    ARADDR_M = 0;
+    ARLEN_M = 0;
+    ARSIZE_M = 0;
+    ARBURST_M = 0;
+    ARVALID_M = 0;
+    {ARREADY_M0, ARREADY_M1} = {1'b0, 1'b0};
 
     unique case (addr_arb_lock)
       LOCK_M0: begin
-        ID_M = {AXI_MASTER_0_ID, ID_M0};
-        ADDR_M = ADDR_M0;
-        LEN_M = LEN_M0;
-        SIZE_M = SIZE_M0;
-        BURST_M = BURST_M0;
-        VALID_M = VALID_M0;  // Valid should hold
-        {READY_M0, READY_M1} = {READY_from_slave & ~lock_READY_M0, 1'b0};
+        ARID_M = {AXI_MASTER_0_ID, ARID_M0};
+        ARADDR_M = ARADDR_M0;
+        ARLEN_M = ARLEN_M0;
+        ARSIZE_M = ARSIZE_M0;
+        ARBURST_M = ARBURST_M0;
+        ARVALID_M = ARVALID_M0;
+        {ARREADY_M0, ARREADY_M1} = {
+          ARREADY_from_slave & ~lock_ARREADY_M0, 1'b0
+        };
       end
       LOCK_M1: begin
-        ID_M = {AXI_MASTER_1_ID, ID_M1};
-        ADDR_M = ADDR_M1;
-        LEN_M = LEN_M1;
-        SIZE_M = SIZE_M1;
-        BURST_M = BURST_M1;
-        VALID_M = VALID_M1;  // Valid should hold
-        {READY_M0, READY_M1} = {1'b0, READY_from_slave & ~lock_READY_M1};
+        ARID_M = {AXI_MASTER_1_ID, ARID_M1};
+        ARADDR_M = ARADDR_M1;
+        ARLEN_M = ARLEN_M1;
+        ARSIZE_M = ARSIZE_M1;
+        ARBURST_M = ARBURST_M1;
+        ARVALID_M = ARVALID_M1;
+        {ARREADY_M0, ARREADY_M1} = {
+          1'b0, ARREADY_from_slave & ~lock_ARREADY_M1
+        };
       end
       LOCK_M2: ;
       LOCK_FREE: begin
         case ({
-          VALID_M0, VALID_M1
+          ARVALID_M0, ARVALID_M1
         })
           2'b11: begin  // M0 has higher priority
-            ID_M = {AXI_MASTER_0_ID, ID_M0};
-            ADDR_M = ADDR_M0;
-            LEN_M = LEN_M0;
-            SIZE_M = SIZE_M0;
-            BURST_M = BURST_M0;
-            VALID_M = VALID_M0;
-            {READY_M0, READY_M1} = {READY_from_slave & ~lock_READY_M0, 1'b0};
+            ARID_M = {AXI_MASTER_0_ID, ARID_M0};
+            ARADDR_M = ARADDR_M0;
+            ARLEN_M = ARLEN_M0;
+            ARSIZE_M = ARSIZE_M0;
+            ARBURST_M = ARBURST_M0;
+            ARVALID_M = ARVALID_M0;
+            {ARREADY_M0, ARREADY_M1} = {
+              ARREADY_from_slave & ~lock_ARREADY_M0, 1'b0
+            };
           end
           2'b01: begin  // M1
-            ID_M = {AXI_MASTER_1_ID, ID_M1};
-            ADDR_M = ADDR_M1;
-            LEN_M = LEN_M1;
-            SIZE_M = SIZE_M1;
-            BURST_M = BURST_M1;
-            VALID_M = VALID_M1;
-            {READY_M0, READY_M1} = {1'b0, READY_from_slave & ~lock_READY_M1};
+            ARID_M = {AXI_MASTER_1_ID, ARID_M1};
+            ARADDR_M = ARADDR_M1;
+            ARLEN_M = ARLEN_M1;
+            ARSIZE_M = ARSIZE_M1;
+            ARBURST_M = ARBURST_M1;
+            ARVALID_M = ARVALID_M1;
+            {ARREADY_M0, ARREADY_M1} = {
+              1'b0, ARREADY_from_slave & ~lock_ARREADY_M1
+            };
           end
           2'b10: begin  // M0
-            ID_M = {AXI_MASTER_0_ID, ID_M0};
-            ADDR_M = ADDR_M0;
-            LEN_M = LEN_M0;
-            SIZE_M = SIZE_M0;
-            BURST_M = BURST_M0;
-            VALID_M = VALID_M0;
-            {READY_M0, READY_M1} = {READY_from_slave & ~lock_READY_M0, 1'b0};
+            ARID_M = {AXI_MASTER_0_ID, ARID_M0};
+            ARADDR_M = ARADDR_M0;
+            ARLEN_M = ARLEN_M0;
+            ARSIZE_M = ARSIZE_M0;
+            ARBURST_M = ARBURST_M0;
+            ARVALID_M = ARVALID_M0;
+            {ARREADY_M0, ARREADY_M1} = {
+              ARREADY_from_slave & ~lock_ARREADY_M0, 1'b0
+            };
           end
           default: ;
         endcase
@@ -190,65 +200,82 @@ module ARx
   end
 
   // Decoder
-  addr_dec_result_t decode_result;
-  assign decode_result = ADDR_DECODER(ADDR_M);
+  assign decode_result = ADDR_DECODER(ARADDR_M);
   always_comb begin
     // Default 
-    {ID_S0, ID_S1, ID_S2} = {
+    {ARID_S0, ARID_S1, ARID_S2} = {
       `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0
     };
-    {ADDR_S0, ADDR_S1, ADDR_S2} = {
+    {ARADDR_S0, ARADDR_S1, ARADDR_S2} = {
       `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
     };
-    {LEN_S0, LEN_S1, LEN_S2} = {
+    {ARLEN_S0, ARLEN_S1, ARLEN_S2} = {
       `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0
     };
-    {SIZE_S0, SIZE_S1, SIZE_S2} = {
+    {ARSIZE_S0, ARSIZE_S1, ARSIZE_S2} = {
       `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
     };
-    {BURST_S0, BURST_S1, BURST_S2} = {2'b0, 2'b0, 2'b0};
-    {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b0, 1'b0};
-    READY_from_slave = 1'b0;
+    {ARBURST_S0, ARBURST_S1, ARBURST_S2} = {2'b0, 2'b0, 2'b0};
+    {ARVALID_S0, ARVALID_S1, ARVALID_S2} = {1'b0, 1'b0, 1'b0};
+    ARREADY_from_slave = 1'b0;
 
     unique case (decode_result)
       SLAVE_0: begin
-        {ID_S0, ID_S1, ID_S2} = {ID_M, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
-        {ADDR_S0, ADDR_S1, ADDR_S2} = {
-          ADDR_M, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
+        {ARID_S0, ARID_S1, ARID_S2} = {
+          ARID_M, `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {LEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0};
-        {SIZE_S0, SIZE_S1, SIZE_S2} = {
-          SIZE_M, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
+        {ARADDR_S0, ARADDR_S1, ARADDR_S2} = {
+          ARADDR_M, `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0
         };
-        {BURST_S0, BURST_S1, BURST_S2} = {BURST_M, 2'b0, 2'b0};
-        {VALID_S0, VALID_S1, VALID_S2} = {VALID_M & ~lock_VALID_S0, 1'b0, 1'b0};
-        READY_from_slave = READY_S0;
+        {ARLEN_S0, ARLEN_S1, ARLEN_S2} = {
+          ARLEN_M, `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0
+        };
+        {ARSIZE_S0, ARSIZE_S1, ARSIZE_S2} = {
+          ARSIZE_M, `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0
+        };
+        {ARBURST_S0, ARBURST_S1, ARBURST_S2} = {ARBURST_M, 2'b0, 2'b0};
+        {ARVALID_S0, ARVALID_S1, ARVALID_S2} = {
+          ARVALID_M & ~lock_ARVALID_S0, 1'b0, 1'b0
+        };
+        ARREADY_from_slave = ARREADY_S0;
       end
       SLAVE_1: begin
-        {ID_S0, ID_S1, ID_S2} = {`AXI_IDS_BITS'b0, ID_M, `AXI_IDS_BITS'b0};
-        {ADDR_S0, ADDR_S1, ADDR_S2} = {
-          `AXI_ADDR_BITS'b0, ADDR_M, `AXI_ADDR_BITS'b0
+        {ARID_S0, ARID_S1, ARID_S2} = {
+          `AXI_IDS_BITS'b0, ARID_M, `AXI_IDS_BITS'b0
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, LEN_M, `AXI_LEN_BITS'b0};
-        {SIZE_S0, SIZE_S1, SIZE_S2} = {
-          `AXI_SIZE_BITS'b0, SIZE_M, `AXI_SIZE_BITS'b0
+        {ARADDR_S0, ARADDR_S1, ARADDR_S2} = {
+          `AXI_ADDR_BITS'b0, ARADDR_M, `AXI_ADDR_BITS'b0
         };
-        {BURST_S0, BURST_S1, BURST_S2} = {2'b0, BURST_M, 2'b0};
-        {VALID_S0, VALID_S1, VALID_S2} = {1'b0, VALID_M & ~lock_VALID_S1, 1'b0};
-        READY_from_slave = READY_S1;
+        {ARLEN_S0, ARLEN_S1, ARLEN_S2} = {
+          `AXI_LEN_BITS'b0, ARLEN_M, `AXI_LEN_BITS'b0
+        };
+        {ARSIZE_S0, ARSIZE_S1, ARSIZE_S2} = {
+          `AXI_SIZE_BITS'b0, ARSIZE_M, `AXI_SIZE_BITS'b0
+        };
+        {ARBURST_S0, ARBURST_S1, ARBURST_S2} = {2'b0, ARBURST_M, 2'b0};
+        {ARVALID_S0, ARVALID_S1, ARVALID_S2} = {
+          1'b0, ARVALID_M & ~lock_ARVALID_S1, 1'b0
+        };
+        ARREADY_from_slave = ARREADY_S1;
       end
       SLAVE_2: begin
-        {ID_S0, ID_S1, ID_S2} = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, ID_M};
-        {ADDR_S0, ADDR_S1, ADDR_S2} = {
-          `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, ADDR_M
+        {ARID_S0, ARID_S1, ARID_S2} = {
+          `AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0, ARID_M
         };
-        {LEN_S0, LEN_S1, LEN_S2} = {`AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, LEN_M};
-        {SIZE_S0, SIZE_S1, SIZE_S2} = {
-          `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, SIZE_M
+        {ARADDR_S0, ARADDR_S1, ARADDR_S2} = {
+          `AXI_ADDR_BITS'b0, `AXI_ADDR_BITS'b0, ARADDR_M
         };
-        {BURST_S0, BURST_S1, BURST_S2} = {2'b0, 2'b0, BURST_M};
-        {VALID_S0, VALID_S1, VALID_S2} = {1'b0, 1'b0, VALID_M & ~lock_VALID_S2};
-        READY_from_slave = READY_S2;
+        {ARLEN_S0, ARLEN_S1, ARLEN_S2} = {
+          `AXI_LEN_BITS'b0, `AXI_LEN_BITS'b0, ARLEN_M
+        };
+        {ARSIZE_S0, ARSIZE_S1, ARSIZE_S2} = {
+          `AXI_SIZE_BITS'b0, `AXI_SIZE_BITS'b0, ARSIZE_M
+        };
+        {ARBURST_S0, ARBURST_S1, ARBURST_S2} = {2'b0, 2'b0, ARBURST_M};
+        {ARVALID_S0, ARVALID_S1, ARVALID_S2} = {
+          1'b0, 1'b0, ARVALID_M & ~lock_ARVALID_S2
+        };
+        ARREADY_from_slave = ARREADY_S2;
       end
       LOCK_NO: ;
     endcase
