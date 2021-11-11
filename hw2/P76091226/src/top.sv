@@ -1,9 +1,9 @@
 `include "SRAM_wrapper.sv"
 `include "CPU_wrapper.sv"
-`include "AXI_wrapper.sv"
+`include "./AXI/AXI_wrapper.sv"
 `include "util.sv"
-`include "AXI2CPU.sv"
-`include "AXI2SRAM.sv"
+`include "./AXI/AXI2CPU.sv"
+`include "./AXI/AXI2SRAM.sv"
 
 module top (
     input logic clk,
