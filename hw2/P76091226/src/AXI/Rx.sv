@@ -85,11 +85,11 @@ module Rx
   // Arbiter
   always_comb begin
     // Default 
-    RID_S = 0;
-    RDATA_S = 0;
-    RRESP_S = 0;
-    RLAST_S = 0;
-    RVALID_S = 0;
+    RID_S = `AXI_IDS_BITS'b0;
+    RDATA_S = `AXI_DATA_BITS'b0;
+    RRESP_S = 2'b0;
+    RLAST_S = 1'b0;
+    RVALID_S = 1'b0;
     {RREADY_S0, RREADY_S1, RREADY_S2} = {1'b0, 1'b0, 1'b0};
 
     unique case (data_arb_lock)

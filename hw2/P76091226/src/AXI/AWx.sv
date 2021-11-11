@@ -86,11 +86,11 @@ module AWx
   // Arbiter
   always_comb begin
     AWID_M = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
-    AWADDR_M = 0;
-    AWLEN_M = 0;
-    AWSIZE_M = 0;
-    AWBURST_M = 0;
-    AWVALID_M = 0;
+    AWADDR_M = `AXI_ADDR_BITS'b0;
+    AWLEN_M = `AXI_ADDR_BITS'b0;
+    AWSIZE_M = `AXI_SIZE_BITS'b0;
+    AWBURST_M = 2'b0;
+    AWVALID_M = 1'b0;
     AWREADY_M1 = 1'b0;
 
     unique case (addr_arb_lock)

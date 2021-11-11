@@ -81,7 +81,7 @@ module Bx
   always_comb begin
     // Default
     BVALID_S = 1'b0;
-    BID_S = 0;
+    BID_S = `AXI_IDS_BITS'b0;
     BRESP_S = `AXI_RESP_SLVERR;
     {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, 1'b0, 1'b0};
 

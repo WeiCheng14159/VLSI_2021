@@ -125,11 +125,11 @@ module ARx
   always_comb begin
     // Default
     ARID_M = {`AXI_ID_BITS'b0, `AXI_ID_BITS'b0};
-    ARADDR_M = 0;
-    ARLEN_M = 0;
-    ARSIZE_M = 0;
-    ARBURST_M = 0;
-    ARVALID_M = 0;
+    ARADDR_M = `AXI_ADDR_BITS'b0;
+    ARLEN_M = `AXI_LEN_BITS'b0;
+    ARSIZE_M = `AXI_SIZE_BITS'b0;
+    ARBURST_M = 2'b0;
+    ARVALID_M = 1'b0;
     {ARREADY_M0, ARREADY_M1} = {1'b0, 1'b0};
 
     unique case (addr_arb_lock)
