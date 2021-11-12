@@ -64,7 +64,6 @@ logic [`AXI_LEN_BITS-1:0] prev_LEN;
 logic [`AXI_SIZE_BITS-1:0] prev_SIZE;
 logic [1:0] prev_BURST;
 logic prev_Wx_hs_done;
-logic A_offset;
 logic [`AXI_LEN_BITS-1:0] len_cnt;
 logic [1:0] w_offset;
 
@@ -74,10 +73,9 @@ assign Wx_hs_done = WVALID_S & WREADY_S;
 assign Bx_hs_done = BVALID_S & BREADY_S;
 assign ARx_hs_done = ARVALID_S & ARREADY_S;
 assign Rx_hs_done = RVALID_S & RREADY_S;
-assign A_offset = ((len_cnt[1:0] == 2'b0)) ? ((Rx_hs_done) ? len_cnt[1:0] + 2'b1 : len_cnt[1:0]) : len_cnt[1:0] + 2'b1;
 // Rx
 assign RLAST_S = (len_cnt == prev_LEN);
-assign RDATA_S = DO;
+assign RDATA_S = (RVALID_S) ? DO : 32'b0;
 assign RID_S = prev_ID; 
 assign RRESP_S = `AXI_RESP_OKAY;
 // Bx
@@ -136,7 +134,7 @@ always_comb begin
             RVALID_S = 1'b1;
             CS = 1'b1;
             OE = 1'b1;
-            A = (RLAST_S & Rx_hs_done) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2] ) :{prev_A[13:2],A_offset};
+            A = (RLAST_S & Rx_hs_done) ? (AWVALID_S ? AWADDR_S[15:2] : prev_A ) :prev_A;
         end
         WRITE: begin
             AWREADY_S = WLAST_S & Bx_hs_done;
@@ -146,7 +144,7 @@ always_comb begin
             RVALID_S = 1'b0;
             CS = 1'b1;
             OE = WLAST_S & Bx_hs_done & ~AWVALID_S & ARVALID_S;
-            A = (WLAST_S & Wx_hs_done) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2]) : {prev_A[13:2],len_cnt[1:0]};
+            A = (WLAST_S & Bx_hs_done) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2]) : {prev_A[13:2],len_cnt[1:0]};
         end
     endcase
 end
