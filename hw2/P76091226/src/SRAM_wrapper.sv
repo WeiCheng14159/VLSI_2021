@@ -1,10 +1,12 @@
-// `include "sram_pkg.sv"
+`include "sram_wrapper_pkg.sv"
 `include "AXI_define.svh"
-`define STATE_BITS 3
 
-module SRAM_wrapper(
+module SRAM_wrapper
+  import sram_wrapper_pkg::*;
+  (
     input logic clk,
     input logic rst,
+    // AWx
 	input logic [`AXI_IDS_BITS-1:0] AWID_S,
 	input logic [`AXI_ADDR_BITS-1:0] AWADDR_S,
 	input logic [`AXI_LEN_BITS-1:0] AWLEN_S,
@@ -12,19 +14,18 @@ module SRAM_wrapper(
 	input logic [1:0] AWBURST_S,
 	input logic AWVALID_S,
 	output logic AWREADY_S,
-	//WRITE DATA0
+	// Wx
 	input logic [`AXI_DATA_BITS-1:0] WDATA_S,
 	input logic [`AXI_STRB_BITS-1:0] WSTRB_S,
 	input logic WLAST_S,
 	input logic WVALID_S,
 	output logic WREADY_S,
-	//WRITE RESPONSE0
+	// Bx
 	output logic [`AXI_IDS_BITS-1:0] BID_S,
 	output logic [1:0] BRESP_S,
 	output logic BVALID_S,
 	input logic BREADY_S,
-	
-	//READ ADDRESS0
+	// ARx
 	input logic [`AXI_IDS_BITS-1:0] ARID_S,
 	input logic [`AXI_ADDR_BITS-1:0] ARADDR_S,
 	input logic [`AXI_LEN_BITS-1:0] ARLEN_S,
@@ -32,7 +33,7 @@ module SRAM_wrapper(
 	input logic [1:0] ARBURST_S,
 	input logic ARVALID_S,
 	output logic ARREADY_S,
-	//READ DATA0
+	// Rx
 	output logic [`AXI_IDS_BITS-1:0] RID_S,
 	output logic [`AXI_DATA_BITS-1:0] RDATA_S,
 	output logic [1:0] RRESP_S,
@@ -41,126 +42,111 @@ module SRAM_wrapper(
 	input logic RREADY_S
 );
 
-parameter STATE_IDLE = `STATE_BITS'b0,
-          STATE_READ = `STATE_BITS'b1,
-          STATE_WRITE = `STATE_BITS'b10;
-
+// SRAM module
 logic [13:0] A;
 logic [`AXI_DATA_BITS-1:0] DI;
 logic [`AXI_DATA_BITS-1:0] DO;
 logic [`AXI_STRB_BITS-1:0] WEB;
 logic CS;
 logic OE;
-logic [`STATE_BITS-1:0] state;
-logic [`STATE_BITS-1:0] nxt_state; 
-logic AWFin;
-logic WFin;
-logic BFin;
-logic RFin;
-logic ARFin;
-logic lockAW;
-logic lockAR;
-logic lockR;
-logic lockW;
-logic lockB;
-logic A_offset;
+
+sram_wrapper_state_t curr_state, next_state;
+
+logic AW_hs_done;
+logic Wx_hs_done;
+logic Bx_hs_done;
+logic Rx_hs_done;
+logic ARx_hs_done;
+
 logic [13:0] prev_A;
 logic [`AXI_IDS_BITS-1:0] prev_ID;
 logic [`AXI_LEN_BITS-1:0] prev_LEN;
 logic [`AXI_SIZE_BITS-1:0] prev_SIZE;
 logic [1:0] prev_BURST;
-logic [`AXI_LEN_BITS-1:0] cnt;
-logic read;
-logic write;
-logic [1:0]w_offset;
-logic prevWFin;
-logic prevAWFin;
+logic prev_Wx_hs_done;
+logic A_offset;
+logic [`AXI_LEN_BITS-1:0] len_cnt;
+logic [1:0] w_offset;
 
-assign AWFin = AWVALID_S & AWREADY_S;
-assign WFin = WVALID_S & WREADY_S;
-assign BFin = BVALID_S & BREADY_S;
-assign ARFin = ARVALID_S & ARREADY_S;
-assign RFin = RVALID_S & RREADY_S;
-assign RLAST_S = cnt == prev_LEN;
-assign A_offset = ((cnt[1:0] == 2'b0)) ? ((RFin) ? cnt[1:0] + 2'b1 : cnt[1:0]) : cnt[1:0] + 2'b1;
+// Handshake signal
+assign AW_hs_done = AWVALID_S & AWREADY_S;
+assign Wx_hs_done = WVALID_S & WREADY_S;
+assign Bx_hs_done = BVALID_S & BREADY_S;
+assign ARx_hs_done = ARVALID_S & ARREADY_S;
+assign Rx_hs_done = RVALID_S & RREADY_S;
+assign A_offset = ((len_cnt[1:0] == 2'b0)) ? ((Rx_hs_done) ? len_cnt[1:0] + 2'b1 : len_cnt[1:0]) : len_cnt[1:0] + 2'b1;
+// Rx
+assign RLAST_S = (len_cnt == prev_LEN);
 assign RDATA_S = DO;
 assign RID_S = prev_ID; 
 assign RRESP_S = `AXI_RESP_OKAY;
+// Bx
 assign BID_S = prev_ID;
 assign BRESP_S = `AXI_RESP_OKAY;
+// Wx
 assign DI = WDATA_S;
 
 always_ff@(posedge clk or negedge rst)begin
 	if(~rst)
-		state <= STATE_IDLE;
+		curr_state <= IDLE;
 	else 
-		state <= nxt_state;
-end
+		curr_state <= next_state;
+end // State
 
 always_comb begin
-    case(state)
-        STATE_IDLE: begin
-            nxt_state = (AWVALID_S) ? STATE_WRITE : (ARVALID_S) ? STATE_READ : STATE_IDLE;
+    next_state = IDLE;
+    unique case(curr_state)
+        IDLE: begin
+            next_state = (AWVALID_S) ? WRITE : (ARVALID_S) ? READ : IDLE;
         end
-        STATE_READ: begin
-            nxt_state = (RFin & RLAST_S) ? ((AWVALID_S) ? STATE_WRITE : (ARVALID_S) ? STATE_READ : STATE_IDLE) : STATE_READ;
+        READ: begin
+            next_state = (Rx_hs_done & RLAST_S) ? ((AWVALID_S) ? WRITE : (ARVALID_S) ? READ : IDLE) : READ;
         end
-        STATE_WRITE:
-            nxt_state = (BFin & WLAST_S) ? ((AWVALID_S) ? STATE_WRITE : (ARVALID_S) ? STATE_READ : STATE_IDLE): STATE_WRITE;
-        default:
-            nxt_state = state;
+        WRITE:
+            next_state = (Bx_hs_done & WLAST_S) ? ((AWVALID_S) ? WRITE : (ARVALID_S) ? READ : IDLE): WRITE;
     endcase
-end
+end // Next state (C)
 
 always_comb begin
-    case(state)
-        STATE_IDLE:begin
+    AWREADY_S = 1'b0;
+    WREADY_S  = 1'b0;
+    BVALID_S = 1'b0;
+    ARREADY_S = 1'b0;
+    RVALID_S = 1'b0;
+    CS = 1'b0;
+    OE = 1'b0;
+    A = prev_A;
+
+    unique case(curr_state)
+        IDLE: begin
             AWREADY_S = 1'b1;
-            ARREADY_S = ~AWVALID_S;
-            RVALID_S = 1'b0;
             WREADY_S = 1'b1;
             BVALID_S = 1'b0;
+            ARREADY_S = ~AWVALID_S;
+            RVALID_S = 1'b0;
             CS = AWVALID_S | ARVALID_S;
             OE = ~AWVALID_S & ARVALID_S;
-            read = 1'b0;
-            write = 1'b0; 
             A = (AWVALID_S) ? AWADDR_S[15:2] : ARADDR_S[15:2];
         end
-        STATE_READ:begin
-            AWREADY_S = RLAST_S & RFin;
-            ARREADY_S = RLAST_S & RFin & ~AWVALID_S;
-            RVALID_S = 1'b1;
-            WREADY_S  = RLAST_S & RFin;
+        READ: begin
+            AWREADY_S = RLAST_S & Rx_hs_done;
+            WREADY_S  = RLAST_S & Rx_hs_done;
             BVALID_S = 1'b0;
+            ARREADY_S = RLAST_S & Rx_hs_done & ~AWVALID_S;
+            RVALID_S = 1'b1;
             CS = 1'b1;
             OE = 1'b1;
-            read = 1'b1;
-            write = 1'b0;
-            A = (RLAST_S & RFin) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2] ) :{prev_A[13:2],A_offset};
+            A = (RLAST_S & Rx_hs_done) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2] ) :{prev_A[13:2],A_offset};
         end
-        STATE_WRITE:begin
-            AWREADY_S = WLAST_S & BFin;
-            ARREADY_S = WLAST_S & BFin & ~AWVALID_S;
+        WRITE: begin
+            AWREADY_S = WLAST_S & Bx_hs_done;
+            WREADY_S  = Bx_hs_done;
+            BVALID_S = prev_Wx_hs_done;
+            ARREADY_S = WLAST_S & Bx_hs_done & ~AWVALID_S;
             RVALID_S = 1'b0;
-            WREADY_S  = BFin;
-            BVALID_S = prevWFin;
             CS = 1'b1;
-            OE = WLAST_S & BFin & ~AWVALID_S & ARVALID_S;
-            read = 1'b0;
-            write = 1'b1;
-            A = (WLAST_S & WFin) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2]) : {prev_A[13:2],cnt[1:0]};
-        end
-        default:begin
-            AWREADY_S = 1'b0;
-            ARREADY_S = 1'b0;
-            RVALID_S = 1'b0;
-            WREADY_S  = 1'b0;
-            BVALID_S = 1'b0;
-            CS = 1'b0;
-            OE = 1'b0;
-            read = 1'b0;
-            write = 1'b0;
-            A = prev_A;
+            OE = WLAST_S & Bx_hs_done & ~AWVALID_S & ARVALID_S;
+            A = (WLAST_S & Wx_hs_done) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2]) : {prev_A[13:2],len_cnt[1:0]};
         end
     endcase
 end
@@ -168,43 +154,41 @@ end
 
 always_ff@(posedge clk or negedge rst) begin
     if(~rst) begin
-        cnt <= `AXI_LEN_BITS'b0;
-    end
-    else if(read)begin
-        cnt <= (RLAST_S & RFin) ? `AXI_LEN_BITS'b0 : (RFin) ? cnt + `AXI_LEN_BITS'b1 : cnt; 
-    end
-    else if(write)begin
-        cnt <= (WLAST_S & BFin) ? `AXI_LEN_BITS'b0 : (BFin) ? cnt + `AXI_LEN_BITS'b1 : cnt; 
+        len_cnt <= `AXI_LEN_BITS'b0;
+    end else if(curr_state[READ_BIT])begin
+        len_cnt <= (RLAST_S & Rx_hs_done) ? `AXI_LEN_BITS'b0 : (Rx_hs_done) ? len_cnt + `AXI_LEN_BITS'b1 : len_cnt; 
+    end else if(curr_state[WRITE_BIT])begin
+        len_cnt <= (WLAST_S & Bx_hs_done) ? `AXI_LEN_BITS'b0 : (Bx_hs_done) ? len_cnt + `AXI_LEN_BITS'b1 : len_cnt; 
     end
 end
 
 always_ff@(posedge clk or negedge rst) begin
     if(~rst) begin
         w_offset <= 2'b0;
-        prevWFin <= 1'b0;
+        prev_Wx_hs_done <= 1'b0;
+    end else begin 
+        w_offset  <= (AW_hs_done) ? AWADDR_S[1:0] : w_offset;
+        prev_Wx_hs_done  <= (Bx_hs_done) ? 1'b0 : (Wx_hs_done) ? 1'b1 : prev_Wx_hs_done;
     end
-    else 
-        w_offset  <= (AWFin) ? AWADDR_S[1:0] : w_offset;
-        prevWFin  <= (BFin) ? 1'b0 : (WFin) ? 1'b1 : prevWFin;
 end
 
 always_ff@(posedge clk) begin
-    prev_A       <= (AWFin) ? AWADDR_S [15:2] : (ARFin) ? ARADDR_S [15:2] : prev_A;
-    prev_ID      <= (AWFin) ? AWID_S          : (ARFin) ? ARID_S          : prev_ID;
-    prev_LEN     <= (AWFin) ? AWLEN_S         : (ARFin) ? ARLEN_S         : prev_LEN;
-    prev_SIZE    <= (AWFin) ? AWSIZE_S        : (ARFin) ? ARSIZE_S        : prev_SIZE;
-    prev_BURST   <= (AWFin) ? AWBURST_S       : (ARFin) ? ARBURST_S       : prev_BURST;
+    prev_A       <= (AW_hs_done) ? AWADDR_S [15:2] : (ARx_hs_done) ? ARADDR_S [15:2] : prev_A;
+    prev_ID      <= (AW_hs_done) ? AWID_S          : (ARx_hs_done) ? ARID_S          : prev_ID;
+    prev_LEN     <= (AW_hs_done) ? AWLEN_S         : (ARx_hs_done) ? ARLEN_S         : prev_LEN;
+    prev_SIZE    <= (AW_hs_done) ? AWSIZE_S        : (ARx_hs_done) ? ARSIZE_S        : prev_SIZE;
+    prev_BURST   <= (AW_hs_done) ? AWBURST_S       : (ARx_hs_done) ? ARBURST_S       : prev_BURST;
 end
 
 always_comb begin
-    WEB = 4'hf;
-    if(WVALID_S)
+    WEB = {WEB_DIS, WEB_DIS, WEB_DIS, WEB_DIS};
+    if(WVALID_S) begin
         case(WSTRB_S)
-            `AXI_STRB_BYTE: WEB[w_offset] = 1'b0;
-            `AXI_STRB_HWORD: WEB[{w_offset[1],1'b0}+:2] = 2'b0;
-            default:WEB = 4'h0;
+            `AXI_STRB_BYTE: WEB[w_offset] = WEB_ENB;
+            `AXI_STRB_HWORD: WEB[{w_offset[1],1'b0}+:2] = {WEB_ENB, WEB_ENB};
+            default: WEB = {WEB_ENB, WEB_ENB, WEB_ENB, WEB_ENB};
         endcase
-    else WEB = 4'hf;
+    end
 end
 
   SRAM i_SRAM (

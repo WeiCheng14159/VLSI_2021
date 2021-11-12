@@ -52,44 +52,49 @@ package axi_pkg;
   // } Bx_bus_t;
 
   typedef enum logic [`AXI_ID_BITS-1:0] {
-    AXI_MASTER_0_ID  = `AXI_ID_BITS'b0001, 
-    AXI_MASTER_1_ID  = `AXI_ID_BITS'b0010, 
-    AXI_MASTER_2_ID  = `AXI_ID_BITS'b0100,
-    AXI_MASTER_U_ID  = `AXI_ID_BITS'b1111  
+    AXI_MASTER_0_ID = `AXI_ID_BITS'b0001,
+    AXI_MASTER_1_ID = `AXI_ID_BITS'b0010,
+    AXI_MASTER_2_ID = `AXI_ID_BITS'b0100,
+    AXI_MASTER_U_ID = `AXI_ID_BITS'b1111
   } axi_master_id_t;
 
   typedef enum logic [2:0] {
-    LOCK_M0, LOCK_M1, LOCK_M2, LOCK_FREE
+    LOCK_M0,
+    LOCK_M1,
+    LOCK_M2,
+    LOCK_FREE
   } addr_arb_lock_t;
-  
+
   typedef enum logic [3:0] {
-    LOCK_S0, LOCK_S1, LOCK_S2, LOCK_NO
+    LOCK_S0,
+    LOCK_S1,
+    LOCK_S2,
+    LOCK_NO
   } data_arb_lock_t;
 
   // Address Decoder
   typedef enum logic [2:0] {
-    SLAVE_0, SLAVE_1, SLAVE_2
+    SLAVE_0,
+    SLAVE_1,
+    SLAVE_2
   } addr_dec_result_t;
 
-  function automatic addr_dec_result_t ADDR_DECODER (logic [`AXI_ADDR_BITS-1:0] address);
-    if(address >= 32'h0000_0000 && address < 32'h0001_0000)
+  function automatic addr_dec_result_t ADDR_DECODER(
+      logic [`AXI_ADDR_BITS-1:0] address);
+    if (address >= 32'h0000_0000 && address < 32'h0001_0000)
       ADDR_DECODER = SLAVE_0;
     else if (address >= 32'h0001_0000 && address < 32'h0010_0000)
       ADDR_DECODER = SLAVE_1;
-    else
-      ADDR_DECODER = SLAVE_2;
+    else ADDR_DECODER = SLAVE_2;
   endfunction
 
-  function automatic axi_master_id_t DATA_DECODER (logic [`AXI_IDS_BITS-1:0] IDS);
+  function automatic axi_master_id_t DATA_DECODER(
+      logic [`AXI_IDS_BITS-1:0] IDS);
     logic [`AXI_ID_BITS-1:0] IDS_UPPER = IDS[`AXI_IDS_BITS-1:`AXI_ID_BITS];
-    if (IDS_UPPER == AXI_MASTER_0_ID)
-      DATA_DECODER = AXI_MASTER_0_ID;
-    else if (IDS_UPPER == AXI_MASTER_1_ID)
-      DATA_DECODER = AXI_MASTER_1_ID;
-    else if (IDS_UPPER == AXI_MASTER_2_ID)
-      DATA_DECODER = AXI_MASTER_2_ID;
-    else
-      DATA_DECODER = AXI_MASTER_U_ID;
+    if (IDS_UPPER == AXI_MASTER_0_ID) DATA_DECODER = AXI_MASTER_0_ID;
+    else if (IDS_UPPER == AXI_MASTER_1_ID) DATA_DECODER = AXI_MASTER_1_ID;
+    else if (IDS_UPPER == AXI_MASTER_2_ID) DATA_DECODER = AXI_MASTER_2_ID;
+    else DATA_DECODER = AXI_MASTER_U_ID;
   endfunction
 
 endpackage : axi_pkg

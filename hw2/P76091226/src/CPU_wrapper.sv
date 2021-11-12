@@ -1,8 +1,11 @@
 `include "def.v"
 `include "CPU.sv"
 `include "AXI_define.svh"
+`include "cpu_wrapper_pkg.sv"
 
-module CPU_wrapper (
+module CPU_wrapper
+  import cpu_wrapper_pkg::*;
+(
     input logic clk,
     input logic rst,
     // Master 1 (MEM-stage)
@@ -111,16 +114,7 @@ module CPU_wrapper (
       .stallreq_from_mem
   );
 
-  localparam RESET_BIT = 0, SADDR_BIT = 1, SWAIT_BIT = 2, STEPP_BIT = 3;
-
-  typedef enum logic [3:0] {
-    RESET = 1 << RESET_BIT,
-    SADDR = 1 << SADDR_BIT,
-    SWAIT = 1 << SWAIT_BIT,
-    STEPP = 1 << STEPP_BIT
-  } wrapper_state_t;
-
-  wrapper_state_t if_curr_state, if_next_state;
+  cpu_wrapper_state_t if_curr_state, if_next_state;
 
   // State logic
   always_ff @(posedge clk, posedge rst) begin
@@ -168,7 +162,7 @@ module CPU_wrapper (
     endcase
   end
 
-  wrapper_state_t me_curr_state, me_next_state;
+  cpu_wrapper_state_t me_curr_state, me_next_state;
 
   // State logic
   always_ff @(posedge clk, posedge rst) begin
