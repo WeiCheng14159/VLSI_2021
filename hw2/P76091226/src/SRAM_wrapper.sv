@@ -168,7 +168,7 @@ always_ff@(posedge clk or negedge rst) begin
         prev_Wx_hs_done <= 1'b0;
     end else begin 
         w_offset  <= (AW_hs_done) ? AWADDR_S[1:0] : w_offset;
-        prev_Wx_hs_done  <= (Bx_hs_done) ? 1'b0 : (Wx_hs_done) ? 1'b1 : prev_Wx_hs_done;
+        prev_Wx_hs_done  <= (Bx_hs_done) ? 1'b0 : (Wx_hs_done) ? (WLAST_S) ? 1'b1 :1'b0 : prev_Wx_hs_done;
     end
 end
 
