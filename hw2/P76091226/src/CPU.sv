@@ -19,7 +19,8 @@ module CPU (
     output logic [`InstAddrBus] inst_addr_o,
     input  logic [    `DataBus] data_out_i,
     output logic                data_read_o,
-    output logic [         3:0] data_write_o,
+    output logic                data_write_o,
+    output logic [         3:0] data_write_web_o,
     output logic [`DataAddrBus] data_addr_o,
     output logic [    `DataBus] data_in_o,
     // Stall request from AXI
@@ -310,6 +311,7 @@ module CPU (
 
       .data_read_o(data_read_o),
       .data_write_o(data_write_o),
+      .data_write_web_o(data_write_web_o),
       .data_addr_o(data_addr_o),
       .data_in_o(data_in_o)
   );

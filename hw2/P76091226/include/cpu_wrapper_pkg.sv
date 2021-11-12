@@ -7,10 +7,10 @@ package cpu_wrapper_pkg;
   localparam VERSION = "v1.0";
   localparam AUTHOR = "Wei Cheng";
 
-  localparam RESET_BIT = 0, SADDR_BIT = 1, SWAIT_BIT = 2, STEPP_BIT = 3;
+  localparam IDLEE_BIT = 0, SADDR_BIT = 1, SWAIT_BIT = 2, STEPP_BIT = 3;
 
   typedef enum logic [3:0] {
-    RESET = 1 << RESET_BIT,
+    IDLEE = 1 << IDLEE_BIT,
     SADDR = 1 << SADDR_BIT,
     SWAIT = 1 << SWAIT_BIT,
     STEPP = 1 << STEPP_BIT

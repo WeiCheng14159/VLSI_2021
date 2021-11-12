@@ -2,6 +2,7 @@
 `include "CPU.sv"
 `include "AXI_define.svh"
 `include "cpu_wrapper_pkg.sv"
+`include "AXI/master.sv"
 
 module CPU_wrapper
   import cpu_wrapper_pkg::*;
@@ -44,7 +45,7 @@ module CPU_wrapper
     input logic RVALID_M1,
     output logic RREADY_M1,
     // Master 0 (IF-stage)
-    // Wx
+    // AWx
     output logic [`AXI_ID_BITS-1:0] AWID_M0,
     output logic [`AXI_ADDR_BITS-1:0] AWADDR_M0,
     output logic [`AXI_LEN_BITS-1:0] AWLEN_M0,
@@ -80,135 +81,125 @@ module CPU_wrapper
     output logic RREADY_M0
 );
 
-  logic [    `InstBus]  inst_out_i;
-  logic                 inst_read_o;
-  logic [`InstAddrBus]  inst_addr_o;
+  logic [    `InstBus]  inst_from_mem;
+  logic                 inst_read;
+  logic [`InstAddrBus]  inst_addr;
 
-  logic [    `DataBus]  data_out_i;
-  logic                 data_read_o;
-  logic [         3:0 ] data_write_o;
-  logic [`DataAddrBus]  data_addr_o;
-  logic [    `DataBus]  data_in_o;
+  logic [    `DataBus]  data_from_mem;
+  logic                 data_read;
+  logic                 data_write;
+  logic [         3:0 ] data_write_web;
+  logic [`DataAddrBus]  data_addr;
+  logic [    `DataBus]  data_to_mem;
 
-  logic                 stallreq_from_im;
+  // logic                 stallreq_from_im;
   logic                 stallreq_from_if;
   logic                 stallreq_from_mem;
 
-  assign stallreq_from_mem = `NoStop;
-
   CPU cpu0 (
-      .clk,
-      .rst,
+      .clk(clk),
+      .rst(rst),
 
-      .inst_out_i,
-      .inst_read_o,
-      .inst_addr_o,
-      .data_out_i,
-      .data_read_o,
-      .data_write_o,
-      .data_addr_o,
-      .data_in_o,
+      .inst_out_i(inst_from_mem),
+      // .inst_read_o(inst_read),
+      .inst_addr_o(inst_addr),
+      .data_out_i(data_from_mem),
+      .data_read_o(data_read),
+      .data_write_o(data_write),
+      .data_write_web_o(data_write_web),
+      .data_addr_o(data_addr),
+      .data_in_o(data_to_mem),
 
-      .stallreq_from_im,
-      .stallreq_from_if,
-      .stallreq_from_mem
+      .stallreq_from_im (1'b0),
+      .stallreq_from_if (stallreq_from_if),
+      .stallreq_from_mem(stallreq_from_mem)
   );
 
-  cpu_wrapper_state_t if_curr_state, if_next_state;
+  wire [3:0] NoWrite = 4'hf;
+  wire rstn = ~rst;
 
-  // State logic
-  always_ff @(posedge clk, posedge rst) begin
-    if (rst) if_curr_state <= RESET;
-    else if_curr_state <= if_next_state;
-  end
+  master M0 (
+      .clk(clk),
+      .rstn(rstn),
+      .AWID_M(AWID_M0),
+      .AWADDR_M(AWADDR_M0),
+      .AWLEN_M(AWLEN_M0),
+      .AWSIZE_M(AWSIZE_M0),
+      .AWBURST_M(AWBURST_M0),
+      .AWVALID_M(AWVALID_M0),
+      .AWREADY_M(AWREADY_M0),
+      .WDATA_M(WDATA_M0),
+      .WSTRB_M(WSTRB_M0),
+      .WLAST_M(WLAST_M0),
+      .WVALID_M(WVALID_M0),
+      .WREADY_M(WREADY_M0),
+      .BID_M(BID_M0),
+      .BRESP_M(BRESP_M0),
+      .BVALID_M(BVALID_M0),
+      .BREADY_M(BREADY_M0),
+      .ARID_M(ARID_M0),
+      .ARADDR_M(ARADDR_M0),
+      .ARLEN_M(ARLEN_M0),
+      .ARSIZE_M(ARSIZE_M0),
+      .ARBURST_M(ARBURST_M0),
+      .ARVALID_M(ARVALID_M0),
+      .ARREADY_M(ARREADY_M0),
+      .RID_M(RID_M0),
+      .RDATA_M(RDATA_M0),
+      .RRESP_M(RRESP_M0),
+      .RLAST_M(RLAST_M0),
+      .RVALID_M(RVALID_M0),
+      .RREADY_M(RREADY_M0),
+      // CPU interface
+      .read(inst_read),
+      .write(1'b0),
+      .w_type(NoWrite),
+      .data_in(32'b0),
+      .addr(inst_addr),
+      .data_out(inst_from_mem),
+      .stall(stallreq_from_if)
+  );
 
-  // Next state logic
-  always_comb begin
-    unique case (1'b1)
-      if_curr_state[RESET_BIT]: if_next_state = (inst_read_o) ? SADDR : RESET;
-      if_curr_state[SADDR_BIT]: if_next_state = (ARREADY_M0) ? SWAIT : SADDR;
-      if_curr_state[SWAIT_BIT]: if_next_state = (RVALID_M0) ? STEPP : SWAIT;
-      if_curr_state[STEPP_BIT]: if_next_state = SADDR;
-    endcase
-  end
-
-  // Output logic (IF-stage)
-  always_comb begin
-    ARADDR_M0 = 0;
-    ARID_M0 = 0;  // master 0
-    ARLEN_M0 = 0;  // Burst = 1
-    ARSIZE_M0 = 3'h4;  // 4B per transfer
-    ARBURST_M0 = `AXI_BURST_INC;
-    ARVALID_M0 = 1'b0;  // A3-39
-    RREADY_M0 = 1'b0;
-    stallreq_from_im = `Stop;
-    stallreq_from_if = `Stop;
-
-    case (1'b1)
-
-      if_curr_state[RESET_BIT]: begin
-      end
-      if_curr_state[SADDR_BIT]: begin
-        ARADDR_M0  = inst_addr_o;
-        ARVALID_M0 = 1'b1;  // A3-39
-      end
-      if_curr_state[SWAIT_BIT]: begin
-        RREADY_M0 = 1'b1;
-      end
-      if_curr_state[STEPP_BIT]: begin
-        stallreq_from_im = `NoStop;
-        stallreq_from_if = `NoStop;
-      end
-    endcase
-  end
-
-  cpu_wrapper_state_t me_curr_state, me_next_state;
-
-  // State logic
-  always_ff @(posedge clk, posedge rst) begin
-    if (rst) me_curr_state <= RESET;
-    else me_curr_state <= me_next_state;
-  end
-
-  // Next state logic
-  always_comb begin
-    unique case (1'b1)
-      me_curr_state[RESET_BIT]: me_next_state = (data_read_o) ? SADDR : RESET;
-      me_curr_state[SADDR_BIT]: me_next_state = (ARREADY_M1) ? SWAIT : SADDR;
-      me_curr_state[SWAIT_BIT]: me_next_state = (ARVALID_M1) ? STEPP : SWAIT;
-      me_curr_state[STEPP_BIT]: me_next_state = (RLAST_M1) ? RESET : STEPP;
-    endcase
-  end
-
-  // Output logic (ME-stage)
-  always_comb begin
-
-    ARADDR_M1 = 0;
-    ARID_M1 = 0;  // master 0
-    ARLEN_M1 = 0;  // Burst = 1
-    ARSIZE_M1 = 3'h4;  // 4B per transfer
-    ARBURST_M1 = `AXI_BURST_INC;
-    ARVALID_M1 = 1'b0;  // A3-39
-    RREADY_M1 = 1'b0;
-
-    unique case (1'b1)
-
-      me_curr_state[RESET_BIT]: begin
-      end
-      me_curr_state[SADDR_BIT]: begin
-        ARADDR_M1  = data_addr_o;
-        ARVALID_M1 = 1'b1;  // A3-39
-      end
-      me_curr_state[SWAIT_BIT]: begin
-        ARADDR_M1  = 0;
-        ARVALID_M1 = 1'b0;  // A3-39
-        RREADY_M1  = 1'b1;
-      end
-      me_curr_state[STEPP_BIT]: begin
-        ARADDR_M1  = 0;
-        ARVALID_M1 = 1'b0;  // A3-39
-      end
-    endcase
-  end
+  master M1 (
+      .clk(clk),
+      .rstn(rstn),
+      .AWID_M(AWID_M1),
+      .AWADDR_M(AWADDR_M1),
+      .AWLEN_M(AWLEN_M1),
+      .AWSIZE_M(AWSIZE_M1),
+      .AWBURST_M(AWBURST_M1),
+      .AWVALID_M(AWVALID_M1),
+      .AWREADY_M(AWREADY_M1),
+      .WDATA_M(WDATA_M1),
+      .WSTRB_M(WSTRB_M1),
+      .WLAST_M(WLAST_M1),
+      .WVALID_M(WVALID_M1),
+      .WREADY_M(WREADY_M1),
+      .BID_M(BID_M1),
+      .BRESP_M(BRESP_M1),
+      .BVALID_M(BVALID_M1),
+      .BREADY_M(BREADY_M1),
+      .ARID_M(ARID_M1),
+      .ARADDR_M(ARADDR_M1),
+      .ARLEN_M(ARLEN_M1),
+      .ARSIZE_M(ARSIZE_M1),
+      .ARBURST_M(ARBURST_M1),
+      .ARVALID_M(ARVALID_M1),
+      .ARREADY_M(ARREADY_M1),
+      .RID_M(RID_M1),
+      .RDATA_M(RDATA_M1),
+      .RRESP_M(RRESP_M1),
+      .RLAST_M(RLAST_M1),
+      .RVALID_M(RVALID_M1),
+      .RREADY_M(RREADY_M1),
+      // CPU interface
+      .read(data_read),
+      .write(data_write),
+      .w_type(data_write_web),
+      .data_in(data_to_mem),
+      .addr(data_addr),
+      .data_out(data_from_mem),
+      .stall(stallreq_from_mem)
+  );
 
 endmodule
