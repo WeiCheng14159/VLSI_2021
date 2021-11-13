@@ -57,7 +57,7 @@ module Bx
 
   always_comb begin
     data_arb_lock_next = LOCK_NO;
-    unique case (data_arb_lock)
+    case (data_arb_lock)
       LOCK_S0:
       data_arb_lock_next = (BREADY_from_master) ? (BVALID_S1) ? LOCK_S1 : (BVALID_S2) ? LOCK_S2 : LOCK_NO : LOCK_S0;
       LOCK_S1:
@@ -72,8 +72,11 @@ module Bx
             data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S1;
           else if (BVALID_S2)
             data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S2;
-        end else data_arb_lock_next = LOCK_NO;
+        end else begin
+          data_arb_lock_next = LOCK_NO;
+        end
       end
+      default: ;
     endcase
   end  // Next state (C)
 
@@ -85,7 +88,7 @@ module Bx
     BRESP_S = `AXI_RESP_SLVERR;
     {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, 1'b0, 1'b0};
 
-    unique case (data_arb_lock)
+    case (data_arb_lock)
       LOCK_S0: begin
         BVALID_S = BVALID_S0;
         BID_S = BID_S0;
@@ -105,6 +108,7 @@ module Bx
         BREADY_S2 = BREADY_from_master;
       end
       LOCK_NO: ;
+      default: ;
     endcase
   end
 
@@ -116,7 +120,7 @@ module Bx
     BVALID_M1 = 1'b0;
     BREADY_from_master = 1'b0;
 
-    unique case (decode_result)
+    case (decode_result)
       AXI_MASTER_0_ID: ;
       AXI_MASTER_1_ID: begin
         BID_M1 = BID_S[`AXI_ID_BITS-1:0];
@@ -126,6 +130,7 @@ module Bx
       end
       AXI_MASTER_2_ID: ;
       AXI_MASTER_U_ID: ;
+      default: ;
     endcase
   end
 

@@ -94,11 +94,9 @@ module master
   assign read_stall = read & ~r_fin;
   assign stall = read_stall | write_stall;
 
-  always_ff @( posedge clk or negedge rstn ) begin
-    if(~rstn)
-      r <= 1'b0;
-    else
-      r <= 1'b1;
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) r <= 1'b0;
+    else r <= 1'b1;
   end
 
   // ar_lock

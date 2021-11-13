@@ -86,16 +86,17 @@ always_ff@(posedge clk or negedge rst)begin
 end // State
 
 always_comb begin
-    next_state = IDLE;
-    unique case(curr_state)
+    case(curr_state)
         IDLE: begin
             next_state = (AWVALID_S) ? WRITE : (ARVALID_S) ? READ : IDLE;
         end
         READ: begin
             next_state = (Rx_hs_done & RLAST_S) ? ((AWVALID_S) ? WRITE : (ARVALID_S) ? READ : IDLE) : READ;
         end
-        WRITE:
+        WRITE: begin
             next_state = (Bx_hs_done & WLAST_S) ? ((AWVALID_S) ? WRITE : (ARVALID_S) ? READ : IDLE): WRITE;
+        end
+        default: next_state = IDLE;
     endcase
 end // Next state (C)
 
@@ -109,7 +110,7 @@ always_comb begin
     OE = 1'b0;
     A = prev_A;
 
-    unique case(curr_state)
+    case(curr_state)
         IDLE: begin
             AWREADY_S = 1'b1;
             WREADY_S = 1'b1;
@@ -140,6 +141,7 @@ always_comb begin
             OE = WLAST_S & Bx_hs_done & ~AWVALID_S & ARVALID_S;
             A = (WLAST_S & Bx_hs_done) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2]) : {prev_A[13:2],len_cnt[1:0]};
         end
+        default: ;
     endcase
 end
 

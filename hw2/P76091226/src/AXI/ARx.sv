@@ -82,7 +82,7 @@ module ARx
   // Next state logic
   always_comb begin
     addr_arb_lock_next = LOCK_FREE;
-    unique case (addr_arb_lock)
+    case (addr_arb_lock)
       LOCK_M0: addr_arb_lock_next = (ARREADY_from_slave) ? LOCK_FREE : LOCK_M0;
       LOCK_M1: addr_arb_lock_next = (ARREADY_from_slave) ? LOCK_FREE : LOCK_M1;
       LOCK_M2: ;
@@ -132,7 +132,7 @@ module ARx
     ARVALID_M = 1'b0;
     {ARREADY_M0, ARREADY_M1} = {1'b0, 1'b0};
 
-    unique case (addr_arb_lock)
+    case (addr_arb_lock)
       LOCK_M0: begin
         ARID_M = {AXI_MASTER_0_ID, ARID_M0};
         ARADDR_M = ARADDR_M0;
@@ -186,6 +186,7 @@ module ARx
           default: ;
         endcase
       end
+      default: ;
     endcase
   end
 
@@ -209,7 +210,7 @@ module ARx
     {ARVALID_S0, ARVALID_S1, ARVALID_S2} = {1'b0, 1'b0, 1'b0};
     ARREADY_from_slave = 1'b0;
 
-    unique case (decode_result)
+    case (decode_result)
       SLAVE_0: begin
         ARID_S0 = ARID_M;
         ARADDR_S0 = ARADDR_M;
@@ -238,6 +239,7 @@ module ARx
         ARREADY_from_slave = ARREADY_S2;
       end
       LOCK_NO: ;
+      default: ;
     endcase
   end  // always_comb
 

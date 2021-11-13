@@ -77,12 +77,12 @@ module Wx
   end  // State
 
   always_comb begin
-    addr_arb_lock_next = LOCK_FREE;
-    unique case (addr_arb_lock)
+    case (addr_arb_lock)
       LOCK_M1:
       addr_arb_lock_next = (WREADY_from_slave && WLAST_M1) ? LOCK_FREE : LOCK_M1;
       LOCK_FREE:
       addr_arb_lock_next = (WVALID_M1) ? (WREADY_from_slave && WLAST_M1) ? LOCK_FREE : LOCK_M1 : LOCK_FREE;
+      default: addr_arb_lock_next = LOCK_FREE;
     endcase
   end  // Next state (C)
 
@@ -118,7 +118,7 @@ module Wx
     {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, 1'b0};
     WREADY_from_slave = 1'b0;
 
-    unique case (Wx_slave_lock)
+    case (Wx_slave_lock)
       LOCK_S0: begin
         WDATA_S0 = WDATA_M;
         WSTRB_S0 = WSTRB_M;
@@ -141,6 +141,7 @@ module Wx
         WREADY_from_slave = WREADY_S2;
       end
       LOCK_NO: ;
+      default: ;
     endcase
   end
 

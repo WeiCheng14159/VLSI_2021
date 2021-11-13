@@ -62,8 +62,7 @@ module Rx
   end  // State
 
   always_comb begin
-    data_arb_lock_next = LOCK_NO;
-    unique case (data_arb_lock)
+    case (data_arb_lock)
       LOCK_S0:
       data_arb_lock_next = (READY_from_master) ? (RVALID_S1) ? LOCK_S1 : (RVALID_S2) ? LOCK_S2 : LOCK_NO : LOCK_S0;
       LOCK_S1:
@@ -79,12 +78,12 @@ module Rx
           data_arb_lock_next = (READY_from_master) ? LOCK_NO : LOCK_S2;
         else data_arb_lock_next = LOCK_NO;
       end
+      default: data_arb_lock_next = LOCK_NO;
     endcase
   end  // Next state (C)
 
   // Arbiter
   always_comb begin
-    // Default 
     RID_S = `AXI_IDS_BITS'b0;
     RDATA_S = `AXI_DATA_BITS'b0;
     RRESP_S = 2'b0;
@@ -92,7 +91,7 @@ module Rx
     RVALID_S = 1'b0;
     {RREADY_S0, RREADY_S1, RREADY_S2} = {1'b0, 1'b0, 1'b0};
 
-    unique case (data_arb_lock)
+    case (data_arb_lock)
       LOCK_S0: begin
         RID_S = RID_S0;
         RDATA_S = RDATA_S0;
@@ -143,6 +142,7 @@ module Rx
           // Nothing
         end
       end
+      default: ;
     endcase
   end
 
@@ -157,7 +157,7 @@ module Rx
     {RVALID_M0, RVALID_M1} = {1'b0, 1'b0};
     READY_from_master = 1'b0;
 
-    unique case (decode_result)
+    case (decode_result)
       AXI_MASTER_0_ID: begin
         RID_M0 = RID_S[`AXI_ID_BITS-1:0];
         RDATA_M0 = RDATA_S;
@@ -176,6 +176,7 @@ module Rx
       end
       AXI_MASTER_2_ID: ;
       AXI_MASTER_U_ID: ;
+      default: ;
     endcase
   end  // always_comb
 

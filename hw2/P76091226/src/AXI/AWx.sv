@@ -65,12 +65,12 @@ module AWx
 
   // Next state logic
   always_comb begin
-    addr_arb_lock_next = LOCK_FREE;
-    unique case (addr_arb_lock)
+    case (addr_arb_lock)
       LOCK_M0: addr_arb_lock_next = (AWREADY_from_slave) ? LOCK_FREE : LOCK_M0;
       LOCK_M1: addr_arb_lock_next = (AWREADY_from_slave) ? LOCK_FREE : LOCK_M1;
       LOCK_M2: addr_arb_lock_next = LOCK_FREE;
       LOCK_FREE: addr_arb_lock_next = (AWVALID_M1) ? LOCK_M1 : LOCK_FREE;
+      default: addr_arb_lock_next = LOCK_FREE;
     endcase
   end  // Next state (C)
 
@@ -93,7 +93,7 @@ module AWx
     AWVALID_M = 1'b0;
     AWREADY_M1 = 1'b0;
 
-    unique case (addr_arb_lock)
+    case (addr_arb_lock)
       LOCK_M0: ;
       LOCK_M1: begin
         AWID_M = {AXI_MASTER_1_ID, AWID_M1};
@@ -121,6 +121,7 @@ module AWx
           default: ;
         endcase
       end
+      default: ;
     endcase
   end
 
@@ -144,7 +145,7 @@ module AWx
     {AWVALID_S0, AWVALID_S1, AWVALID_S2} = {1'b0, 1'b0, 1'b0};
     AWREADY_from_slave = 1'b0;
 
-    unique case (decode_result)
+    case (decode_result)
       SLAVE_0: begin
         AWID_S0 = AWID_M;
         AWADDR_S0 = AWADDR_M;
@@ -172,6 +173,7 @@ module AWx
         AWVALID_S2 = AWVALID_M;
         AWREADY_from_slave = AWREADY_S2;
       end
+      default: ;
     endcase
   end
 
