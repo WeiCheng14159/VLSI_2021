@@ -112,7 +112,7 @@ module CPU (
 
   /* Register file */
   regfile regfile0 (
-      .clk(clk),
+      .clk (clk),
       .rstn(rstn),
 
       .we_i(wb_wreg),
@@ -140,7 +140,7 @@ module CPU (
 
   // IF
   ifetch ifetch0 (
-      .clk(clk),
+      .clk (clk),
       .rstn(rstn),
 
       .stallreq_from_im(stallreq_from_im),
@@ -160,7 +160,7 @@ module CPU (
 
   // IF-ID
   if_id if_id0 (
-      .clk(clk),
+      .clk (clk),
       .rstn(rstn),
 
       .if_pc  (if_pc),
@@ -215,7 +215,7 @@ module CPU (
 
   // ID-EX
   id_ex id_ex0 (
-      .clk(clk),
+      .clk (clk),
       .rstn(rstn),
 
       .id_pc(id_pc),
@@ -274,7 +274,7 @@ module CPU (
 
   // EX-MEM
   ex_mem ex_mem0 (
-      .clk(clk),
+      .clk (clk),
       .rstn(rstn),
 
       .ex_pc(ex_pc),
@@ -318,7 +318,7 @@ module CPU (
 
   // MEM-WB
   mem_wb mem_wb0 (
-      .clk(clk),
+      .clk (clk),
       .rstn(rstn),
 
       .mem_rd(mem_rd),

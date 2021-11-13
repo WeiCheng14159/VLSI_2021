@@ -70,26 +70,26 @@ module master
   end
 
   always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin 
+    if (~rstn) begin
       ARADDR_M_r <= `AXI_ADDR_BITS'b0;
       AWADDR_M_r <= `AXI_ADDR_BITS'b0;
-    end else if(m_curr_state != AR & m_next_state == AR) begin
+    end else if (m_curr_state != AR & m_next_state == AR) begin
       ARADDR_M_r <= addr;
-    end else if(m_curr_state != AW & m_next_state == AW) begin
+    end else if (m_curr_state != AW & m_next_state == AW) begin
       AWADDR_M_r <= addr;
     end
   end
-  
+
   always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin 
+    if (~rstn) begin
       WDATA_M_r <= `AXI_ADDR_BITS'b0;
       WSTRB_M_r <= `AXI_STRB_BITS'b0;
-    end else if(m_curr_state != W & m_next_state == W) begin
+    end else if (m_curr_state != W & m_next_state == W) begin
       WDATA_M_r <= data_in;
       WSTRB_M_r <= w_type;
     end
   end
-  
+
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
       m_curr_state <= IDLE;

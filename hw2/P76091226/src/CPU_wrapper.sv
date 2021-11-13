@@ -97,7 +97,7 @@ module CPU_wrapper
   logic                 stallreq_from_mem;
 
   CPU cpu0 (
-      .clk(clk),
+      .clk (clk),
       .rstn(rstn),
 
       .inst_out_i(inst_from_mem),
@@ -115,7 +115,7 @@ module CPU_wrapper
       .stallreq_from_mem(stallreq_from_mem)
   );
 
-  wire              [3:0] NoWrite = 4'hf;
+  wire [3:0] NoWrite = 4'hf;
 
   master M0 (
       .clk(clk),

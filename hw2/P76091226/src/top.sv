@@ -166,7 +166,7 @@ module top (
   assign BVALID_M0 = 1'b0;
 
   CPU_wrapper cpu_wrapper0 (
-      .clk(clk),
+      .clk (clk),
       .rstn(rstn_sync),
       .*
   );
