@@ -33,10 +33,8 @@ module regfile(
   end
 
   // rdata1_o
-  always @(*) begin
-    if(~rstn) begin
-      rdata1_o = `ZeroWord;
-    end else if(raddr1_i == `RegNumLog2'h0) begin
+  always_comb begin
+    if(raddr1_i == `RegNumLog2'h0) begin
       rdata1_o = `ZeroWord;
     end else if((raddr1_i == waddr_i) && (we_i == `WriteEnable) &&
                 (re1_i == `ReadEnable)) begin
@@ -49,10 +47,8 @@ module regfile(
   end
 
   // rdata2_o
-  always @(*) begin
-    if(~rstn) begin
-      rdata2_o = `ZeroWord;
-    end else if(raddr2_i == `RegNumLog2'h0) begin
+  always_comb begin
+    if(raddr2_i == `RegNumLog2'h0) begin
       rdata2_o = `ZeroWord;
     end else if((raddr2_i == waddr_i) && (we_i == `WriteEnable) &&
                 (re2_i == `ReadEnable)) begin
