@@ -49,7 +49,7 @@ module id(
   output logic                          next_inst_in_delayslot_o,
 
   // Stall
-  output                                stallreq,
+  output logic                          stallreq,
   output logic                          flush_o
 );                   
 
