@@ -78,8 +78,8 @@ assign BRESP_S = `AXI_RESP_OKAY;
 // Wx
 assign DI = WDATA_S;
 
-always_ff@(posedge clk or negedge rst)begin
-	if(~rst)
+always_ff@(posedge clk or posedge rst)begin
+	if(rst)
 		curr_state <= IDLE;
 	else 
 		curr_state <= next_state;
@@ -146,8 +146,8 @@ always_comb begin
 end
 
 
-always_ff@(posedge clk or negedge rst) begin
-    if(~rst) begin
+always_ff@(posedge clk or posedge rst) begin
+    if(rst) begin
         len_cnt <= `AXI_LEN_BITS'b0;
     end else if(curr_state[READ_BIT])begin
         len_cnt <= (RLAST_S & Rx_hs_done) ? `AXI_LEN_BITS'b0 : (Rx_hs_done) ? len_cnt + `AXI_LEN_BITS'b1 : len_cnt; 
@@ -156,8 +156,8 @@ always_ff@(posedge clk or negedge rst) begin
     end
 end
 
-always_ff@(posedge clk or negedge rst) begin
-    if(~rst) begin
+always_ff@(posedge clk or posedge rst) begin
+    if(rst) begin
         w_offset <= 2'b0;
         prev_Wx_hs_done <= 1'b0;
     end else begin 
@@ -166,10 +166,17 @@ always_ff@(posedge clk or negedge rst) begin
     end
 end
 
-always_ff@(posedge clk) begin
-    prev_A       <= (AW_hs_done) ? AWADDR_S [15:2] : (ARx_hs_done) ? ARADDR_S [15:2] : prev_A;
-    prev_ID      <= (AW_hs_done) ? AWID_S          : (ARx_hs_done) ? ARID_S          : prev_ID;
-    prev_LEN     <= (AW_hs_done) ? AWLEN_S         : (ARx_hs_done) ? ARLEN_S         : prev_LEN;
+always_ff@(posedge clk or posedge rst) begin
+    if(rst) begin
+        prev_A       <= 14'b0;
+        prev_ID      <= `AXI_IDS_BITS'b0;
+        prev_LEN     <= `AXI_LEN_BITS'b0;
+    end else begin
+        prev_A       <= (AW_hs_done) ? AWADDR_S [15:2] : (ARx_hs_done) ? ARADDR_S [15:2] : prev_A;
+        prev_ID      <= (AW_hs_done) ? AWID_S          : (ARx_hs_done) ? ARID_S          : prev_ID;
+        prev_LEN     <= (AW_hs_done) ? AWLEN_S         : (ARx_hs_done) ? ARLEN_S         : prev_LEN;
+    end
+    
 end
 
 always_comb begin
