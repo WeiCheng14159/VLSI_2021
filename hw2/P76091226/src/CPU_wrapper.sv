@@ -101,7 +101,7 @@ module CPU_wrapper
       .rst(rst),
 
       .inst_out_i(inst_from_mem),
-      // .inst_read_o(inst_read),
+      .inst_read_o(inst_read),
       .inst_addr_o(inst_addr),
       .data_out_i(data_from_mem),
       .data_read_o(data_read),
@@ -115,7 +115,7 @@ module CPU_wrapper
       .stallreq_from_mem(stallreq_from_mem)
   );
 
-  wire [3:0] NoWrite = 4'hf;
+  wire              [3:0] NoWrite = 4'hf;
   wire rstn = ~rst;
 
   master M0 (
