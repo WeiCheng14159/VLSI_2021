@@ -106,7 +106,7 @@ module top #(
 
   SRAM_wrapper axi_duv_slave (
       .clk(aclk),
-      .rst(aresetn),
+      .rstn(aresetn),
       // AWx
       .AWID_S(awid),
       .AWADDR_S(awaddr),

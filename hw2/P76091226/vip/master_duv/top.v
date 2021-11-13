@@ -135,7 +135,7 @@ module top #(
 
   CPU_wrapper cpu_wrapper (
       .clk(aclk),
-      .rst(aresetn),
+      .rstn(aresetn),
 
       .AWID_M0(awid_m0),
       .AWADDR_M0(awaddr_m0),
