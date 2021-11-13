@@ -61,7 +61,6 @@ package axi_pkg;
   typedef enum logic [2:0] {
     LOCK_M0,
     LOCK_M1,
-    LOCK_M2,
     LOCK_FREE
   } addr_arb_lock_t;
 

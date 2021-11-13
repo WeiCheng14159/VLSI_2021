@@ -85,7 +85,6 @@ module ARx
     case (addr_arb_lock)
       LOCK_M0: addr_arb_lock_next = (ARREADY_from_slave) ? LOCK_FREE : LOCK_M0;
       LOCK_M1: addr_arb_lock_next = (ARREADY_from_slave) ? LOCK_FREE : LOCK_M1;
-      LOCK_M2: ;
       LOCK_FREE: begin
         case ({
           ARVALID_M0, ARVALID_M1
@@ -151,7 +150,6 @@ module ARx
         ARVALID_M = ARVALID_M1;
         ARREADY_M1 = ARREADY_from_slave & ~lock_ARREADY_M1;
       end
-      LOCK_M2: ;
       LOCK_FREE: begin
         case ({
           ARVALID_M0, ARVALID_M1
