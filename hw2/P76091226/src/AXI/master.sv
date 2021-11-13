@@ -51,7 +51,9 @@ module master
 );
 
 
-  logic [`AXI_DATA_BITS-1:0] RDATA_M_r;
+  logic [`AXI_ADDR_BITS-1:0] ARADDR_M_r, AWADDR_M_r;
+  logic [`AXI_DATA_BITS-1:0] RDATA_M_r, WDATA_M_r;
+  logic [`AXI_STRB_BITS-1:0] WSTRB_M_r;
   master_state_t m_curr_state, m_next_state;
   logic ARx_hs_done, Rx_hs_done, AW_hs_done, Wx_hs_done, Bx_hs_done;
 
@@ -67,6 +69,27 @@ module master
     else RDATA_M_r <= (Rx_hs_done) ? RDATA_M : RDATA_M_r;
   end
 
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin 
+      ARADDR_M_r <= `AXI_ADDR_BITS'b0;
+      AWADDR_M_r <= `AXI_ADDR_BITS'b0;
+    end else if(m_curr_state != AR & m_next_state == AR) begin
+      ARADDR_M_r <= addr;
+    end else if(m_curr_state != AW & m_next_state == AW) begin
+      AWADDR_M_r <= addr;
+    end
+  end
+  
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin 
+      WDATA_M_r <= `AXI_ADDR_BITS'b0;
+      WSTRB_M_r <= `AXI_STRB_BITS'b0;
+    end else if(m_curr_state != W & m_next_state == W) begin
+      WDATA_M_r <= data_in;
+      WSTRB_M_r <= w_type;
+    end
+  end
+  
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
       m_curr_state <= IDLE;
@@ -80,10 +103,10 @@ module master
     case (m_curr_state)
       IDLE: m_next_state = (write) ? AW : (read) ? AR : IDLE;
       AR: m_next_state = (ARREADY_M) ? R : AR;
-      R: m_next_state = (RREADY_M) ? (write ? AW : read ? AR : IDLE) : R;
+      R: m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
       AW: m_next_state = (AWREADY_M) ? W : AW;
       W: m_next_state = (WREADY_M) ? B : W;
-      B: m_next_state = (BREADY_M) ? (write ? AW : read ? AR : IDLE) : B;
+      B: m_next_state = (Bx_hs_done) ? (write ? AW : read ? AR : IDLE) : B;
       default: ;
     endcase
   end  // Next state (C)
@@ -91,21 +114,21 @@ module master
   always_comb begin
     // AWx
     AWID_M = `AXI_IDS_BITS'b0;
-    AWADDR_M = addr;
+    AWADDR_M = AWADDR_M_r;
     AWLEN_M = `AXI_LEN_BITS'b0;
     AWSIZE_M = `AXI_SIZE_BITS'b0;
     AWBURST_M = `AXI_BURST_INC;
     AWVALID_M = 1'b0;
     // Wx
-    WDATA_M = data_in;
-    WSTRB_M = w_type;
+    WDATA_M = WDATA_M_r;
+    WSTRB_M = WSTRB_M_r;
     WLAST_M = 1'b1;
     WVALID_M = 1'b0;
     // Bx
     BREADY_M = 1'b0;
     // ARx
     ARID_M = `AXI_IDS_BITS'b0;
-    ARADDR_M = addr;
+    ARADDR_M = ARADDR_M_r;
     ARLEN_M = `AXI_LEN_BITS'b0;
     ARSIZE_M = `AXI_SIZE_BITS'b0;
     ARBURST_M = `AXI_BURST_INC;
@@ -121,8 +144,6 @@ module master
         // ARx
         ARBURST_M = `AXI_BURST_INC;
         ARVALID_M = 1'b1;
-        // Rx
-        RREADY_M  = 1'b1;
       end
       R: begin
         // Rx
@@ -131,8 +152,6 @@ module master
       AW: begin
         // AWx
         AWVALID_M = 1'b1;
-        // Wx
-        WVALID_M  = 1'b1;
       end
       W: begin
         // Wx
