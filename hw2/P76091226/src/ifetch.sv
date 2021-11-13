@@ -1,7 +1,7 @@
 `include "def.v"
 module ifetch (
     input logic clk,
-    input logic rst,
+    input logic rstn,
 
     input logic                  stallreq_from_im,
     input logic [`STAGE_NUM-1:0] stall,
@@ -27,14 +27,14 @@ module ifetch (
   assign next_pc = fetch_pc + 4;
 
   // stall_prev
-  always_ff @(posedge clk, posedge rst) begin
-    if (rst) stall_prev <= `STAGE_NUM'b0;
+  always_ff @(posedge clk, negedge rstn) begin
+    if (~rstn) stall_prev <= `STAGE_NUM'b0;
     else stall_prev <= stall;
   end
 
   // fetch_pc
-  always_ff @(posedge clk, posedge rst) begin
-    if (rst) begin
+  always_ff @(posedge clk, negedge rstn) begin
+    if (~rstn) begin
       fetch_pc <= `StartAddr;
     end else begin
       fetch_pc <= (stallreq_from_im == `Stop) ? fetch_pc :
@@ -46,8 +46,8 @@ module ifetch (
   end
 
   // if_pc_o
-  always_ff @(posedge clk, posedge rst) begin
-    if (rst) begin
+  always_ff @(posedge clk, negedge rstn) begin
+    if (~rstn) begin
       if_pc_o <= `ZeroWord;
     end else begin
       if_pc_o <= (flush == `True) ? new_pc_i : (stall[`IF_STAGE] == `Stop) ? `ZeroWord : fetch_pc;

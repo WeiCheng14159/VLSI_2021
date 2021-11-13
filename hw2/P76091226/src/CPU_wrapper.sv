@@ -8,7 +8,7 @@ module CPU_wrapper
   import cpu_wrapper_pkg::*;
 (
     input logic clk,
-    input logic rst,
+    input logic rstn,
     // Master 1 (MEM-stage)
     // AWx
     output logic [`AXI_ID_BITS-1:0] AWID_M1,
@@ -98,7 +98,7 @@ module CPU_wrapper
 
   CPU cpu0 (
       .clk(clk),
-      .rst(rst),
+      .rstn(rstn),
 
       .inst_out_i(inst_from_mem),
       .inst_read_o(inst_read),
@@ -116,7 +116,6 @@ module CPU_wrapper
   );
 
   wire              [3:0] NoWrite = 4'hf;
-  wire rstn = ~rst;
 
   master M0 (
       .clk(clk),

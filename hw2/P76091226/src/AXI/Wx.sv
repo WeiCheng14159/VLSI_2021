@@ -65,7 +65,7 @@ module Wx
   end
 
   always_ff @(posedge clk, negedge rstn) begin
-    if (!rstn) begin
+    if (~rstn) begin
       addr_arb_lock <= LOCK_FREE;
     end else begin
       addr_arb_lock <= addr_arb_lock_next;
@@ -91,7 +91,7 @@ module Wx
 
   // Latch data at the first rising edge after VALID_Mx is asserted
   always_ff @(posedge clk, negedge rstn) begin
-    if (!rstn) begin
+    if (~rstn) begin
       AWx_slave_lock_r <= LOCK_NO;
     end else if (addr_arb_lock != LOCK_M1 && addr_arb_lock_next == LOCK_M1) begin
       AWx_slave_lock_r <= AWx_slave_lock;

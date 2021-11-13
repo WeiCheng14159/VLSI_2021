@@ -13,7 +13,7 @@
 
 module CPU (
     input  logic                clk,
-    input  logic                rst,
+    input  logic                rstn,
     input  logic [    `InstBus] inst_out_i,
     output logic                inst_read_o,
     output logic [`InstAddrBus] inst_addr_o,
@@ -113,7 +113,7 @@ module CPU (
   /* Register file */
   regfile regfile0 (
       .clk(clk),
-      .rst(rst),
+      .rstn(rstn),
 
       .we_i(wb_wreg),
       .waddr_i(wb_rd),
@@ -141,7 +141,7 @@ module CPU (
   // IF
   ifetch ifetch0 (
       .clk(clk),
-      .rst(rst),
+      .rstn(rstn),
 
       .stallreq_from_im(stallreq_from_im),
       .stall(stallreq),
@@ -161,7 +161,7 @@ module CPU (
   // IF-ID
   if_id if_id0 (
       .clk(clk),
-      .rst(rst),
+      .rstn(rstn),
 
       .if_pc  (if_pc),
       .if_inst(if_inst),
@@ -216,7 +216,7 @@ module CPU (
   // ID-EX
   id_ex id_ex0 (
       .clk(clk),
-      .rst(rst),
+      .rstn(rstn),
 
       .id_pc(id_pc),
       .id_func3(id_func3),
@@ -275,7 +275,7 @@ module CPU (
   // EX-MEM
   ex_mem ex_mem0 (
       .clk(clk),
-      .rst(rst),
+      .rstn(rstn),
 
       .ex_pc(ex_pc),
       .ex_func3(ex_func3),
@@ -319,7 +319,7 @@ module CPU (
   // MEM-WB
   mem_wb mem_wb0 (
       .clk(clk),
-      .rst(rst),
+      .rstn(rstn),
 
       .mem_rd(mem_rd),
       .mem_wreg(mem_wreg),

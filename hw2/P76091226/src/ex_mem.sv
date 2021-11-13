@@ -1,7 +1,7 @@
 `include "def.v"
 module ex_mem (
     input logic clk,
-    input logic rst,
+    input logic rstn,
 
     input logic [       `RegBus] ex_pc,
     input logic [   `RegAddrBus] ex_rd,
@@ -26,8 +26,8 @@ module ex_mem (
     output logic               mem_mem2reg
 );
 
-  always_ff @(posedge clk, posedge rst) begin
-    if (rst) begin
+  always_ff @(posedge clk, negedge rstn) begin
+    if (~rstn) begin
       mem_pc        <= `ZeroWord;
       mem_func3     <= 3'b0;
       mem_rd        <= `NopRegAddr;

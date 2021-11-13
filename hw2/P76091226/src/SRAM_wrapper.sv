@@ -5,7 +5,7 @@ module SRAM_wrapper
   import sram_wrapper_pkg::*;
   (
     input logic clk,
-    input logic rst,
+    input logic rstn,
     // AWx
 	input logic [`AXI_IDS_BITS-1:0] AWID_S,
 	input logic [`AXI_ADDR_BITS-1:0] AWADDR_S,
@@ -78,8 +78,8 @@ assign BRESP_S = `AXI_RESP_OKAY;
 // Wx
 assign DI = WDATA_S;
 
-always_ff@(posedge clk or posedge rst)begin
-	if(rst)
+always_ff@(posedge clk or negedge rstn)begin
+	if(~rstn)
 		curr_state <= IDLE;
 	else 
 		curr_state <= next_state;
@@ -146,8 +146,8 @@ always_comb begin
 end
 
 
-always_ff@(posedge clk or posedge rst) begin
-    if(rst) begin
+always_ff@(posedge clk or negedge rstn) begin
+    if(~rstn) begin
         len_cnt <= `AXI_LEN_BITS'b0;
     end else if(curr_state[READ_BIT])begin
         len_cnt <= (RLAST_S & Rx_hs_done) ? `AXI_LEN_BITS'b0 : (Rx_hs_done) ? len_cnt + `AXI_LEN_BITS'b1 : len_cnt; 
@@ -156,8 +156,8 @@ always_ff@(posedge clk or posedge rst) begin
     end
 end
 
-always_ff@(posedge clk or posedge rst) begin
-    if(rst) begin
+always_ff@(posedge clk or negedge rstn) begin
+    if(~rstn) begin
         w_offset <= 2'b0;
         prev_Wx_hs_done <= 1'b0;
     end else begin 
@@ -166,8 +166,8 @@ always_ff@(posedge clk or posedge rst) begin
     end
 end
 
-always_ff@(posedge clk or posedge rst) begin
-    if(rst) begin
+always_ff@(posedge clk or negedge rstn) begin
+    if(~rstn) begin
         prev_A       <= 14'b0;
         prev_ID      <= `AXI_IDS_BITS'b0;
         prev_LEN     <= `AXI_LEN_BITS'b0;

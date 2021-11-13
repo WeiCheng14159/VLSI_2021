@@ -1,7 +1,7 @@
 `include "def.v"
 module regfile(
   input logic                 clk,
-  input logic                 rst,
+  input logic                 rstn,
 
   input logic                 we_i,
   input logic   [`RegAddrBus] waddr_i,
@@ -20,8 +20,8 @@ module regfile(
   logic             [`RegBus] regs [0:`RegNum-1];
 
   /* Write reg file */
-  always @(posedge clk, posedge rst) begin
-    if(rst) begin
+  always @(posedge clk, negedge rstn) begin
+    if(~rstn) begin
       for(i=0 ; i<`RegNum ; i=i+1) begin
         regs[i] <= `ZeroWord;
       end
@@ -34,7 +34,7 @@ module regfile(
 
   // rdata1_o
   always @(*) begin
-    if(rst) begin
+    if(~rstn) begin
       rdata1_o = `ZeroWord;
     end else if(raddr1_i == `RegNumLog2'h0) begin
       rdata1_o = `ZeroWord;
@@ -50,7 +50,7 @@ module regfile(
 
   // rdata2_o
   always @(*) begin
-    if(rst) begin
+    if(~rstn) begin
       rdata2_o = `ZeroWord;
     end else if(raddr2_i == `RegNumLog2'h0) begin
       rdata2_o = `ZeroWord;

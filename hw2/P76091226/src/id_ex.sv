@@ -2,7 +2,7 @@
 
 module id_ex(
     input logic                         clk,
-    input logic                         rst,
+    input logic                         rstn,
     
     input logic               [`RegBus] id_pc,
     input logic             [`Func3Bus] id_func3,
@@ -43,15 +43,15 @@ module id_ex(
 
   logic id_nnext_in_delayslot;
 
-  always_ff @(posedge clk, posedge rst) begin
-    if(rst)
+  always_ff @(posedge clk, negedge rstn) begin
+    if(~rstn)
       id_nnext_in_delayslot <= `NotInDelaySlot;
     else 
       id_nnext_in_delayslot <= id_next_inst_in_delayslot;
   end
 
-  always_ff @(posedge clk, posedge rst) begin
-    if (rst) begin
+  always_ff @(posedge clk, negedge rstn) begin
+    if (~rstn) begin
       ex_pc                 <= `ZeroWord;
       ex_func3              <= 3'b000;
       ex_aluop              <= (1'b1 << `ALUOP_ADD);

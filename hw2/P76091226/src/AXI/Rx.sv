@@ -54,7 +54,7 @@ module Rx
   axi_master_id_t decode_result;
 
   always_ff @(posedge clk, negedge rstn) begin
-    if (!rstn) begin
+    if (~rstn) begin
       data_arb_lock <= LOCK_NO;
     end else begin
       data_arb_lock <= data_arb_lock_next;

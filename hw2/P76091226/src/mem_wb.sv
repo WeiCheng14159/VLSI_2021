@@ -2,7 +2,7 @@
 
 module mem_wb(
   input logic                           clk,
-  input logic                           rst,
+  input logic                           rstn,
 
   input logic             [`RegAddrBus] mem_rd,
   input logic                           mem_wreg,
@@ -19,8 +19,8 @@ module mem_wb(
   output logic              [`Func3Bus] wb_func3 
 );
 
-  always_ff @(posedge clk, posedge rst) begin
-    if (rst) begin
+  always_ff @(posedge clk, negedge rstn) begin
+    if (~rstn) begin
       wb_rd          <= `NopRegAddr;
       wb_wreg        <= `WriteDisable;
       wb_mem2reg     <= `NotMem2Reg;

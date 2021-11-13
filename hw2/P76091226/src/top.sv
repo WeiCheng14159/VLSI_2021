@@ -167,7 +167,7 @@ module top (
 
   CPU_wrapper cpu_wrapper0 (
       .clk(clk),
-      .rst(rst_sync),
+      .rstn(rstn_sync),
       .*
   );
 
@@ -179,7 +179,7 @@ module top (
 
   SRAM_wrapper IM1 (
       .clk(clk),
-      .rst(rst_sync),
+      .rstn(rstn_sync),
       // AWx
       .AWID_S(AWID_S0),
       .AWADDR_S(AWADDR_S0),
@@ -218,7 +218,7 @@ module top (
 
   SRAM_wrapper DM1 (
       .clk(clk),
-      .rst(rst_sync),
+      .rstn(rstn_sync),
       // AWx
       .AWID_S(AWID_S1),
       .AWADDR_S(AWADDR_S1),

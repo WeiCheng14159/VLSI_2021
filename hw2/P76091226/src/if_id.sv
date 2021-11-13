@@ -1,7 +1,7 @@
 `include "def.v"
 module if_id(
   input logic                           clk,
-  input logic                           rst,
+  input logic                           rstn,
 
   input logic                 [`RegBus] if_pc,
   input logic                [`InstBus] if_inst,
@@ -12,8 +12,8 @@ module if_id(
   output logic               [`InstBus] id_inst
 );
 
-  always_ff @(posedge clk, posedge rst) begin
-    if (rst) begin
+  always_ff @(posedge clk, negedge rstn) begin
+    if (~rstn) begin
       id_pc   <= `ZeroWord;
       id_inst <= `NOP;
     end else if (flush == `True | 

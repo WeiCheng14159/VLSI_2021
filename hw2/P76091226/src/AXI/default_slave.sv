@@ -3,7 +3,7 @@ module default_slave
   import axi_pkg::*;
 (
     input  logic                      clk,
-    input  logic                      rst,
+    input  logic                      rstn,
     input  logic [ `AXI_IDS_BITS-1:0] ARID_DEFAULT,
     input  logic [`AXI_ADDR_BITS-1:0] ARADDR_DEFAULT,
     input  logic [ `AXI_LEN_BITS-1:0] ARLEN_DEFAULT,
@@ -49,8 +49,8 @@ module default_slave
   logic [`AXI_LEN_BITS-1:0] ARLEN_cnt;
   assign RLAST_DEFAULT = (RVALID_DEFAULT && ARLEN_cnt == `AXI_LEN_BITS'b0) ? 1'b1 : 1'b0;
 
-  always_ff @(posedge clk or negedge rst) begin
-    if (~rst) begin
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
       ARLEN_cnt <= `AXI_LEN_BITS'b0;
     end else begin
       ARLEN_cnt <= (ARREADY_DEFAULT & ARVALID_DEFAULT) ? ARLEN_DEFAULT : (RREADY_DEFAULT) ? (ARLEN_cnt - 1) : ARLEN_cnt;
@@ -58,8 +58,8 @@ module default_slave
   end
 
   // Read channel
-  always_ff @(posedge clk or negedge rst) begin
-    if (~rst) begin
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
       RVALID_DEFAULT <= 1'b0;
       RID_DEFAULT <= {AXI_MASTER_2_ID, `AXI_ID_BITS'b0};
       ARREADY_DEFAULT <= 1'b1;
@@ -85,8 +85,8 @@ module default_slave
   assign W_FIN = WREADY_DEFAULT & WVALID_DEFAULT;
 
   // Write channel
-  always_ff @(posedge clk or negedge rst) begin
-    if (~rst) begin
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
       BVALID_DEFAULT <= 1'b0;
       BID_DEFAULT <= {AXI_MASTER_2_ID, `AXI_ID_BITS'b0};
       AWREADY_DEFAULT <= 1'b0;

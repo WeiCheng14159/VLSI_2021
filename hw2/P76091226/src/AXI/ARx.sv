@@ -72,7 +72,7 @@ module ARx
   addr_arb_lock_t addr_arb_lock, addr_arb_lock_next;
 
   always_ff @(posedge clk, negedge rstn) begin
-    if (!rstn) begin
+    if (~rstn) begin
       addr_arb_lock <= LOCK_FREE;
     end else begin
       addr_arb_lock <= addr_arb_lock_next;

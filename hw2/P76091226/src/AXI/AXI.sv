@@ -189,7 +189,7 @@ module AXI
 
   default_slave default_slave0 (
       .clk(ACLK),
-      .rst(ARESETn),
+      .rstn(ARESETn),
       .*
   );
 
