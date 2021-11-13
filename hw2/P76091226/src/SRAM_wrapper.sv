@@ -96,7 +96,7 @@ always_comb begin
         WRITE: begin
             next_state = (Bx_hs_done & WLAST_S) ? ((AWVALID_S) ? WRITE : (ARVALID_S) ? READ : IDLE): WRITE;
         end
-        default: next_state = IDLE;
+        default: next_state = curr_state;
     endcase
 end // Next state (C)
 
