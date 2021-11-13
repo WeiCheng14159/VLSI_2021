@@ -171,7 +171,7 @@ module top (
       .*
   );
 
-  AXI axi0 (
+  AXI axi (
       .ACLK(clk),
       .ARESETn(rstn_sync),
       .*
