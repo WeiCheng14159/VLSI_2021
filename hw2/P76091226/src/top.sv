@@ -171,14 +171,14 @@ module top (
       .*
   );
 
-  AXI axi (
+  AXI axi0 (
       .ACLK(clk),
       .ARESETn(rstn_sync),
       .*
   );
 
   SRAM_wrapper IM1 (
-      .clk,
+      .clk(clk),
       .rst(rst_sync),
       // AWx
       .AWID_S(AWID_S0),
@@ -217,7 +217,7 @@ module top (
   );
 
   SRAM_wrapper DM1 (
-      .clk,
+      .clk(clk),
       .rst(rst_sync),
       // AWx
       .AWID_S(AWID_S1),
