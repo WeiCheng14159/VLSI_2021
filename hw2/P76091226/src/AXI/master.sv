@@ -81,7 +81,7 @@ module master
   assign WSTRB_M = w_type;
   assign WLAST_M = 1'b1;
   // Bx
-  assign BREADY_M = bready_lock | w_fin;
+  assign BREADY_M = bready_lock /*| w_fin*/;
   // *_fin
   assign ar_fin = ARREADY_M & ARVALID_M;
   assign r_fin = RREADY_M & RVALID_M;
