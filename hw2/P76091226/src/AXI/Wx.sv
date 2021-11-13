@@ -43,10 +43,6 @@ module Wx
   logic                      WLAST_M;
   logic                      WVALID_M;
 
-  logic [`AXI_DATA_BITS-1:0] WDATA_M_r;
-  logic [`AXI_STRB_BITS-1:0] WSTRB_M_r;
-  logic                      WLAST_M_r;
-
   logic                      WREADY_from_slave;
 
   logic slow_transaction, fast_transaction;

@@ -39,8 +39,6 @@ module default_slave
 );
 
   logic lockAR;
-  logic [`AXI_IDS_BITS-1:0] ARID_DEFAULT_REG;
-  logic [`AXI_IDS_BITS-1:0] AWID_DEFAULT_REG;
   logic AR_FIN;
 
   assign AR_FIN = ARREADY_DEFAULT & ARVALID_DEFAULT;
@@ -74,7 +72,7 @@ module default_slave
     end
   end
 
-  logic lockB;
+  // logic lockB;
   logic lockAW;
   logic lockW;
   logic AW_FIN;
