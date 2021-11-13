@@ -52,17 +52,11 @@ logic OE;
 
 sram_wrapper_state_t curr_state, next_state;
 
-logic AW_hs_done;
-logic Wx_hs_done;
-logic Bx_hs_done;
-logic Rx_hs_done;
-logic ARx_hs_done;
+logic ARx_hs_done, Rx_hs_done, AW_hs_done, Wx_hs_done, Bx_hs_done;
 
 logic [13:0] prev_A;
 logic [`AXI_IDS_BITS-1:0] prev_ID;
 logic [`AXI_LEN_BITS-1:0] prev_LEN;
-logic [`AXI_SIZE_BITS-1:0] prev_SIZE;
-logic [1:0] prev_BURST;
 logic prev_Wx_hs_done;
 logic [`AXI_LEN_BITS-1:0] len_cnt;
 logic [1:0] w_offset;
@@ -174,8 +168,6 @@ always_ff@(posedge clk) begin
     prev_A       <= (AW_hs_done) ? AWADDR_S [15:2] : (ARx_hs_done) ? ARADDR_S [15:2] : prev_A;
     prev_ID      <= (AW_hs_done) ? AWID_S          : (ARx_hs_done) ? ARID_S          : prev_ID;
     prev_LEN     <= (AW_hs_done) ? AWLEN_S         : (ARx_hs_done) ? ARLEN_S         : prev_LEN;
-    prev_SIZE    <= (AW_hs_done) ? AWSIZE_S        : (ARx_hs_done) ? ARSIZE_S        : prev_SIZE;
-    prev_BURST   <= (AW_hs_done) ? AWBURST_S       : (ARx_hs_done) ? ARBURST_S       : prev_BURST;
 end
 
 always_comb begin
