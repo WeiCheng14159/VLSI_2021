@@ -135,15 +135,15 @@ module master
     ARVALID_M = 1'b0;
     // Rx
     RREADY_M = 1'b0;
+    // stall
+    stall = 1'b0;
 
     case (m_curr_state)
-      IDLE: begin
-
-      end
       AR: begin
         // ARx
         ARBURST_M = `AXI_BURST_INC;
         ARVALID_M = 1'b1;
+        stall = 1'b1;
       end
       R: begin
         // Rx
@@ -152,12 +152,15 @@ module master
       AW: begin
         // AWx
         AWVALID_M = 1'b1;
+        WVALID_M = 1'b1;
+        stall = 1'b1;
       end
       W: begin
         // Wx
         WVALID_M = 1'b1;
         // Bx
         BREADY_M = 1'b1;
+        stall = 1'b1;
       end
       B: begin
         // Bx
