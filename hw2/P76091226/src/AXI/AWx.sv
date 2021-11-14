@@ -139,7 +139,6 @@ module AWx
     };
     {AWBURST_S0, AWBURST_S1, AWBURST_S2} = {2'b0, 2'b0, 2'b0};
     {AWVALID_S0, AWVALID_S1, AWVALID_S2} = {1'b0, 1'b0, 1'b0};
-    AWREADY_from_slave = 1'b0;
 
     case (decode_result)
       SLAVE_0: begin
@@ -149,7 +148,6 @@ module AWx
         AWSIZE_S0 = AWSIZE_M;
         AWBURST_S0 = AWBURST_M;
         AWVALID_S0 = AWVALID_M;
-        AWREADY_from_slave = AWREADY_S0;
       end
       SLAVE_1: begin
         AWID_S1 = AWID_M;
@@ -158,7 +156,6 @@ module AWx
         AWSIZE_S1 = AWSIZE_M;
         AWBURST_S1 = AWBURST_M;
         AWVALID_S1 = AWVALID_M;
-        AWREADY_from_slave = AWREADY_S1;
       end
       SLAVE_2: begin
         AWID_S2 = AWID_M;
@@ -167,6 +164,22 @@ module AWx
         AWSIZE_S2 = AWSIZE_M;
         AWBURST_S2 = AWBURST_M;
         AWVALID_S2 = AWVALID_M;
+      end
+      default: ;
+    endcase
+  end
+
+  // Decoder
+  always_comb begin
+    AWREADY_from_slave = 1'b0;
+    case (decode_result)
+      SLAVE_0: begin
+        AWREADY_from_slave = AWREADY_S0;
+      end
+      SLAVE_1: begin
+        AWREADY_from_slave = AWREADY_S1;
+      end
+      SLAVE_2: begin
         AWREADY_from_slave = AWREADY_S2;
       end
       default: ;

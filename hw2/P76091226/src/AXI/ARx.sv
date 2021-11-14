@@ -130,7 +130,6 @@ module ARx
     ARBURST_M = 2'b0;
     ARVALID_M = 1'b0;
     {ARREADY_M0, ARREADY_M1} = {1'b0, 1'b0};
-
     case (addr_arb_lock)
       LOCK_M0: begin
         ARID_M = {AXI_MASTER_0_ID, ARID_M0};
@@ -206,8 +205,6 @@ module ARx
     };
     {ARBURST_S0, ARBURST_S1, ARBURST_S2} = {2'b0, 2'b0, 2'b0};
     {ARVALID_S0, ARVALID_S1, ARVALID_S2} = {1'b0, 1'b0, 1'b0};
-    ARREADY_from_slave = 1'b0;
-
     case (decode_result)
       SLAVE_0: begin
         ARID_S0 = ARID_M;
@@ -216,7 +213,6 @@ module ARx
         ARSIZE_S0 = ARSIZE_M;
         ARBURST_S0 = ARBURST_M;
         ARVALID_S0 = ARVALID_M & ~lock_ARVALID_S0;
-        ARREADY_from_slave = ARREADY_S0;
       end
       SLAVE_1: begin
         ARID_S1 = ARID_M;
@@ -225,7 +221,6 @@ module ARx
         ARSIZE_S1 = ARSIZE_M;
         ARBURST_S1 = ARBURST_M;
         ARVALID_S1 = ARVALID_M & ~lock_ARVALID_S1;
-        ARREADY_from_slave = ARREADY_S1;
       end
       SLAVE_2: begin
         ARID_S2 = ARID_M;
@@ -234,6 +229,23 @@ module ARx
         ARSIZE_S2 = ARSIZE_M;
         ARBURST_S2 = ARBURST_M;
         ARVALID_S2 = ARVALID_M & ~lock_ARVALID_S2;
+      end
+      LOCK_NO: ;
+      default: ;
+    endcase
+  end  // always_comb
+
+  // Decoder
+  always_comb begin
+    ARREADY_from_slave = 1'b0;
+    case (decode_result)
+      SLAVE_0: begin
+        ARREADY_from_slave = ARREADY_S0;
+      end
+      SLAVE_1: begin
+        ARREADY_from_slave = ARREADY_S1;
+      end
+      SLAVE_2: begin
         ARREADY_from_slave = ARREADY_S2;
       end
       LOCK_NO: ;
