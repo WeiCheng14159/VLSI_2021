@@ -83,11 +83,38 @@ module Wx
   end  // Next state (C)
 
   // Arbiter
-  assign WDATA_M   = WDATA_M1;
-  assign WSTRB_M   = WSTRB_M1;
-  assign WLAST_M   = WLAST_M1;
-  assign WVALID_M  = WVALID_M1;
-  assign WREADY_M1 = WREADY_from_slave;
+  always_comb begin
+    WDATA_M = `AXI_DATA_BITS'b0;
+    WSTRB_M = `AXI_STRB_BITS'b0;
+    WLAST_M = 1'b0;
+    WVALID_M = 1'b0;
+    WREADY_M1 = 1'b0;
+
+    case (addr_arb_lock)
+      LOCK_M1: begin
+        WDATA_M = WDATA_M1;
+        WSTRB_M = WSTRB_M1;
+        WLAST_M = WLAST_M1;
+        WVALID_M = WVALID_M1;
+        WREADY_M1 = WREADY_from_slave;
+      end
+      LOCK_FREE: begin
+        case ({
+          1'b0, WVALID_M1
+        })
+          2'b01: begin  // M1
+            WDATA_M = WDATA_M1;
+            WSTRB_M = WSTRB_M1;
+            WLAST_M = WLAST_M1;
+            WVALID_M = WVALID_M1;
+            WREADY_M1 = WREADY_from_slave;
+          end
+          default: ;
+        endcase
+      end
+      default: ;
+    endcase
+  end
 
   // Latch data at the first rising edge after VALID_Mx is asserted
   always_ff @(posedge clk, negedge rstn) begin
@@ -112,7 +139,6 @@ module Wx
     };
     {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, 1'b0};
     {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, 1'b0};
-    WREADY_from_slave = 1'b0;
 
     case (Wx_slave_lock)
       LOCK_S0: begin
@@ -120,20 +146,35 @@ module Wx
         WSTRB_S0 = WSTRB_M;
         WLAST_S0 = WLAST_M;
         WVALID_S0 = WVALID_M;
-        WREADY_from_slave = WREADY_S0;
       end
       LOCK_S1: begin
         WDATA_S1 = WDATA_M;
         WSTRB_S1 = WSTRB_M;
         WLAST_S1 = WLAST_M;
         WVALID_S1 = WVALID_M;
-        WREADY_from_slave = WREADY_S1;
       end
       LOCK_S2: begin
         WDATA_S2 = WDATA_M;
         WSTRB_S2 = WSTRB_M;
         WLAST_S2 = WLAST_M;
         WVALID_S2 = WVALID_M;
+      end
+      LOCK_NO: ;
+      default: ;
+    endcase
+  end
+  
+  // Decoder
+  always_comb begin
+    WREADY_from_slave = 1'b0;
+    case (Wx_slave_lock)
+      LOCK_S0: begin
+        WREADY_from_slave = WREADY_S0;
+      end
+      LOCK_S1: begin
+        WREADY_from_slave = WREADY_S1;
+      end
+      LOCK_S2: begin
         WREADY_from_slave = WREADY_S2;
       end
       LOCK_NO: ;
