@@ -92,7 +92,6 @@ module CPU_wrapper
   logic [`DataAddrBus]  data_addr;
   logic [    `DataBus]  data_to_mem;
 
-  // logic                 stallreq_from_im;
   logic                 stallreq_from_if;
   logic                 stallreq_from_mem;
 
@@ -110,7 +109,6 @@ module CPU_wrapper
       .data_addr_o(data_addr),
       .data_in_o(data_to_mem),
 
-      .stallreq_from_im (1'b0),
       .stallreq_from_if (stallreq_from_if),
       .stallreq_from_mem(stallreq_from_mem)
   );

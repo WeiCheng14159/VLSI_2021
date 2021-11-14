@@ -3,7 +3,7 @@ module ifetch (
     input logic clk,
     input logic rstn,
 
-    input logic                  stallreq_from_im,
+    input logic                  stallreq_from_if,
     input logic [`STAGE_NUM-1:0] stall,
     input logic                  flush,
     input logic [       `RegBus] branch_target_addr_i,
@@ -26,35 +26,30 @@ module ifetch (
   assign inst_addr_o = fetch_pc;
   assign next_pc = fetch_pc + 4;
 
-  // stall_prev
-  always_ff @(posedge clk, negedge rstn) begin
-    if (~rstn) stall_prev <= `STAGE_NUM'b0;
-    else stall_prev <= stall;
-  end
-
   // fetch_pc
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
       fetch_pc <= `StartAddr;
     end else begin
-      fetch_pc <= (stallreq_from_im == `Stop) ? fetch_pc :
+      fetch_pc <= (branch_taken_i == `BranchTaken) ? branch_target_addr_i :
+                  (stallreq_from_if) ? fetch_pc :
                   (flush == `True) ? new_pc_i :
                   (stall[`IF_STAGE] == `Stop) ? id_pc_i + 4 :
-                  (branch_taken_i == `BranchTaken) ? branch_target_addr_i :
                   next_pc;
     end
   end
 
   // if_pc_o
-  always_ff @(posedge clk, negedge rstn) begin
-    if (~rstn) begin
-      if_pc_o <= `ZeroWord;
-    end else begin
-      if_pc_o <= (flush == `True) ? new_pc_i : (stall[`IF_STAGE] == `Stop) ? `ZeroWord : fetch_pc;
-    end
+  always_comb begin
+    if(flush == `True)
+      if_pc_o = new_pc_i;
+    else if(stall[`IF_STAGE] == `Stop)
+      if_pc_o = `ZeroWord;
+    else
+      if_pc_o = fetch_pc - 4;
   end
 
   // inst_o
-  assign inst_o = (stall_prev[`IF_STAGE] == `Stop) ? `NOP : inst_i;
+  assign inst_o = (stall[`IF_STAGE] == `Stop) ? `NOP : inst_i;
 
 endmodule
