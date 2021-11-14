@@ -55,9 +55,9 @@ module master
   logic [`AXI_DATA_BITS-1:0] RDATA_M_r, WDATA_M_r;
   logic [`AXI_STRB_BITS-1:0] WSTRB_M_r;
   master_state_t m_curr_state, m_next_state;
-  logic ARx_hs_done, Rx_hs_done, AW_hs_done, Wx_hs_done, Bx_hs_done;
-
-  assign AW_hs_done = AWVALID_M & AWREADY_M;
+  logic ARx_hs_done, Rx_hs_done, AWx_hs_done, Wx_hs_done, Bx_hs_done;
+  
+  assign AWx_hs_done = AWVALID_M & AWREADY_M;
   assign Wx_hs_done = WVALID_M & WREADY_M;
   assign Bx_hs_done = BVALID_M & BREADY_M;
   assign ARx_hs_done = ARVALID_M & ARREADY_M;
@@ -104,8 +104,8 @@ module master
       IDLE: m_next_state = (write) ? AW : (read) ? AR : IDLE;
       AR: m_next_state = (ARREADY_M) ? R : AR;
       R: m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
-      AW: m_next_state = (AWREADY_M) ? W : AW;
-      W: m_next_state = (WREADY_M) ? (Bx_hs_done) ? IDLE : B : W;
+      AW: m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
+      W: m_next_state = (Wx_hs_done) ? (Bx_hs_done) ? IDLE : B : W;
       B: m_next_state = (Bx_hs_done) ? (write ? AW : read ? AR : IDLE) : B;
       default: ;
     endcase
@@ -153,6 +153,7 @@ module master
         // AWx
         AWVALID_M = 1'b1;
         stall = 1'b1;
+        WVALID_M = AWx_hs_done;
       end
       W: begin
         // Wx
