@@ -152,7 +152,6 @@ module master
       AW: begin
         // AWx
         AWVALID_M = 1'b1;
-        WVALID_M = 1'b1;
         stall = 1'b1;
       end
       W: begin
