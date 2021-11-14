@@ -105,7 +105,7 @@ module master
       AR: m_next_state = (ARREADY_M) ? R : AR;
       R: m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
       AW: m_next_state = (AWREADY_M) ? W : AW;
-      W: m_next_state = (WREADY_M) ? B : W;
+      W: m_next_state = (WREADY_M) ? (Bx_hs_done) ? IDLE : B : W;
       B: m_next_state = (Bx_hs_done) ? (write ? AW : read ? AR : IDLE) : B;
       default: ;
     endcase
