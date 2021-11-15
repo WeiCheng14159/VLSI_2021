@@ -15,13 +15,11 @@ module mem(
 );
 
   logic                       [`RegBus] memaddr_i;
-  logic                                 prev_is_read;
 
-  assign prev_is_read = (wb_mem2reg_i == `Mem2Reg);
   assign memaddr_i = wreg_data_i;
 
   always_comb begin
-    data_read_o = `ReadDisable | prev_is_read;
+    data_read_o = `ReadDisable;
     data_write_o = `WriteDisable;
     data_write_web_o = {`WriteDisable, `WriteDisable, `WriteDisable, `WriteDisable};
     data_addr_o = `ZeroWord;
