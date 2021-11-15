@@ -192,7 +192,7 @@ module CPU_wrapper
       // CPU interface
       .read(data_read),
       .write(data_write),
-      .w_type(data_write_web),
+      .w_type(~data_write_web),
       .data_in(data_to_mem),
       .addr(data_addr),
       .data_out(data_from_mem),
