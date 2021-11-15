@@ -83,7 +83,7 @@ module master
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
       WDATA_M_r <= `AXI_ADDR_BITS'b0;
-      WSTRB_M_r <= `AXI_STRB_BITS'b0;
+      WSTRB_M_r <= `AXI_STRB_BITS'b1111;
     end else if (m_curr_state != AW & m_next_state == AW) begin
       WDATA_M_r <= data_in;
       WSTRB_M_r <= w_type;
