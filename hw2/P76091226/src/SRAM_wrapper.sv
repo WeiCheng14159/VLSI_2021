@@ -94,7 +94,8 @@ always_comb begin
             next_state = (Rx_hs_done & RLAST_S) ? ((AWVALID_S) ? WRITE : (ARVALID_S) ? READ : IDLE) : READ;
         end
         WRITE: begin
-            next_state = (Bx_hs_done & WLAST_S) ? ((AWVALID_S) ? WRITE : (ARVALID_S) ? READ : IDLE): WRITE;
+            // next_state = (Bx_hs_done & WLAST_S) ? ((AWVALID_S) ? WRITE : (ARVALID_S) ? READ : IDLE): WRITE;
+            next_state = (Bx_hs_done) ? ((AWVALID_S) ? WRITE : IDLE): WRITE;
         end
         default: next_state = curr_state;
     endcase
@@ -153,6 +154,8 @@ always_ff@(posedge clk or negedge rstn) begin
         len_cnt <= (RLAST_S & Rx_hs_done) ? `AXI_LEN_BITS'b0 : (Rx_hs_done) ? len_cnt + `AXI_LEN_BITS'b1 : len_cnt; 
     end else if(curr_state[WRITE_BIT])begin
         len_cnt <= (WLAST_S & Bx_hs_done) ? `AXI_LEN_BITS'b0 : (Bx_hs_done) ? len_cnt + `AXI_LEN_BITS'b1 : len_cnt; 
+    end else if(curr_state[IDLE_BIT]) begin
+        len_cnt <= `AXI_LEN_BITS'b0; 
     end
 end
 
