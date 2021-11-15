@@ -3,7 +3,6 @@ module ifetch (
     input logic clk,
     input logic rstn,
 
-    input logic                  stallreq_from_if,
     input logic [`STAGE_NUM-1:0] stall,
     input logic                  flush,
     input logic [       `RegBus] branch_target_addr_i,
@@ -18,13 +17,33 @@ module ifetch (
     output logic [`InstBus] inst_o
 );
 
-  logic [       `RegBus]  fetch_pc;
+  logic [       `RegBus]  fetch_pc, fetch_pc_n1, fetch_pc_n2;
   logic [`STAGE_NUM-1:0 ] stall_prev;
   logic [       `RegBus]  next_pc;
-
+  logic branch_taken_n1, branch_taken_n2;
+  logic [       `RegBus] branch_target_addr_n1, branch_target_addr_n2;
+  
   assign inst_read_o = `ReadEnable;
-  assign inst_addr_o = fetch_pc;
+  assign inst_addr_o = (branch_taken_i == `BranchTaken) ? branch_target_addr_i : fetch_pc;
   assign next_pc = fetch_pc + 4;
+
+  // fetch_pc_n1
+  always_ff @(posedge clk, negedge rstn) begin
+    if (~rstn) begin
+      fetch_pc_n1 <= `StartAddr;
+    end else begin
+      fetch_pc_n1 <=  inst_addr_o;
+    end
+  end
+
+  // fetch_pc_n2
+  always_ff @(posedge clk, negedge rstn) begin
+    if (~rstn) begin
+      fetch_pc_n2 <= `StartAddr;
+    end else begin
+      fetch_pc_n2 <= fetch_pc_n1;
+    end
+  end
 
   // fetch_pc
   always_ff @(posedge clk, negedge rstn) begin
@@ -32,9 +51,8 @@ module ifetch (
       fetch_pc <= `StartAddr;
     end else begin
       fetch_pc <= (branch_taken_i == `BranchTaken) ? branch_target_addr_i :
-                  (stallreq_from_if) ? fetch_pc :
                   (flush == `True) ? new_pc_i :
-                  (stall[`IF_STAGE] == `Stop) ? id_pc_i + 4 :
+                  (stall[`IF_STAGE] == `Stop) ? fetch_pc :
                   next_pc;
     end
   end
@@ -46,7 +64,7 @@ module ifetch (
     else if(stall[`IF_STAGE] == `Stop)
       if_pc_o = `ZeroWord;
     else
-      if_pc_o = fetch_pc - 4;
+      if_pc_o = fetch_pc_n2;
   end
 
   // inst_o

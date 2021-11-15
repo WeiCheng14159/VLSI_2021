@@ -142,7 +142,7 @@ module CPU (
       .clk (clk),
       .rstn(rstn),
 
-      .stallreq_from_if(stallreq_from_if),
+    //   .stallreq_from_if(stallreq_from_if),
       .stall(stallreq),
       .flush(flush),
       .branch_target_addr_i(id_branch_target_addr),
