@@ -19,7 +19,7 @@ module ctrl(
     end else if (stallreq_from_ex == `Stop) begin
       stall = {`STAGE_NUM'b001_11};
     end else if (stallreq_from_mem == `Stop) begin
-      stall = {`STAGE_NUM'b011_11};
+      stall = {`STAGE_NUM'b111_11};
     end else begin
       stall = {`STAGE_NUM'b000_00};
     end
