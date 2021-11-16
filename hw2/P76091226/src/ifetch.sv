@@ -36,7 +36,7 @@ module ifetch (
   end
 
   // inst_read_o
-  assign inst_read_o = (stall[`IF_STAGE] == `Stop) ? `ReadDisable : `ReadEnable;
+  assign inst_read_o = (stall[`IF_STAGE] == `Stop | branch_taken_i == `BranchTaken) ? `ReadDisable : `ReadEnable;
 
   // fetch_pc_n1
   always_ff @(posedge clk, negedge rstn) begin
