@@ -37,18 +37,8 @@ module id_ex(
     output logic                        ex_memwr,
     output logic                        ex_mem2reg,
     output logic              [`RegBus] ex_link_addr,
-    output logic                        ex_is_in_delayslot,
     output logic                        ex_is_id_in_delayslot
 );
-
-  logic id_nnext_in_delayslot;
-
-  always_ff @(posedge clk, negedge rstn) begin
-    if(~rstn)
-      id_nnext_in_delayslot <= `NotInDelaySlot;
-    else 
-      id_nnext_in_delayslot <= id_next_inst_in_delayslot;
-  end
 
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
@@ -66,7 +56,6 @@ module id_ex(
       ex_memwr              <= `WriteDisable;
       ex_mem2reg            <= 1'b0;
       ex_link_addr          <= `ZeroWord;
-      ex_is_in_delayslot    <= `NotInDelaySlot;
       ex_is_id_in_delayslot <= `NotInDelaySlot;
     end else if (flush == `True | 
       (stall[`ID_STAGE] == `Stop && stall[`EX_STAGE] == `NoStop) ) begin
@@ -84,7 +73,6 @@ module id_ex(
       ex_memwr              <= `WriteDisable;
       ex_mem2reg            <= 1'b0;
       ex_link_addr          <= `ZeroWord;
-      ex_is_in_delayslot    <= `NotInDelaySlot;
       ex_is_id_in_delayslot <= `NotInDelaySlot;
     end else if (stall[`ID_STAGE] == `NoStop) begin
       ex_pc                 <= id_pc;
@@ -101,8 +89,7 @@ module id_ex(
       ex_memwr              <= id_memwr;
       ex_mem2reg            <= id_mem2reg;
       ex_link_addr          <= id_link_addr;
-      ex_is_in_delayslot    <= id_is_in_delayslot;
-      ex_is_id_in_delayslot <= id_next_inst_in_delayslot | id_nnext_in_delayslot;
+      ex_is_id_in_delayslot <= id_next_inst_in_delayslot;
     end
   end
 

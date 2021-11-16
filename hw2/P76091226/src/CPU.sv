@@ -83,7 +83,8 @@ module CPU (
   logic                   mem_memwr;
   logic                   mem_mem2reg;
   logic [     `Func3Bus]  mem_func3;
-
+  logic                   mem_is_id_in_delayslot;
+  
   /* Write Back (WB) */
   logic                   wb_wreg;
   logic [   `RegAddrBus]  wb_rd;
@@ -185,7 +186,7 @@ module CPU (
       .mem_wreg_data_i(mem_wreg_data),
       .mem_rd_i(mem_rd),
       .mem_memrd_i(mem_memrd),
-      .is_in_delayslot_i(ex_is_id_in_delayslot),
+      .is_in_delayslot_i(ex_is_id_in_delayslot | mem_is_id_in_delayslot),
 
       .func3_o(id_func3),
       .rs1_read_o(rs1_read),
@@ -250,7 +251,6 @@ module CPU (
       .ex_memwr(ex_memwr),
       .ex_mem2reg(ex_mem2reg),
       .ex_link_addr(ex_link_addr),
-      .ex_is_in_delayslot(ex_is_in_delayslot),
       .ex_is_id_in_delayslot(ex_is_id_in_delayslot)
   );
 
@@ -264,7 +264,6 @@ module CPU (
       .rs2_i(ex_rs2),
       .imm_i(ex_imm),
 
-      .is_in_delayslot_i(ex_is_in_delayslot),
       .link_addr_i(ex_link_addr),
       .wdata_o(ex_wdata),
       .wreg_data_o(ex_wreg_data),
@@ -285,6 +284,7 @@ module CPU (
       .ex_memrd(ex_memrd),
       .ex_memwr(ex_memwr),
       .ex_mem2reg(ex_mem2reg),
+      .ex_is_id_in_delayslot(ex_is_id_in_delayslot),
       .stall(stallreq),
       .flush(flush),
 
@@ -296,7 +296,8 @@ module CPU (
       .mem_wreg_data(mem_wreg_data),
       .mem_memrd(mem_memrd),
       .mem_memwr(mem_memwr),
-      .mem_mem2reg(mem_mem2reg)
+      .mem_mem2reg(mem_mem2reg),
+      .mem_is_id_in_delayslot(mem_is_id_in_delayslot)
   );
 
   // MEM

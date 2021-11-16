@@ -7,7 +7,6 @@ module ex(
   input logic                 [`RegBus] rs1_i,
   input logic                 [`RegBus] rs2_i,
   input logic                 [`RegBus] imm_i,
-  input logic                           is_in_delayslot_i,
   input logic                 [`RegBus] link_addr_i,
 
   output logic                [`RegBus] wdata_o,
