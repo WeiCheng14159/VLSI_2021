@@ -20,20 +20,9 @@ module ifetch (
   logic [       `RegBus]  fetch_pc, fetch_pc_n1;
   logic [`STAGE_NUM-1:0 ] stall_prev;
   logic [       `RegBus]  next_pc;
-  logic branch_taken_n1, branch_taken_n2;
-  logic [       `RegBus] branch_target_addr_n1, branch_target_addr_n2;
 
   assign inst_addr_o = (branch_taken_i == `BranchTaken) ? branch_target_addr_i : fetch_pc;
   assign next_pc = fetch_pc + 4;
-
-  // branch_target_addr_n1
-  always_ff @(posedge clk, negedge rstn) begin
-    if (~rstn) begin
-      branch_target_addr_n1 <= `StartAddr;
-    end else begin
-      branch_target_addr_n1 <= (branch_taken_i == `BranchTaken) ? branch_target_addr_i : `StartAddr;
-    end
-  end
 
   // inst_read_o
   assign inst_read_o = (stall[`IF_STAGE] == `Stop | branch_taken_i == `BranchTaken) ? `ReadDisable : `ReadEnable;
