@@ -42,6 +42,7 @@ module id(
   
   // Branch
   input logic                           is_in_delayslot_i,
+  output logic                          is_branch_o,
   output logic                          branch_taken_o,
   output logic                [`RegBus] branch_target_addr_o,
   output logic                          is_in_delayslot_o,
@@ -93,6 +94,7 @@ module id(
       link_addr_o                         = `ZeroWord;
       branch_target_addr_o                = `ZeroWord;
       branch_taken                        = `BranchNotTaken;
+      is_branch_o                         = 1'b0;
       branch_taken_o                      = `BranchNotTaken;
       next_inst_in_delayslot_o            = `NotInDelaySlot;
       flush_o                             = `False;
@@ -114,6 +116,7 @@ module id(
       link_addr_o                         = `ZeroWord;
       branch_target_addr_o                = `ZeroWord;
       branch_taken                        = `BranchNotTaken;
+      is_branch_o                         = 1'b0;
       branch_taken_o                      = `BranchNotTaken;
       next_inst_in_delayslot_o            = `NotInDelaySlot;
       flush_o                             = `False;
@@ -142,6 +145,7 @@ module id(
           imm_o                           = $signed({inst_i[31], inst_i[19:12], inst_i[20], inst_i[30:21], 1'b0});
           link_addr_o                     = pc_next;
           branch_target_addr_o            = pc_i + imm_o;
+          is_branch_o                     = 1'b1;
           branch_taken_o                  = `BranchTaken;
           next_inst_in_delayslot_o        = `InDelaySlot;
         end
@@ -154,6 +158,7 @@ module id(
           rs1_addr_o                      = inst_i[`RS1];
           imm_o                           = $signed({inst_i[31:20]});
           link_addr_o                     = pc_next;
+          is_branch_o                     = 1'b1;
           branch_target_addr_o            = rs1_data_o + imm_o;
           branch_taken_o                  = `BranchTaken;
           next_inst_in_delayslot_o        = `InDelaySlot;
@@ -165,6 +170,7 @@ module id(
           rs1_addr_o                      = inst_i[`RS1];
           rs2_addr_o                      = inst_i[`RS2];
           imm_o                           = $signed({inst_i[31], inst_i[7], inst_i[30:25], inst_i[11:8], 1'b0});
+          is_branch_o                     = 1'b1;
           case(func3_o)
             `OP_BEQ: begin
               if(rs1_data_o == rs2_data_o)

@@ -46,6 +46,7 @@ module CPU (
   logic                   id_memrd;
   logic                   id_memwr;
   logic                   id_mem2reg;
+  logic                   id_is_branch;
   logic                   id_branch_taken;
   logic [       `RegBus]  id_branch_target_addr;
   logic                   id_is_in_delayslot;
@@ -143,11 +144,11 @@ module CPU (
       .clk (clk),
       .rstn(rstn),
 
-    //   .stallreq_from_if(stallreq_from_if),
       .stall(stallreq),
       .flush(flush),
       .branch_target_addr_i(id_branch_target_addr),
       .branch_taken_i(id_branch_taken),
+      .is_id_branch_inst(id_is_branch),
       .new_pc_i(new_pc),
       .inst_i(inst_out_i),
       .id_pc_i(id_pc),
@@ -204,6 +205,7 @@ module CPU (
       .memrd_o(id_memrd),
       .memwr_o(id_memwr),
       .mem2reg_o(id_mem2reg),
+      .is_branch_o(id_is_branch),
       .branch_taken_o(id_branch_taken),
       .branch_target_addr_o(id_branch_target_addr),
       .is_in_delayslot_o(id_is_in_delayslot),
