@@ -201,8 +201,8 @@ module id(
             default: branch_taken         = `BranchNotTaken;
           endcase
 
+          branch_target_addr_o          = pc_i + imm_o;
           if(branch_taken == `BranchTaken) begin
-            branch_target_addr_o          = pc_i + imm_o;
             branch_taken_o                = `BranchTaken;
             next_inst_in_delayslot_o      = `InDelaySlot;
           end
