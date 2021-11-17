@@ -106,7 +106,7 @@ module master
       R: m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
       AW: m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
       W: m_next_state = (Wx_hs_done) ? (Bx_hs_done) ? IDLE : B : W;
-      B: m_next_state = (Bx_hs_done) ? (write ? AW : read ? AR : IDLE) : B;
+      B: m_next_state = (Bx_hs_done) ? /*(read ? AR : */IDLE : B;
       default: ;
     endcase
   end  // Next state (C)
@@ -165,6 +165,7 @@ module master
       B: begin
         // Bx
         BREADY_M = 1'b1;
+        stall = 1'b1;
       end
       default: ;
     endcase
