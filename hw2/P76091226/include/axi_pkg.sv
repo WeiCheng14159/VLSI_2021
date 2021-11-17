@@ -55,16 +55,16 @@ package axi_pkg;
     AXI_MASTER_0_ID = `AXI_ID_BITS'b0001,
     AXI_MASTER_1_ID = `AXI_ID_BITS'b0010,
     AXI_MASTER_2_ID = `AXI_ID_BITS'b0100,
-    AXI_MASTER_U_ID = `AXI_ID_BITS'b1111
+    AXI_MASTER_U_ID = `AXI_ID_BITS'b1000
   } axi_master_id_t;
 
-  typedef enum logic [2:0] {
+  typedef enum logic [1:0] {
     LOCK_M0,
     LOCK_M1,
     LOCK_FREE
   } addr_arb_lock_t;
 
-  typedef enum logic [3:0] {
+  typedef enum logic [1:0] {
     LOCK_S0,
     LOCK_S1,
     LOCK_S2,
@@ -72,7 +72,7 @@ package axi_pkg;
   } data_arb_lock_t;
 
   // Address Decoder
-  typedef enum logic [2:0] {
+  typedef enum logic [1:0] {
     SLAVE_0,
     SLAVE_1,
     SLAVE_2
@@ -90,9 +90,11 @@ package axi_pkg;
   function automatic axi_master_id_t DATA_DECODER(
       logic [`AXI_IDS_BITS-1:0] IDS);
     logic [`AXI_ID_BITS-1:0] IDS_UPPER = IDS[`AXI_IDS_BITS-1:`AXI_ID_BITS];
-    if (IDS_UPPER == AXI_MASTER_0_ID) DATA_DECODER = AXI_MASTER_0_ID;
-    else if (IDS_UPPER == AXI_MASTER_1_ID) DATA_DECODER = AXI_MASTER_1_ID;
-    else if (IDS_UPPER == AXI_MASTER_2_ID) DATA_DECODER = AXI_MASTER_2_ID;
+    
+    // Use one bit encoding IDs for smaller area
+    if (/*IDS_UPPER == AXI_MASTER_0_ID*/ IDS_UPPER[0]) DATA_DECODER = AXI_MASTER_0_ID;
+    else if (/*IDS_UPPER == AXI_MASTER_1_ID*/ IDS_UPPER[1]) DATA_DECODER = AXI_MASTER_1_ID;
+    else if (/*IDS_UPPER == AXI_MASTER_2_ID)*/ IDS_UPPER[2]) DATA_DECODER = AXI_MASTER_2_ID;
     else DATA_DECODER = AXI_MASTER_U_ID;
   endfunction
 
