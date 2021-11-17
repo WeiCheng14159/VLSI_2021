@@ -37,6 +37,7 @@ module id_ex(
     output logic                        ex_memwr,
     output logic                        ex_mem2reg,
     output logic              [`RegBus] ex_link_addr,
+    // output logic                        ex_is_in_delayslot,
     output logic                        ex_is_id_in_delayslot
 );
 

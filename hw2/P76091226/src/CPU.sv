@@ -93,6 +93,10 @@ module CPU (
   logic                   wb_mem2reg;
   logic [       `RegBus]  wb_from_alu;
   logic [     `Func3Bus]  wb_func3;
+  logic                   wb_is_id_in_delayslot;
+
+  /* Other */
+  logic            [3:0]  wb_nxt_is_id_in_delayslot;
 
   /* Register file */
   logic                   rs1_read;
@@ -187,8 +191,7 @@ module CPU (
       .mem_wreg_data_i(mem_wreg_data),
       .mem_rd_i(mem_rd),
       .mem_memrd_i(mem_memrd),
-      .is_in_delayslot_i(ex_is_id_in_delayslot | mem_is_id_in_delayslot),
-
+      .is_in_delayslot_i(ex_is_id_in_delayslot | mem_is_id_in_delayslot | wb_is_id_in_delayslot | wb_nxt_is_id_in_delayslot[0] | wb_nxt_is_id_in_delayslot[1]), // Current branch delay slot is 5 cycle
       .func3_o(id_func3),
       .rs1_read_o(rs1_read),
       .rs2_read_o(rs2_read),
@@ -328,6 +331,7 @@ module CPU (
       .mem_mem2reg(mem_mem2reg),
       .mem_wreg_data(mem_wreg_data),
       .mem_func3(mem_func3),
+      .mem_is_id_in_delayslot(mem_is_id_in_delayslot),
       .stall(stallreq),
       .flush(flush),
 
@@ -335,7 +339,8 @@ module CPU (
       .wb_wreg(wb_wreg),
       .wb_mem2reg(wb_mem2reg),
       .wb_from_alu(wb_from_alu),
-      .wb_func3(wb_func3)
+      .wb_func3(wb_func3),
+      .wb_is_id_in_delayslot(wb_is_id_in_delayslot)
   );
 
   // WB
@@ -348,4 +353,18 @@ module CPU (
       .wdata_o(wb_wdata)
   );
 
+    // For branch delay slot
+    always_ff @(posedge clk, negedge rstn) begin
+        if(~rstn) begin
+            wb_nxt_is_id_in_delayslot[3] <= `NotInDelaySlot;
+            wb_nxt_is_id_in_delayslot[2] <= `NotInDelaySlot;
+            wb_nxt_is_id_in_delayslot[1] <= `NotInDelaySlot;
+            wb_nxt_is_id_in_delayslot[0] <= `NotInDelaySlot;
+        end else begin
+            wb_nxt_is_id_in_delayslot[3] <= wb_nxt_is_id_in_delayslot[2];
+            wb_nxt_is_id_in_delayslot[2] <= wb_nxt_is_id_in_delayslot[1];
+            wb_nxt_is_id_in_delayslot[1] <= wb_nxt_is_id_in_delayslot[0];
+            wb_nxt_is_id_in_delayslot[0] <= wb_is_id_in_delayslot;
+        end
+    end
 endmodule
