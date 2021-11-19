@@ -87,6 +87,7 @@ module CPU (
   logic                   mem_is_id_in_delayslot;
   
   /* Write Back (WB) */
+  logic [       `RegBus]  wb_pc;
   logic                   wb_wreg;
   logic [   `RegAddrBus]  wb_rd;
   logic [       `RegBus]  wb_wdata;
@@ -332,6 +333,7 @@ module CPU (
       .mem_wreg_data(mem_wreg_data),
       .mem_func3(mem_func3),
       .mem_is_id_in_delayslot(mem_is_id_in_delayslot),
+      .mem_pc(mem_pc),
       .stall(stallreq),
       .flush(flush),
 
@@ -340,7 +342,8 @@ module CPU (
       .wb_mem2reg(wb_mem2reg),
       .wb_from_alu(wb_from_alu),
       .wb_func3(wb_func3),
-      .wb_is_id_in_delayslot(wb_is_id_in_delayslot)
+      .wb_is_id_in_delayslot(wb_is_id_in_delayslot),
+      .wb_pc(wb_pc)
   );
 
   // WB

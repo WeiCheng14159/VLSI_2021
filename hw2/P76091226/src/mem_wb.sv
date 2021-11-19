@@ -10,6 +10,7 @@ module mem_wb(
   input logic                 [`RegBus] mem_wreg_data,
   input logic               [`Func3Bus] mem_func3,
   input logic                           mem_is_id_in_delayslot,
+  input logic             [    `RegBus] mem_pc,
   input logic          [`STAGE_NUM-1:0] stall,
   input logic                           flush,
 
@@ -18,7 +19,8 @@ module mem_wb(
   output logic                          wb_mem2reg,
   output logic                [`RegBus] wb_from_alu,
   output logic              [`Func3Bus] wb_func3,
-  output logic                          wb_is_id_in_delayslot
+  output logic                          wb_is_id_in_delayslot,
+  output logic            [    `RegBus] wb_pc
 );
 
   always_ff @(posedge clk, negedge rstn) begin
@@ -29,6 +31,7 @@ module mem_wb(
       wb_from_alu    <= `ZeroWord;
       wb_func3       <= 3'b0;
       wb_is_id_in_delayslot <= `NotInDelaySlot;
+      wb_pc          <= `ZeroWord;
     end else if (flush == `True |
        (stall[`ME_STAGE] == `Stop && stall[`WB_STAGE] == `NoStop) ) begin
       wb_rd          <= `NopRegAddr;
@@ -37,6 +40,7 @@ module mem_wb(
       wb_from_alu    <= `ZeroWord;
       wb_func3       <= 3'b0;
       wb_is_id_in_delayslot <= `NotInDelaySlot;
+      wb_pc          <= `ZeroWord;
     end else if (stall[`ME_STAGE] == `NoStop) begin
       wb_rd          <= mem_rd;
       wb_wreg        <= mem_wreg;
@@ -44,6 +48,7 @@ module mem_wb(
       wb_from_alu    <= mem_wreg_data;
       wb_func3       <= mem_func3;
       wb_is_id_in_delayslot <= mem_is_id_in_delayslot;
+      wb_pc          <= mem_pc;
     end
   end
 
