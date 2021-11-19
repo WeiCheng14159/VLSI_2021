@@ -156,7 +156,6 @@ module CPU (
       .is_id_branch_inst(id_is_branch),
       .new_pc_i(new_pc),
       .inst_i(inst_out_i),
-      .id_pc_i(id_pc),
 
       .if_pc_o(if_pc),
       .inst_read_o(inst_read_o),
