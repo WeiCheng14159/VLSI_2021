@@ -73,9 +73,9 @@ module master
     if (~rstn) begin
       ARADDR_M_r <= `AXI_ADDR_BITS'b0;
       AWADDR_M_r <= `AXI_ADDR_BITS'b0;
-    end else if (m_curr_state != AR & m_next_state == AR) begin
+    end else if (~m_curr_state[AR_BIT] & m_next_state[AR_BIT]) begin
       ARADDR_M_r <= addr;
-    end else if (m_curr_state != AW & m_next_state == AW) begin
+    end else if (~m_curr_state[AW_BIT] & m_next_state[AW_BIT]) begin
       AWADDR_M_r <= addr;
     end
   end
@@ -84,7 +84,7 @@ module master
     if (~rstn) begin
       WDATA_M_r <= `AXI_ADDR_BITS'b0;
       WSTRB_M_r <= `AXI_STRB_BITS'b1111;
-    end else if (m_curr_state != AW & m_next_state == AW) begin
+    end else if (~m_curr_state[AW_BIT] & m_next_state[AW_BIT]) begin
       WDATA_M_r <= data_in;
       WSTRB_M_r <= w_type;
     end
@@ -100,14 +100,16 @@ module master
 
   always_comb begin
     m_next_state = IDLE;
-    case (m_curr_state)
-      IDLE: m_next_state = (write) ? AW : (read) ? AR : IDLE;
-      AR: m_next_state = (ARREADY_M) ? R : AR;
-      R: m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
-      AW: m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
-      W: m_next_state = (Wx_hs_done) ? (Bx_hs_done) ? IDLE : B : W;
-      B: m_next_state = (Bx_hs_done) ? IDLE : B;
-      default: ;
+    unique case (1'b1)
+      m_curr_state[IDLE_BIT]: m_next_state = (write) ? AW : (read) ? AR : IDLE;
+      m_curr_state[AR_BIT]: m_next_state = (ARREADY_M) ? R : AR;
+      m_curr_state[R_BIT]:
+      m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
+      m_curr_state[AW_BIT]:
+      m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
+      m_curr_state[W_BIT]:
+      m_next_state = (Wx_hs_done) ? (Bx_hs_done) ? IDLE : B : W;
+      m_curr_state[B_BIT]: m_next_state = (Bx_hs_done) ? IDLE : B;
     endcase
   end  // Next state (C)
 
@@ -138,36 +140,35 @@ module master
     // stall
     stall = 1'b0;
 
-    case (m_curr_state)
-      AR: begin
+    case (1'b1)
+      m_curr_state[AR_BIT]: begin
         // ARx
         ARBURST_M = `AXI_BURST_INC;
         ARVALID_M = 1'b1;
         stall = 1'b1;
       end
-      R: begin
+      m_curr_state[R_BIT]: begin
         // Rx
         RREADY_M = 1'b1;
       end
-      AW: begin
+      m_curr_state[AW_BIT]: begin
         // AWx
         AWVALID_M = 1'b1;
         stall = 1'b1;
         WVALID_M = AWx_hs_done;
       end
-      W: begin
+      m_curr_state[W_BIT]: begin
         // Wx
         WVALID_M = 1'b1;
         // Bx
         BREADY_M = 1'b1;
         stall = 1'b1;
       end
-      B: begin
+      m_curr_state[B_BIT]: begin
         // Bx
         BREADY_M = 1'b1;
         stall = 1'b1;
       end
-      default: ;
     endcase
   end
 
