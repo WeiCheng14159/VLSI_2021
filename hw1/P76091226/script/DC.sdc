@@ -1,5 +1,5 @@
 #####CLK PERIOD CAN BE ADJUSTED UP TO 20.0 IF SYNTHESIS GOES WRONG#####
-create_clock -name clk -period 10 [get_ports clk]
+create_clock -name clk -period 12 [get_ports clk]
 set_dont_touch_network      [all_clocks]
 set_fix_hold                [all_clocks]
 set_clock_uncertainty  0.1  [all_clocks]
@@ -7,7 +7,7 @@ set_clock_latency      1.0  [all_clocks]
 set_ideal_network           [get_ports clk]
 
 #####REMEMBER TO SET THIS MAX DELAY TO 1/2 CLK PERIOD#####
-set_input_delay  -max 5.0   -clock clk [remove_from_collection [all_inputs] [get_ports clk]]
+set_input_delay  -max 6.0   -clock clk [remove_from_collection [all_inputs] [get_ports clk]]
 set_input_delay  -min 0.0   -clock clk [remove_from_collection [all_inputs] [get_ports clk]]
 #set_output_delay  -max 5.0   -clock clk [all_outputs]
 #set_output_delay  -min 0.0   -clock clk [all_outputs]
