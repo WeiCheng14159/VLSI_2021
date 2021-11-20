@@ -35,9 +35,9 @@ module ex_mem (
       mem_rd                 <= `NopRegAddr;
       mem_wreg               <= `WriteDisable;
       mem_wdata              <= `ZeroWord;
-      mem_memrd              <= 1'b0;
-      mem_memwr              <= 1'b0;
-      mem_mem2reg            <= 1'b0;
+      mem_memrd              <= `ReadDisable;
+      mem_memwr              <= `WriteDisable;
+      mem_mem2reg            <= `NotMem2Reg;
       mem_wreg_data          <= `ZeroWord;
       mem_is_id_in_delayslot <= `NotInDelaySlot;
     end else if (flush == `True | (stall[`EX_STAGE] == `Stop && stall[`ME_STAGE] == `NoStop)) begin
@@ -46,9 +46,9 @@ module ex_mem (
       mem_rd                 <= `NopRegAddr;
       mem_wreg               <= `WriteDisable;
       mem_wdata              <= `ZeroWord;
-      mem_memrd              <= 1'b0;
-      mem_memwr              <= 1'b0;
-      mem_mem2reg            <= 1'b0;
+      mem_memrd              <= `ReadDisable;
+      mem_memwr              <= `WriteDisable;
+      mem_mem2reg            <= `NotMem2Reg;
       mem_wreg_data          <= `ZeroWord;
       mem_is_id_in_delayslot <= `NotInDelaySlot;
     end else if (stall[`ME_STAGE] == `NoStop) begin
