@@ -127,7 +127,6 @@ module Bx
         BREADY_from_master = BREADY_M1;
       end
       decode_result[AXI_M2_BIT]: ;
-      decode_result[AXI_MU_BIT]: ;
     endcase
   end
 

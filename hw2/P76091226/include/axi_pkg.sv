@@ -51,12 +51,11 @@ package axi_pkg;
   //   logic                               BREADY;
   // } Bx_bus_t;
 
-  localparam AXI_M0_BIT = 0, AXI_M1_BIT = 1, AXI_M2_BIT = 2, AXI_MU_BIT = 3;  
+  localparam AXI_M0_BIT = 0, AXI_M1_BIT = 1, AXI_M2_BIT = 2;  
   typedef enum logic [`AXI_ID_BITS-1:0] {
     AXI_MASTER_0_ID = 1 << AXI_M0_BIT,
     AXI_MASTER_1_ID = 1 << AXI_M1_BIT,
-    AXI_MASTER_2_ID = 1 << AXI_M2_BIT,
-    AXI_MASTER_U_ID = 1 << AXI_MU_BIT
+    AXI_MASTER_2_ID = 1 << AXI_M2_BIT
   } axi_master_id_t;
 
   localparam LOCK_M0_BIT = 0, LOCK_M1_BIT = 1, LOCK_FREE_BIT = 2;
@@ -99,8 +98,7 @@ package axi_pkg;
     // Use one bit encoding IDs for smaller area
     if (IDS_UPPER[0]) DATA_DECODER = AXI_MASTER_0_ID;
     else if (IDS_UPPER[1]) DATA_DECODER = AXI_MASTER_1_ID;
-    else if (IDS_UPPER[2]) DATA_DECODER = AXI_MASTER_2_ID;
-    else DATA_DECODER = AXI_MASTER_U_ID;
+    else DATA_DECODER = AXI_MASTER_2_ID;
   endfunction
 
 endpackage : axi_pkg

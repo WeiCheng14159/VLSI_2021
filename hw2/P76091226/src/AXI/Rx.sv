@@ -174,7 +174,6 @@ module Rx
         READY_from_master = RREADY_M1;
       end
       decode_result[AXI_M2_BIT]: ;
-      decode_result[AXI_MU_BIT]: ;
     endcase
   end  // always_comb
 
