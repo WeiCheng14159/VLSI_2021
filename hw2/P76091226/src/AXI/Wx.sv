@@ -73,12 +73,13 @@ module Wx
   end  // State
 
   always_comb begin
-    case (addr_arb_lock)
-      LOCK_M1:
+    addr_arb_lock_next = LOCK_FREE;
+    unique case (1'b1)
+      addr_arb_lock[LOCK_M0_BIT]: ;
+      addr_arb_lock[LOCK_M1_BIT]:
       addr_arb_lock_next = (WREADY_from_slave && WLAST_M1) ? LOCK_FREE : LOCK_M1;
-      LOCK_FREE:
+      addr_arb_lock[LOCK_FREE_BIT]:
       addr_arb_lock_next = (WVALID_M1) ? (WREADY_from_slave && WLAST_M1) ? LOCK_FREE : LOCK_M1 : LOCK_FREE;
-      default: addr_arb_lock_next = LOCK_FREE;
     endcase
   end  // Next state (C)
 
@@ -90,15 +91,16 @@ module Wx
     WVALID_M  = 1'b0;
     WREADY_M1 = 1'b0;
 
-    case (addr_arb_lock)
-      LOCK_M1: begin
+    unique case (1'b1)
+      addr_arb_lock[LOCK_M0_BIT]: ;
+      addr_arb_lock[LOCK_M1_BIT]: begin
         WDATA_M   = WDATA_M1;
         WSTRB_M   = WSTRB_M1;
         WLAST_M   = WLAST_M1;
         WVALID_M  = WVALID_M1;
         WREADY_M1 = WREADY_from_slave;
       end
-      LOCK_FREE: begin
+      addr_arb_lock[LOCK_FREE_BIT]: begin
         case ({
           1'b0, WVALID_M1
         })
@@ -112,7 +114,6 @@ module Wx
           default: ;
         endcase
       end
-      default: ;
     endcase
   end
 
@@ -120,14 +121,14 @@ module Wx
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
       AWx_slave_lock_r <= LOCK_NO;
-    end else if (addr_arb_lock != LOCK_M1 && addr_arb_lock_next == LOCK_M1) begin
+    end else if (~addr_arb_lock[LOCK_M1_BIT] && addr_arb_lock_next[LOCK_M1_BIT]) begin
       AWx_slave_lock_r <= AWx_slave_lock;
     end
   end
 
   // Decoder
   assign fast_transaction = WVALID_M1 & AWVALID_M1;
-  assign slow_transaction = (addr_arb_lock == LOCK_M1);
+  assign slow_transaction = addr_arb_lock[LOCK_M1_BIT];
   assign Wx_slave_lock = (fast_transaction) ? AWx_slave_lock : (slow_transaction) ? AWx_slave_lock_r : LOCK_NO;
   always_comb begin
     // Default
@@ -140,45 +141,43 @@ module Wx
     {WLAST_S0, WLAST_S1, WLAST_S2} = {1'b0, 1'b0, 1'b0};
     {WVALID_S0, WVALID_S1, WVALID_S2} = {1'b0, 1'b0, 1'b0};
 
-    case (Wx_slave_lock)
-      LOCK_S0: begin
+    unique case (1'b1)
+      Wx_slave_lock[LOCK_S0_BIT]: begin
         WDATA_S0  = WDATA_M;
         WSTRB_S0  = WSTRB_M;
         WLAST_S0  = WLAST_M;
         WVALID_S0 = WVALID_M;
       end
-      LOCK_S1: begin
+      Wx_slave_lock[LOCK_S1_BIT]: begin
         WDATA_S1  = WDATA_M;
         WSTRB_S1  = WSTRB_M;
         WLAST_S1  = WLAST_M;
         WVALID_S1 = WVALID_M;
       end
-      LOCK_S2: begin
+      Wx_slave_lock[LOCK_S2_BIT]: begin
         WDATA_S2  = WDATA_M;
         WSTRB_S2  = WSTRB_M;
         WLAST_S2  = WLAST_M;
         WVALID_S2 = WVALID_M;
       end
-      LOCK_NO: ;
-      default: ;
+      Wx_slave_lock[LOCK_NO_BIT]: ;
     endcase
   end
 
   // Decoder
   always_comb begin
     WREADY_from_slave = 1'b0;
-    case (Wx_slave_lock)
-      LOCK_S0: begin
+    unique case (1'b1)
+      Wx_slave_lock[LOCK_S0_BIT]: begin
         WREADY_from_slave = WREADY_S0;
       end
-      LOCK_S1: begin
+      Wx_slave_lock[LOCK_S1_BIT]: begin
         WREADY_from_slave = WREADY_S1;
       end
-      LOCK_S2: begin
+      Wx_slave_lock[LOCK_S2_BIT]: begin
         WREADY_from_slave = WREADY_S2;
       end
-      LOCK_NO: ;
-      default: ;
+      Wx_slave_lock[LOCK_NO_BIT]: ;
     endcase
   end
 

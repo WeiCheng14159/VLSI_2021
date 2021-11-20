@@ -64,10 +64,13 @@ module AWx
   end  // State
 
   always_comb begin
-    case (addr_arb_lock)
-      LOCK_M1: addr_arb_lock_next = (AWREADY_from_slave) ? LOCK_FREE : LOCK_M1;
-      LOCK_FREE: addr_arb_lock_next = (AWVALID_M1) ? LOCK_M1 : LOCK_FREE;
-      default: addr_arb_lock_next = LOCK_FREE;
+    addr_arb_lock_next = LOCK_FREE;
+    unique case (1'b1)
+      addr_arb_lock[LOCK_M0_BIT]: ;
+      addr_arb_lock[LOCK_M1_BIT]:
+      addr_arb_lock_next = (AWREADY_from_slave) ? LOCK_FREE : LOCK_M1;
+      addr_arb_lock[LOCK_FREE_BIT]:
+      addr_arb_lock_next = (AWVALID_M1) ? LOCK_M1 : LOCK_FREE;
     endcase
   end  // Next state (C)
 
@@ -90,8 +93,9 @@ module AWx
     AWVALID_M = 1'b0;
     AWREADY_M1 = 1'b0;
 
-    case (addr_arb_lock)
-      LOCK_M1: begin
+    unique case (1'b1)
+      addr_arb_lock[LOCK_M0_BIT]: ;
+      addr_arb_lock[LOCK_M1_BIT]: begin
         AWID_M = {AXI_MASTER_1_ID, AWID_M1};
         AWADDR_M = AWADDR_M1;
         AWLEN_M = AWLEN_M1;
@@ -100,7 +104,7 @@ module AWx
         AWVALID_M = AWVALID_M1;  // Valid should hold
         AWREADY_M1 = AWREADY_from_slave & ~lock_AWREADY_M1;
       end
-      LOCK_FREE: begin
+      addr_arb_lock[LOCK_FREE_BIT]: begin
         case ({
           1'b0, AWVALID_M1
         })
@@ -116,7 +120,6 @@ module AWx
           default: ;
         endcase
       end
-      default: ;
     endcase
   end
 
@@ -139,8 +142,8 @@ module AWx
     {AWBURST_S0, AWBURST_S1, AWBURST_S2} = {2'b0, 2'b0, 2'b0};
     {AWVALID_S0, AWVALID_S1, AWVALID_S2} = {1'b0, 1'b0, 1'b0};
 
-    case (decode_result)
-      SLAVE_0: begin
+    unique case (1'b1)
+      decode_result[SLAVE_0_BIT]: begin
         AWID_S0 = AWID_M;
         AWADDR_S0 = AWADDR_M;
         AWLEN_S0 = AWLEN_M;
@@ -148,7 +151,7 @@ module AWx
         AWBURST_S0 = AWBURST_M;
         AWVALID_S0 = AWVALID_M;
       end
-      SLAVE_1: begin
+      decode_result[SLAVE_1_BIT]: begin
         AWID_S1 = AWID_M;
         AWADDR_S1 = AWADDR_M;
         AWLEN_S1 = AWLEN_M;
@@ -156,7 +159,7 @@ module AWx
         AWBURST_S1 = AWBURST_M;
         AWVALID_S1 = AWVALID_M;
       end
-      SLAVE_2: begin
+      decode_result[SLAVE_2_BIT]: begin
         AWID_S2 = AWID_M;
         AWADDR_S2 = AWADDR_M;
         AWLEN_S2 = AWLEN_M;
@@ -164,24 +167,22 @@ module AWx
         AWBURST_S2 = AWBURST_M;
         AWVALID_S2 = AWVALID_M;
       end
-      default: ;
     endcase
   end
 
   // Decoder
   always_comb begin
     AWREADY_from_slave = 1'b0;
-    case (decode_result)
-      SLAVE_0: begin
+    unique case (1'b1)
+      decode_result[SLAVE_0_BIT]: begin
         AWREADY_from_slave = AWREADY_S0;
       end
-      SLAVE_1: begin
+      decode_result[SLAVE_1_BIT]: begin
         AWREADY_from_slave = AWREADY_S1;
       end
-      SLAVE_2: begin
+      decode_result[SLAVE_2_BIT]: begin
         AWREADY_from_slave = AWREADY_S2;
       end
-      default: ;
     endcase
   end
 

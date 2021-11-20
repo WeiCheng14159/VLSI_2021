@@ -51,11 +51,12 @@ package axi_pkg;
   //   logic                               BREADY;
   // } Bx_bus_t;
 
+  localparam AXI_M0_BIT = 0, AXI_M1_BIT = 1, AXI_M2_BIT = 2, AXI_MU_BIT = 3;  
   typedef enum logic [`AXI_ID_BITS-1:0] {
-    AXI_MASTER_0_ID = `AXI_ID_BITS'b0001,
-    AXI_MASTER_1_ID = `AXI_ID_BITS'b0010,
-    AXI_MASTER_2_ID = `AXI_ID_BITS'b0100,
-    AXI_MASTER_U_ID = `AXI_ID_BITS'b1000
+    AXI_MASTER_0_ID = 1 << AXI_M0_BIT,
+    AXI_MASTER_1_ID = 1 << AXI_M1_BIT,
+    AXI_MASTER_2_ID = 1 << AXI_M2_BIT,
+    AXI_MASTER_U_ID = 1 << AXI_MU_BIT
   } axi_master_id_t;
 
   localparam LOCK_M0_BIT = 0, LOCK_M1_BIT = 1, LOCK_FREE_BIT = 2;
@@ -74,10 +75,11 @@ package axi_pkg;
   } data_arb_lock_t;
 
   // Address Decoder
+  localparam SLAVE_0_BIT = 0, SLAVE_1_BIT = 1, SLAVE_2_BIT = 2;
   typedef enum logic [2:0] {
-    SLAVE_0 = 1 << 0,
-    SLAVE_1 = 1 << 1,
-    SLAVE_2 = 1 << 2
+    SLAVE_0 = 1 << SLAVE_0_BIT,
+    SLAVE_1 = 1 << SLAVE_1_BIT,
+    SLAVE_2 = 1 << SLAVE_2_BIT
   } addr_dec_result_t;
 
   function automatic addr_dec_result_t ADDR_DECODER(
