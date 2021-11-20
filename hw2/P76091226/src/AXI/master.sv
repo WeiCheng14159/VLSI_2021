@@ -56,7 +56,7 @@ module master
   logic [`AXI_STRB_BITS-1:0] WSTRB_M_r;
   master_state_t m_curr_state, m_next_state;
   logic ARx_hs_done, Rx_hs_done, AWx_hs_done, Wx_hs_done, Bx_hs_done;
-  
+
   assign AWx_hs_done = AWVALID_M & AWREADY_M;
   assign Wx_hs_done = WVALID_M & WREADY_M;
   assign Bx_hs_done = BVALID_M & BREADY_M;
@@ -106,7 +106,7 @@ module master
       R: m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
       AW: m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
       W: m_next_state = (Wx_hs_done) ? (Bx_hs_done) ? IDLE : B : W;
-      B: m_next_state = (Bx_hs_done) ? /*(read ? AR : */IDLE : B;
+      B: m_next_state = (Bx_hs_done) ? IDLE : B;
       default: ;
     endcase
   end  // Next state (C)

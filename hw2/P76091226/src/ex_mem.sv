@@ -30,37 +30,37 @@ module ex_mem (
 
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
-      mem_pc        <= `ZeroWord;
-      mem_func3     <= 3'b0;
-      mem_rd        <= `NopRegAddr;
-      mem_wreg      <= `WriteDisable;
-      mem_wdata     <= `ZeroWord;
-      mem_memrd     <= 1'b0;
-      mem_memwr     <= 1'b0;
-      mem_mem2reg   <= 1'b0;
-      mem_wreg_data <= `ZeroWord;
+      mem_pc                 <= `ZeroWord;
+      mem_func3              <= 3'b0;
+      mem_rd                 <= `NopRegAddr;
+      mem_wreg               <= `WriteDisable;
+      mem_wdata              <= `ZeroWord;
+      mem_memrd              <= 1'b0;
+      mem_memwr              <= 1'b0;
+      mem_mem2reg            <= 1'b0;
+      mem_wreg_data          <= `ZeroWord;
       mem_is_id_in_delayslot <= `NotInDelaySlot;
     end else if (flush == `True | (stall[`EX_STAGE] == `Stop && stall[`ME_STAGE] == `NoStop)) begin
-      mem_pc        <= `ZeroWord;
-      mem_func3     <= 3'b0;
-      mem_rd        <= `NopRegAddr;
-      mem_wreg      <= `WriteDisable;
-      mem_wdata     <= `ZeroWord;
-      mem_memrd     <= 1'b0;
-      mem_memwr     <= 1'b0;
-      mem_mem2reg   <= 1'b0;
-      mem_wreg_data <= `ZeroWord;
+      mem_pc                 <= `ZeroWord;
+      mem_func3              <= 3'b0;
+      mem_rd                 <= `NopRegAddr;
+      mem_wreg               <= `WriteDisable;
+      mem_wdata              <= `ZeroWord;
+      mem_memrd              <= 1'b0;
+      mem_memwr              <= 1'b0;
+      mem_mem2reg            <= 1'b0;
+      mem_wreg_data          <= `ZeroWord;
       mem_is_id_in_delayslot <= `NotInDelaySlot;
     end else if (stall[`ME_STAGE] == `NoStop) begin
-      mem_pc        <= ex_pc;
-      mem_func3     <= ex_func3;
-      mem_rd        <= ex_rd;
-      mem_wreg      <= ex_wreg;
-      mem_wdata     <= ex_wdata;
-      mem_memrd     <= ex_memrd;
-      mem_memwr     <= ex_memwr;
-      mem_mem2reg   <= ex_mem2reg;
-      mem_wreg_data <= ex_wreg_data;
+      mem_pc                 <= ex_pc;
+      mem_func3              <= ex_func3;
+      mem_rd                 <= ex_rd;
+      mem_wreg               <= ex_wreg;
+      mem_wdata              <= ex_wdata;
+      mem_memrd              <= ex_memrd;
+      mem_memwr              <= ex_memwr;
+      mem_mem2reg            <= ex_mem2reg;
+      mem_wreg_data          <= ex_wreg_data;
       mem_is_id_in_delayslot <= ex_is_id_in_delayslot;
     end
   end

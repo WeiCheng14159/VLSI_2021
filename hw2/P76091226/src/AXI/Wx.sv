@@ -84,18 +84,18 @@ module Wx
 
   // Arbiter
   always_comb begin
-    WDATA_M = `AXI_DATA_BITS'b0;
-    WSTRB_M = `AXI_STRB_BITS'b0;
-    WLAST_M = 1'b0;
-    WVALID_M = 1'b0;
+    WDATA_M   = `AXI_DATA_BITS'b0;
+    WSTRB_M   = `AXI_STRB_BITS'b0;
+    WLAST_M   = 1'b0;
+    WVALID_M  = 1'b0;
     WREADY_M1 = 1'b0;
 
     case (addr_arb_lock)
       LOCK_M1: begin
-        WDATA_M = WDATA_M1;
-        WSTRB_M = WSTRB_M1;
-        WLAST_M = WLAST_M1;
-        WVALID_M = WVALID_M1;
+        WDATA_M   = WDATA_M1;
+        WSTRB_M   = WSTRB_M1;
+        WLAST_M   = WLAST_M1;
+        WVALID_M  = WVALID_M1;
         WREADY_M1 = WREADY_from_slave;
       end
       LOCK_FREE: begin
@@ -103,10 +103,10 @@ module Wx
           1'b0, WVALID_M1
         })
           2'b01: begin  // M1
-            WDATA_M = WDATA_M1;
-            WSTRB_M = WSTRB_M1;
-            WLAST_M = WLAST_M1;
-            WVALID_M = WVALID_M1;
+            WDATA_M   = WDATA_M1;
+            WSTRB_M   = WSTRB_M1;
+            WLAST_M   = WLAST_M1;
+            WVALID_M  = WVALID_M1;
             WREADY_M1 = WREADY_from_slave;
           end
           default: ;
@@ -142,28 +142,28 @@ module Wx
 
     case (Wx_slave_lock)
       LOCK_S0: begin
-        WDATA_S0 = WDATA_M;
-        WSTRB_S0 = WSTRB_M;
-        WLAST_S0 = WLAST_M;
+        WDATA_S0  = WDATA_M;
+        WSTRB_S0  = WSTRB_M;
+        WLAST_S0  = WLAST_M;
         WVALID_S0 = WVALID_M;
       end
       LOCK_S1: begin
-        WDATA_S1 = WDATA_M;
-        WSTRB_S1 = WSTRB_M;
-        WLAST_S1 = WLAST_M;
+        WDATA_S1  = WDATA_M;
+        WSTRB_S1  = WSTRB_M;
+        WLAST_S1  = WLAST_M;
         WVALID_S1 = WVALID_M;
       end
       LOCK_S2: begin
-        WDATA_S2 = WDATA_M;
-        WSTRB_S2 = WSTRB_M;
-        WLAST_S2 = WLAST_M;
+        WDATA_S2  = WDATA_M;
+        WSTRB_S2  = WSTRB_M;
+        WLAST_S2  = WLAST_M;
         WVALID_S2 = WVALID_M;
       end
       LOCK_NO: ;
       default: ;
     endcase
   end
-  
+
   // Decoder
   always_comb begin
     WREADY_from_slave = 1'b0;

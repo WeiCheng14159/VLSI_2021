@@ -85,7 +85,7 @@ module CPU (
   logic                   mem_mem2reg;
   logic [     `Func3Bus]  mem_func3;
   logic                   mem_is_id_in_delayslot;
-  
+
   /* Write Back (WB) */
   logic [       `RegBus]  wb_pc;
   logic                   wb_wreg;
@@ -97,7 +97,7 @@ module CPU (
   logic                   wb_is_id_in_delayslot;
 
   /* Other */
-  logic            [3:0]  wb_nxt_is_id_in_delayslot;
+  logic [           3:0 ] wb_nxt_is_id_in_delayslot;
 
   /* Register file */
   logic                   rs1_read;
@@ -355,18 +355,18 @@ module CPU (
       .wdata_o(wb_wdata)
   );
 
-    // For branch delay slot
-    always_ff @(posedge clk, negedge rstn) begin
-        if(~rstn) begin
-            wb_nxt_is_id_in_delayslot[3] <= `NotInDelaySlot;
-            wb_nxt_is_id_in_delayslot[2] <= `NotInDelaySlot;
-            wb_nxt_is_id_in_delayslot[1] <= `NotInDelaySlot;
-            wb_nxt_is_id_in_delayslot[0] <= `NotInDelaySlot;
-        end else begin
-            wb_nxt_is_id_in_delayslot[3] <= wb_nxt_is_id_in_delayslot[2];
-            wb_nxt_is_id_in_delayslot[2] <= wb_nxt_is_id_in_delayslot[1];
-            wb_nxt_is_id_in_delayslot[1] <= wb_nxt_is_id_in_delayslot[0];
-            wb_nxt_is_id_in_delayslot[0] <= wb_is_id_in_delayslot;
-        end
+  // For branch delay slot
+  always_ff @(posedge clk, negedge rstn) begin
+    if (~rstn) begin
+      wb_nxt_is_id_in_delayslot[3] <= `NotInDelaySlot;
+      wb_nxt_is_id_in_delayslot[2] <= `NotInDelaySlot;
+      wb_nxt_is_id_in_delayslot[1] <= `NotInDelaySlot;
+      wb_nxt_is_id_in_delayslot[0] <= `NotInDelaySlot;
+    end else begin
+      wb_nxt_is_id_in_delayslot[3] <= wb_nxt_is_id_in_delayslot[2];
+      wb_nxt_is_id_in_delayslot[2] <= wb_nxt_is_id_in_delayslot[1];
+      wb_nxt_is_id_in_delayslot[1] <= wb_nxt_is_id_in_delayslot[0];
+      wb_nxt_is_id_in_delayslot[0] <= wb_is_id_in_delayslot;
     end
+  end
 endmodule

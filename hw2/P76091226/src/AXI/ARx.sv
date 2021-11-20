@@ -79,7 +79,6 @@ module ARx
     end
   end  // State
 
-  // Next state logic
   always_comb begin
     addr_arb_lock_next = LOCK_FREE;
     case (addr_arb_lock)

@@ -63,7 +63,6 @@ module AWx
     end
   end  // State
 
-  // Next state logic
   always_comb begin
     case (addr_arb_lock)
       LOCK_M1: addr_arb_lock_next = (AWREADY_from_slave) ? LOCK_FREE : LOCK_M1;
