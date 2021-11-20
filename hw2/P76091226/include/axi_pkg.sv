@@ -84,9 +84,10 @@ package axi_pkg;
 
   function automatic addr_dec_result_t ADDR_DECODER(
       logic [`AXI_ADDR_BITS-1:0] address);
-    if (address >= 32'h0000_0000 && address < 32'h0001_0000)
+    logic [`AXI_ADDR_BITS-1:`AXI_ADDR_BITS/2] address_upper = address[`AXI_ADDR_BITS-1:`AXI_ADDR_BITS/2];
+    if (address_upper < 16'h0001)
       ADDR_DECODER = SLAVE_0;
-    else if (address >= 32'h0001_0000 && address < 32'h0010_0000)
+    else if (address_upper >= 16'h0001 && address_upper < 16'h0010)
       ADDR_DECODER = SLAVE_1;
     else ADDR_DECODER = SLAVE_2;
   endfunction
