@@ -85,42 +85,13 @@ module AWx
 
   // Arbiter
   always_comb begin
-    AWID_M = {`AXI_IDS_BITS'b0, `AXI_IDS_BITS'b0};
-    AWADDR_M = `AXI_ADDR_BITS'b0;
-    AWLEN_M = `AXI_LEN_BITS'b0;
-    AWSIZE_M = `AXI_SIZE_BITS'b0;
-    AWBURST_M = 2'b0;
-    AWVALID_M = 1'b0;
-    AWREADY_M1 = 1'b0;
-
-    unique case (1'b1)
-      addr_arb_lock[LOCK_M0_BIT]: ;
-      addr_arb_lock[LOCK_M1_BIT]: begin
-        AWID_M = {AXI_MASTER_1_ID, AWID_M1};
-        AWADDR_M = AWADDR_M1;
-        AWLEN_M = AWLEN_M1;
-        AWSIZE_M = AWSIZE_M1;
-        AWBURST_M = AWBURST_M1;
-        AWVALID_M = AWVALID_M1;  // Valid should hold
-        AWREADY_M1 = AWREADY_from_slave & ~lock_AWREADY_M1;
-      end
-      addr_arb_lock[LOCK_FREE_BIT]: begin
-        case ({
-          1'b0, AWVALID_M1
-        })
-          2'b01: begin  // M1
-            AWID_M = {AXI_MASTER_1_ID, AWID_M1};
-            AWADDR_M = AWADDR_M1;
-            AWLEN_M = AWLEN_M1;
-            AWSIZE_M = AWSIZE_M1;
-            AWBURST_M = AWBURST_M1;
-            AWVALID_M = AWVALID_M1;
-            AWREADY_M1 = AWREADY_from_slave & ~lock_AWREADY_M1;
-          end
-          default: ;
-        endcase
-      end
-    endcase
+    AWID_M = {AXI_MASTER_1_ID, AWID_M1};
+    AWADDR_M = AWADDR_M1;
+    AWLEN_M = AWLEN_M1;
+    AWSIZE_M = AWSIZE_M1;
+    AWBURST_M = AWBURST_M1;
+    AWVALID_M = AWVALID_M1;
+    AWREADY_M1 = AWREADY_from_slave & ~lock_AWREADY_M1;
   end
 
   // Decoder
