@@ -181,13 +181,11 @@ module id(
                 branch_taken              = `BranchTaken;
             end
             `OP_BLT: begin
-              if( (rs1_data_o[31] == 1'b1 && rs2_data_o[31] == 1'b0) || 
-                  (rs1_data_sign < rs2_data_sign) )
+              if(rs1_data_sign < rs2_data_sign)
                 branch_taken              = `BranchTaken;
             end
             `OP_BGE: begin
-              if( (rs1_data_o[31] == 1'b0 && rs2_data_o[31] == 1'b1) || 
-                  (rs1_data_sign >= rs2_data_sign) )
+              if(rs1_data_sign >= rs2_data_sign)
                 branch_taken              = `BranchTaken;
             end
             `OP_BLTU: begin
