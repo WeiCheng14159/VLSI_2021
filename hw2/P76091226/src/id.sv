@@ -57,6 +57,7 @@ module id(
   logic                                 inst_valid;
   logic                                 branch_taken;
   logic                                 load_use_for_rs1, load_use_for_rs2;
+  logic                                 is_bubble;
 
   logic                       [`RegBus] pc_next;
   logic                           [6:0] opcode;
@@ -73,6 +74,10 @@ module id(
   assign stallreq = load_use_for_rs1 | load_use_for_rs2;
   assign load_inst_in_ex = (ex_memrd_i == `True) ? `True : `False;
   assign load_inst_in_mem = (mem_memrd_i == `True) ? `True : `False;
+  assign is_bubble = (aluop_o[`ALUOP_ADD] == 1'b1) & (alusrc1_o == `SRC1_FROM_REG) & (alusrc2_o == `SRC2_FROM_REG)
+    & (rd_o == `NopRegAddr) & (wreg_o == `WriteDisable) & (inst_valid == `InstValid) 
+    & (rs1_read_o == `ReadDisable) & (rs2_read_o == `ReadDisable) & (rs1_addr_o == `NopRegAddr) & (rs2_addr_o == `NopRegAddr)
+    & (imm_o == `ZeroWord) & (memrd_o == `ReadDisable) & (memwr_o == `WriteDisable);
 
   always_comb begin
     if (is_in_delayslot_i == `InDelaySlot) begin
