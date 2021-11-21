@@ -191,7 +191,9 @@ module CPU (
       .mem_wreg_data_i(mem_wreg_data),
       .mem_rd_i(mem_rd),
       .mem_memrd_i(mem_memrd),
-      .is_in_delayslot_i(ex_is_id_in_delayslot | mem_is_id_in_delayslot | wb_is_id_in_delayslot | wb_nxt_is_id_in_delayslot[0] | wb_nxt_is_id_in_delayslot[1]), // Current branch delay slot is 5 cycle
+      .is_in_delayslot_i(ex_is_id_in_delayslot | mem_is_id_in_delayslot | 
+        wb_is_id_in_delayslot | wb_nxt_is_id_in_delayslot[0] | wb_nxt_is_id_in_delayslot[1])
+      ,  // Current branch delay slot is 5 cycle
       .func3_o(id_func3),
       .rs1_read_o(rs1_read),
       .rs2_read_o(rs2_read),
