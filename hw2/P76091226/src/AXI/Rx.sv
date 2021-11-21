@@ -154,7 +154,6 @@ module Rx
     {RRESP_M0, RRESP_M1} = {2'b0, 2'b0};
     {RLAST_M0, RLAST_M1} = {1'b0, 1'b0};
     {RVALID_M0, RVALID_M1} = {1'b0, 1'b0};
-    READY_from_master = 1'b0;
 
     unique case (1'b1)
       decode_result[AXI_M0_BIT]: begin
@@ -163,7 +162,6 @@ module Rx
         RRESP_M0 = RRESP_S;
         RLAST_M0 = RLAST_S;
         RVALID_M0 = RVALID_S;
-        READY_from_master = RREADY_M0;
       end
       decode_result[AXI_M1_BIT]: begin
         RID_M1 = RID_S[`AXI_ID_BITS-1:0];
@@ -171,8 +169,16 @@ module Rx
         RRESP_M1 = RRESP_S;
         RLAST_M1 = RLAST_S;
         RVALID_M1 = RVALID_S;
-        READY_from_master = RREADY_M1;
       end
+      decode_result[AXI_M2_BIT]: ;
+    endcase
+  end  // always_comb
+
+  always_comb begin
+    READY_from_master = 1'b0;
+    unique case (1'b1)
+      decode_result[AXI_M0_BIT]: READY_from_master = RREADY_M0;
+      decode_result[AXI_M1_BIT]: READY_from_master = RREADY_M1;
       decode_result[AXI_M2_BIT]: ;
     endcase
   end  // always_comb
