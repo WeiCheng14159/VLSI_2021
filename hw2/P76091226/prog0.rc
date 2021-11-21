@@ -2,7 +2,7 @@ Magic 271485
 Revision Verdi_O-2018.09
 
 ; Window Layout <x> <y> <width> <height> <signalwidth> <valuewidth>
-viewPort 2560 23 1920 1137 313 105
+viewPort 2631 -1 1848 1163 313 105
 
 ; File list:
 ; openDirFile [-d delimiter] [-s time_offset] [-rf auto_bus_rule_file] path_name file_name
@@ -16,7 +16,7 @@ signalSpacing 5
 
 ; windowTimeUnit is used for zoom, cursor & marker
 ; waveform viewport range
-zoom 27960148.326361 27992711.690051
+zoom 219268.514844 252584.497868
 cursor 27977250.000000
 marker 21000.000000
 
@@ -25,7 +25,7 @@ marker 21000.000000
 ; visible top row signal index
 top 8
 ; marker line index
-markerPos 57
+markerPos 30
 
 ; event list
 ; addEvent event_name event_expression
@@ -60,8 +60,7 @@ addSignal -h 15 -holdScope inst_read_o
 addSubGroup "ctrl"
 addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/stallreq_from_if
 addSignal -h 15 -holdScope stallreq_from_id
-endSubGroup "ctrl"
-addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/stallreq_from_ex
+addSignal -h 15 -holdScope stallreq_from_ex
 addSignal -h 15 -holdScope stallreq_from_mem
 addSignal -expanded -h 15 -holdScope stallreq[4:0]
 addSignal -h 15 -holdScope stallreq[4]
@@ -69,25 +68,26 @@ addSignal -h 15 -holdScope stallreq[3]
 addSignal -h 15 -holdScope stallreq[2]
 addSignal -h 15 -holdScope stallreq[1]
 addSignal -h 15 -holdScope stallreq[0]
+endSubGroup "ctrl"
 addSubGroup "id"
 addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/id_pc[31:0]
-endSubGroup "id"
-addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/id_inst[31:0]
-addSignal -h 15 -holdScope id_aluop[14:0]
+addSignal -h 15 -holdScope id_inst[31:0]
+addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/id0/is_bubble
+addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/id_aluop[14:0]
 addSignal -h 15 -holdScope id_rs1[31:0]
 addSignal -h 15 -holdScope id_rs2[31:0]
 addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/id0/load_use_for_rs1
 addSignal -h 15 -holdScope load_use_for_rs2
+endSubGroup "id"
 addSubGroup "id_branch"
 addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/id_branch_taken
 addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/ifetch0/is_id_branch_inst
 addSignal -h 15 -holdScope branch_target_addr_i[31:0]
-addSignal -h 15 -holdScope branch_target_addr_r[31:0]
 addSignal -h 15 -holdScope branch_not_taken_addr_r[31:0]
 addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/id0/link_addr_o[31:0]
-endSubGroup "id_branch"
-addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/id0/is_in_delayslot_i
+addSignal -h 15 -holdScope is_in_delayslot_i
 addSignal -h 15 -holdScope next_inst_in_delayslot_o
+endSubGroup "id_branch"
 addSubGroup "RF"
 addSignal -h 15 /top_tb/TOP/cpu_wrapper0/cpu0/regfile0/regs[0:31]
 endSubGroup "RF"
@@ -120,15 +120,14 @@ addSignal -h 15 -holdScope wb_mem2reg
 addSignal -h 15 -UNSIGNED -HEX -holdScope wb_rd[4:0]
 addSignal -h 15 -UNSIGNED -HEX -holdScope wb_wdata[31:0]
 addGroup "CPU_M0"
-addSignal -h 15 -UNSIGNED /top_tb/TOP/cpu_wrapper0/M0/m_curr_state[6:0]
+addSignal -h 15 -UNSIGNED /top_tb/TOP/cpu_wrapper0/M0/m_curr_state[5:0]
 addSignal -h 15 -holdScope ARVALID_M
 addSignal -h 15 -holdScope ARREADY_M
 addSignal -h 15 -holdScope ARADDR_M[31:0]
 addSignal -h 15 -holdScope data_out[31:0]
 addSignal -h 15 -holdScope stall
 addGroup "CPU_M1"
-addSignal -h 15 -UNSIGNED /top_tb/TOP/cpu_wrapper0/M1/m_curr_state[6:0]
-addSignal -h 15 -UNSIGNED -holdScope m_next_state[6:0]
+addSignal -h 15 -UNSIGNED /top_tb/TOP/cpu_wrapper0/M1/m_curr_state[5:0]
 addSignal -h 15 -holdScope ARVALID_M
 addSignal -h 15 -holdScope ARREADY_M
 addSignal -h 15 -holdScope ARADDR_M[31:0]
