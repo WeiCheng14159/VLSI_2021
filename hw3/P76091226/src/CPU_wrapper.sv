@@ -9,194 +9,143 @@ module CPU_wrapper
 (
     input logic clk,
     input logic rstn,
-    // Master 1 (MEM-stage)
-    // AWx
-    output logic [`AXI_ID_BITS-1:0] AWID_M1,
-    output logic [`AXI_ADDR_BITS-1:0] AWADDR_M1,
-    output logic [`AXI_LEN_BITS-1:0] AWLEN_M1,
-    output logic [`AXI_SIZE_BITS-1:0] AWSIZE_M1,
-    output logic [1:0] AWBURST_M1,
-    output logic AWVALID_M1,
-    input logic AWREADY_M1,
-    // Wx
-    output logic [`AXI_DATA_BITS-1:0] WDATA_M1,
-    output logic [`AXI_STRB_BITS-1:0] WSTRB_M1,
-    output logic WLAST_M1,
-    output logic WVALID_M1,
-    input logic WREADY_M1,
-    // Bx
-    input logic [`AXI_ID_BITS-1:0] BID_M1,
-    input logic [1:0] BRESP_M1,
-    input logic BVALID_M1,
-    output logic BREADY_M1,
-    // ARx
-    output logic [`AXI_ID_BITS-1:0] ARID_M1,
-    output logic [`AXI_ADDR_BITS-1:0] ARADDR_M1,
-    output logic [`AXI_LEN_BITS-1:0] ARLEN_M1,
-    output logic [`AXI_SIZE_BITS-1:0] ARSIZE_M1,
-    output logic [1:0] ARBURST_M1,
-    output logic ARVALID_M1,
-    input logic ARREADY_M1,
-    // Rx
-    input logic [`AXI_ID_BITS-1:0] RID_M1,
-    input logic [`AXI_DATA_BITS-1:0] RDATA_M1,
-    input logic [1:0] RRESP_M1,
-    input logic RLAST_M1,
-    input logic RVALID_M1,
-    output logic RREADY_M1,
-    // Master 0 (IF-stage)
-    // AWx
-    output logic [`AXI_ID_BITS-1:0] AWID_M0,
-    output logic [`AXI_ADDR_BITS-1:0] AWADDR_M0,
-    output logic [`AXI_LEN_BITS-1:0] AWLEN_M0,
-    output logic [`AXI_SIZE_BITS-1:0] AWSIZE_M0,
-    output logic [1:0] AWBURST_M0,
-    output logic AWVALID_M0,
-    input logic AWREADY_M0,
-    // Wx
-    output logic [`AXI_DATA_BITS-1:0] WDATA_M0,
-    output logic [`AXI_STRB_BITS-1:0] WSTRB_M0,
-    output logic WLAST_M0,
-    output logic WVALID_M0,
-    input logic WREADY_M0,
-    // Bx
-    input logic [`AXI_ID_BITS-1:0] BID_M0,
-    input logic [1:0] BRESP_M0,
-    input logic BVALID_M0,
-    output logic BREADY_M0,
-    // ARx
-    output logic [`AXI_ID_BITS-1:0] ARID_M0,
-    output logic [`AXI_ADDR_BITS-1:0] ARADDR_M0,
-    output logic [`AXI_LEN_BITS-1:0] ARLEN_M0,
-    output logic [`AXI_SIZE_BITS-1:0] ARSIZE_M0,
-    output logic [1:0] ARBURST_M0,
-    output logic ARVALID_M0,
-    input logic ARREADY_M0,
-    // Rx
-    input logic [`AXI_ID_BITS-1:0] RID_M0,
-    input logic [`AXI_DATA_BITS-1:0] RDATA_M0,
-    input logic [1:0] RRESP_M0,
-    input logic RLAST_M0,
-    input logic RVALID_M0,
-    output logic RREADY_M0
+    AXI_master_intf.master master0,
+    AXI_master_intf.master master1
 );
 
-  logic [    `InstBus]  inst_from_mem;
-  logic                 inst_read;
-  logic [`InstAddrBus]  inst_addr;
+  // CPU - Instruction
+  logic [            `InstBus]  inst_from_mem;
+  logic                         inst_read;
+  logic [        `InstAddrBus]  inst_addr;
+  logic                         inst_rw_request;
 
-  logic [    `DataBus]  data_from_mem;
-  logic                 data_read;
-  logic                 data_write;
-  logic [         3:0 ] data_write_web;
-  logic [`DataAddrBus]  data_addr;
-  logic [    `DataBus]  data_to_mem;
+  // CPU - Data
+  logic [            `DataBus]  data_from_mem;
+  logic                         data_read;
+  logic [`CACHE_TYPE_BITS-1:0 ] data_read_type;
+  logic                         data_write;
+  logic [`CACHE_TYPE_BITS-1:0 ] data_write_type;
+  logic [        `DataAddrBus]  data_addr;
+  logic [            `DataBus]  data_to_mem;
+  logic                         data_rw_request;
 
-  logic                 stallreq_from_imem;
-  logic                 stallreq_from_dmem;
+  logic                         stallreq_from_imem;
+  logic                         stallreq_from_dmem;
+
+  // Cache 
+  logic [`CACHE_TYPE_BITS-1:0 ] core_type;
+  logic [`CACHE_TYPE_BITS-1:0 ] read_type;
+  // L1-D$ 
+  logic [      `DATA_BITS-1:0 ] D_out;
+  logic                         D_req;
+  logic [      `DATA_BITS-1:0 ] D_addr;
+  logic                         D_write;
+  logic [      `DATA_BITS-1:0 ] D_in;
+  logic [`CACHE_TYPE_BITS-1:0 ] D_type;
+  logic                         D_wait;
+  // L1-I$
+  logic [      `DATA_BITS-1:0 ] I_out;
+  logic                         I_req;
+  logic [      `DATA_BITS-1:0 ] I_addr;
+  logic                         I_write;
+  logic [      `DATA_BITS-1:0 ] I_in;
+  logic [`CACHE_TYPE_BITS-1:0 ] I_type;
+  logic                         I_wait;
 
   CPU cpu0 (
-      .clk (clk),
+      .clk(clk),
       .rstn(rstn),
-
-      .inst_out_i(inst_from_mem),
+      // Instruction access
+      .inst_in_i(inst_from_mem),
       .inst_read_o(inst_read),
       .inst_addr_o(inst_addr),
-      .data_out_i(data_from_mem),
+      .inst_rw_request_o(inst_addr),
+      // Data access
+      .data_in_i(data_from_mem),
       .data_read_o(data_read),
+      .data_read_type_o(data_read_type),
       .data_write_o(data_write),
-      .data_write_web_o(data_write_web),
+      .data_write_type_o(data_write_type),
       .data_addr_o(data_addr),
-      .data_in_o(data_to_mem),
-
-      .stallreq_from_imem (stallreq_from_imem),
+      .data_out_o(data_to_mem),
+      // Stall request from cache
+      .stallreq_from_imem(stallreq_from_imem),
       .stallreq_from_dmem(stallreq_from_dmem)
   );
+  // Cache signals
+  assign inst_rw_request = inst_read;
+  assign I_req = inst_read;
+  assign I_write = 1'b0;
+  assign I_type = `CACHE_TYPE_BITS'b0;
 
+  assign data_rw_request = data_read | data_write;
+  assign D_req = ;
   wire [3:0] NoWrite = 4'hf;
+  
+  L1C_inst I_cache (
+      .clk(clk),
+      .rst(~rstn),
+      .core_addr(inst_addr), // address from CPU
+      .core_req(inst_rw_request),// memory access request from CPU
+      .core_write(1'b0), // write signal from CPU
+      .core_in(`DATA_BITS'b0), // data from CPU
+      .core_type(`CACHE_WORD), // write/read byte, half word, or word from CPU
+      .I_out(I_out), // data from CPU wrapper
+      .I_wait(I_wait), // wait signal from CPU wrapper
+      .core_out(inst_from_mem), // data to CPU
+      .core_wait(stallreq_from_imem), // wait signal to CPU
+      .I_req(I_req), // request to CPU wrapper
+      .I_addr(I_addr), // address to CPU wrapper
+      .I_write(I_write), // write signal to CPU wrapper
+      .I_in(I_in), // write data to CPU wrapper
+      .I_type(I_type) // write/read byte, half word, or word to CPU wrapper
+  );
 
   master M0 (
       .clk(clk),
       .rstn(rstn),
-      .AWID_M(AWID_M0),
-      .AWADDR_M(AWADDR_M0),
-      .AWLEN_M(AWLEN_M0),
-      .AWSIZE_M(AWSIZE_M0),
-      .AWBURST_M(AWBURST_M0),
-      .AWVALID_M(AWVALID_M0),
-      .AWREADY_M(AWREADY_M0),
-      .WDATA_M(WDATA_M0),
-      .WSTRB_M(WSTRB_M0),
-      .WLAST_M(WLAST_M0),
-      .WVALID_M(WVALID_M0),
-      .WREADY_M(WREADY_M0),
-      .BID_M(BID_M0),
-      .BRESP_M(BRESP_M0),
-      .BVALID_M(BVALID_M0),
-      .BREADY_M(BREADY_M0),
-      .ARID_M(ARID_M0),
-      .ARADDR_M(ARADDR_M0),
-      .ARLEN_M(ARLEN_M0),
-      .ARSIZE_M(ARSIZE_M0),
-      .ARBURST_M(ARBURST_M0),
-      .ARVALID_M(ARVALID_M0),
-      .ARREADY_M(ARREADY_M0),
-      .RID_M(RID_M0),
-      .RDATA_M(RDATA_M0),
-      .RRESP_M(RRESP_M0),
-      .RLAST_M(RLAST_M0),
-      .RVALID_M(RVALID_M0),
-      .RREADY_M(RREADY_M0),
+      .master(master0),
       // CPU interface
-      .read(inst_read),
-      .write(1'b0),
-      .w_type(NoWrite),
-      .data_in(32'b0),
-      .addr(inst_addr),
-      .data_out(inst_from_mem),
-      .stall(stallreq_from_imem)
+      .access_request(I_req),
+      .write(I_write),
+      .w_type(I_type),
+      .data_in(I_in),
+      .addr(I_addr),
+      .data_out(I_out),
+      .stall(I_wait)
+  );
+
+  L1C_data D_cache (
+      .clk(clk),
+      .rst(~rstn),
+      .core_addr(data_addr), // address from CPU
+      .core_req(data_rw_request), // memory access request from CPU
+      .core_write(data_write), // write signal from CPU
+      .core_in(data_to_mem), // data from CPU
+      .core_type(data_write_type),// write/read byte, half word, or word from CPU
+      .D_out(D_out), // data from CPU wrapper
+      .D_wait(D_wait), // wait signal from CPU wrapper
+      .core_out(data_from_mem),// data to CPU
+      .core_wait(stallreq_from_dmem),// wait signal to CPU
+      .D_req(D_req),// request to CPU wrapper
+      .D_addr(D_addr),// address to CPU wrapper
+      .D_write(D_write), // write signal to CPU wrapper
+      .D_in(D_in),// write data to CPU wrapper
+      .D_type(D_type)// write/read byte, half word, or word to CPU wrapper
   );
 
   master M1 (
       .clk(clk),
       .rstn(rstn),
-      .AWID_M(AWID_M1),
-      .AWADDR_M(AWADDR_M1),
-      .AWLEN_M(AWLEN_M1),
-      .AWSIZE_M(AWSIZE_M1),
-      .AWBURST_M(AWBURST_M1),
-      .AWVALID_M(AWVALID_M1),
-      .AWREADY_M(AWREADY_M1),
-      .WDATA_M(WDATA_M1),
-      .WSTRB_M(WSTRB_M1),
-      .WLAST_M(WLAST_M1),
-      .WVALID_M(WVALID_M1),
-      .WREADY_M(WREADY_M1),
-      .BID_M(BID_M1),
-      .BRESP_M(BRESP_M1),
-      .BVALID_M(BVALID_M1),
-      .BREADY_M(BREADY_M1),
-      .ARID_M(ARID_M1),
-      .ARADDR_M(ARADDR_M1),
-      .ARLEN_M(ARLEN_M1),
-      .ARSIZE_M(ARSIZE_M1),
-      .ARBURST_M(ARBURST_M1),
-      .ARVALID_M(ARVALID_M1),
-      .ARREADY_M(ARREADY_M1),
-      .RID_M(RID_M1),
-      .RDATA_M(RDATA_M1),
-      .RRESP_M(RRESP_M1),
-      .RLAST_M(RLAST_M1),
-      .RVALID_M(RVALID_M1),
-      .RREADY_M(RREADY_M1),
+      .master(master1),
       // CPU interface
-      .read(data_read),
-      .write(data_write),
-      .w_type(~data_write_web),
-      .data_in(data_to_mem),
-      .addr(data_addr),
-      .data_out(data_from_mem),
-      .stall(stallreq_from_dmem)
+      .access_request(D_req),
+      .write(D_write),
+      .w_type(D_type)),
+      .data_in(D_in),
+      .addr(D_addr),
+      .data_out(D_out),
+      .stall(D_wait)
   );
 
 endmodule

@@ -5,7 +5,9 @@
 // Version:     0.1
 //================================================
 `include "def.svh"
-module L1C_inst (
+module L1C_inst 
+    import cache_pkg::*;
+(
     input logic clk,
     input logic rst,
     // Core to CPU wrapper
@@ -39,7 +41,44 @@ module L1C_inst (
   logic TA_read;
   logic [`CACHE_LINES-1:0] valid;
 
-  //--------------- complete this part by yourself -----------------//
+  //   cache_state_t curr_state, next_state;
+
+  // always_ff @(posedge clk, posedge rst) begin
+  //   if (rst) begin
+  //     curr_state <= IDLE;
+  //   end else begin
+  //     curr_state <= next_state;
+  //   end
+  // end  // State
+
+  // always_comb begin
+  //   next_state = IDLE;
+  //   case (curr_state)
+  //     IDLE: begin
+  //       if(core_req)
+  //         if(core_write)
+  //           next_state = CHECK;
+  //         else
+  //           next_state = (valid[index]) ? (hit) ? STATE_IDLE : CHECK : CHECK;
+  //       else 
+  //         next_state = IDLE;
+  //     end
+
+  //     CHECK: begin
+  //       if(core_write)
+  //         next_state = (I_wait) ? CHECK : WRITE;
+  //       else
+  //         next_state = (hit) ? IDLE : MISS;
+  //     end
+  //     MISS: begin
+  //       next_state = (~I_wait) ? IDLE : MISS;
+  //     end
+  //     WRITE: begin
+  //       next_state = I_wait ? WRITE : IDLE;
+  //     end
+
+  //   endcase
+  // end  // Next state (C)
 
   data_array_wrapper DA (
       .A  (index),

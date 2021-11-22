@@ -19,6 +19,7 @@ module CPU (
     input  logic [            `InstBus] inst_in_i,
     output logic                        inst_read_o,
     output logic [        `InstAddrBus] inst_addr_o,
+    output logic                        inst_rw_request_o,
     // Data access
     input  logic [            `DataBus] data_in_i,
     output logic                        data_read_o,

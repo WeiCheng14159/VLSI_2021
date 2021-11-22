@@ -9,9 +9,9 @@ module mem(
 
   output logic                          data_read_o,
   output logic                          data_write_o,
-  output logic                  [ 3: 0] data_write_web_o,
-  output logic                [`RegBus] data_addr_o,
-  output logic               [`DataBus] data_in_o
+  output logic                  [ 3: 0] data_write_type_o,
+  output logic                [`RegBus] data_write_addr_o,
+  output logic               [`DataBus] data_out_o
 );
 
   logic                       [`RegBus] memaddr_i;
@@ -21,56 +21,56 @@ module mem(
   always_comb begin
     data_read_o = `ReadDisable;
     data_write_o = `WriteDisable;
-    data_write_web_o = {`WriteDisable, `WriteDisable, `WriteDisable, `WriteDisable};
-    data_addr_o = `ZeroWord;
-    data_in_o = `ZeroWord;
+    data_write_type_o = {`WriteDisable, `WriteDisable, `WriteDisable, `WriteDisable};
+    data_write_addr_o = `ZeroWord;
+    data_out_o = `ZeroWord;
 
     if(memrd_i == `ReadEnable && memwr_i == `WriteDisable) begin // Load
       data_read_o = `ReadEnable;
-      data_addr_o = memaddr_i;
+      data_write_addr_o = memaddr_i;
     end else if(memrd_i == `ReadDisable && memwr_i == `WriteEnable) begin // Store
       data_write_o = `WriteEnable;
-      data_addr_o = memaddr_i;
+      data_write_addr_o = memaddr_i;
       case(func3_i)
         `OP_SW : begin 
-          data_write_web_o = {`WriteEnable, `WriteEnable, `WriteEnable, `WriteEnable};
-          data_in_o = wdata_i;
+          data_write_type_o = {`WriteEnable, `WriteEnable, `WriteEnable, `WriteEnable};
+          data_out_o = wdata_i;
         end
         `OP_SH : begin
           case(memaddr_i[1])
             1'b1: begin
-              data_write_web_o = {`WriteEnable, `WriteEnable, `WriteDisable, `WriteDisable};
-              data_in_o = {wdata_i[15:0], 16'b0};
+              data_write_type_o = {`WriteEnable, `WriteEnable, `WriteDisable, `WriteDisable};
+              data_out_o = {wdata_i[15:0], 16'b0};
             end
             1'b0: begin
-              data_write_web_o = {`WriteDisable, `WriteDisable, `WriteEnable, `WriteEnable};
-              data_in_o = {16'b0, wdata_i[15:0]};
+              data_write_type_o = {`WriteDisable, `WriteDisable, `WriteEnable, `WriteEnable};
+              data_out_o = {16'b0, wdata_i[15:0]};
             end
           endcase
         end
         `OP_SB : begin 
           case(memaddr_i[1:0])
             2'b00: begin 
-              data_write_web_o = {`WriteDisable, `WriteDisable, `WriteDisable, `WriteEnable};
-              data_in_o = {24'b0, wdata_i[7:0]};
+              data_write_type_o = {`WriteDisable, `WriteDisable, `WriteDisable, `WriteEnable};
+              data_out_o = {24'b0, wdata_i[7:0]};
             end
             2'b01: begin 
-              data_write_web_o = {`WriteDisable, `WriteDisable, `WriteEnable, `WriteDisable};
-              data_in_o = {16'b0, wdata_i[7:0], 8'b0};
+              data_write_type_o = {`WriteDisable, `WriteDisable, `WriteEnable, `WriteDisable};
+              data_out_o = {16'b0, wdata_i[7:0], 8'b0};
             end
             2'b10: begin
-              data_write_web_o = {`WriteDisable, `WriteEnable, `WriteDisable, `WriteDisable};
-              data_in_o = {8'b0, wdata_i[7:0], 16'b0};
+              data_write_type_o = {`WriteDisable, `WriteEnable, `WriteDisable, `WriteDisable};
+              data_out_o = {8'b0, wdata_i[7:0], 16'b0};
             end
             2'b11: begin
-              data_write_web_o = {`WriteEnable, `WriteDisable, `WriteDisable, `WriteDisable};
-              data_in_o = {wdata_i[7:0], 24'b0};
+              data_write_type_o = {`WriteEnable, `WriteDisable, `WriteDisable, `WriteDisable};
+              data_out_o = {wdata_i[7:0], 24'b0};
             end
           endcase
         end
         default: begin
-          data_write_web_o = {`WriteDisable, `WriteDisable, `WriteDisable, `WriteDisable};
-          data_in_o = wdata_i;
+          data_write_type_o = {`WriteDisable, `WriteDisable, `WriteDisable, `WriteDisable};
+          data_out_o = wdata_i;
         end
       endcase
     end
