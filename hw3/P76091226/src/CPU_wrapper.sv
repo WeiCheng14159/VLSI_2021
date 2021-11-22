@@ -92,8 +92,8 @@ module CPU_wrapper
   logic [`DataAddrBus]  data_addr;
   logic [    `DataBus]  data_to_mem;
 
-  logic                 stallreq_from_if;
-  logic                 stallreq_from_mem;
+  logic                 stallreq_from_imem;
+  logic                 stallreq_from_dmem;
 
   CPU cpu0 (
       .clk (clk),
@@ -109,8 +109,8 @@ module CPU_wrapper
       .data_addr_o(data_addr),
       .data_in_o(data_to_mem),
 
-      .stallreq_from_if (stallreq_from_if),
-      .stallreq_from_mem(stallreq_from_mem)
+      .stallreq_from_imem (stallreq_from_imem),
+      .stallreq_from_dmem(stallreq_from_dmem)
   );
 
   wire [3:0] NoWrite = 4'hf;
@@ -154,7 +154,7 @@ module CPU_wrapper
       .data_in(32'b0),
       .addr(inst_addr),
       .data_out(inst_from_mem),
-      .stall(stallreq_from_if)
+      .stall(stallreq_from_imem)
   );
 
   master M1 (
@@ -196,7 +196,7 @@ module CPU_wrapper
       .data_in(data_to_mem),
       .addr(data_addr),
       .data_out(data_from_mem),
-      .stall(stallreq_from_mem)
+      .stall(stallreq_from_dmem)
   );
 
 endmodule

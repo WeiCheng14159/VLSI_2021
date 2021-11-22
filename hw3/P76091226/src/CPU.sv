@@ -24,8 +24,8 @@ module CPU (
     output logic [`DataAddrBus] data_addr_o,
     output logic [    `DataBus] data_in_o,
     // Stall request from AXI
-    input  logic                stallreq_from_if,
-    input  logic                stallreq_from_mem
+    input  logic                stallreq_from_imem,
+    input  logic                stallreq_from_dmem
 );
 
   /* Instruction Fetch (IF) */
@@ -135,10 +135,10 @@ module CPU (
 
   /* Contrller */
   ctrl ctrl0 (
-      .stallreq_from_if (stallreq_from_if),
+      .stallreq_from_imem (stallreq_from_imem),
       .stallreq_from_id (stallreq_from_id),
       .stallreq_from_ex (stallreq_from_ex),
-      .stallreq_from_mem(stallreq_from_mem),
+      .stallreq_from_dmem(stallreq_from_dmem),
 
       .stall(stallreq),
       .new_pc_o(new_pc)
