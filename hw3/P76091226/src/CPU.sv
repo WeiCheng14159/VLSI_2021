@@ -10,22 +10,26 @@
 `include "mem.sv"
 `include "ifetch.sv"
 `include "wb.sv"
+`include "cache.svh"
 
 module CPU (
-    input  logic                clk,
-    input  logic                rstn,
-    input  logic [    `InstBus] inst_out_i,
-    output logic                inst_read_o,
-    output logic [`InstAddrBus] inst_addr_o,
-    input  logic [    `DataBus] data_out_i,
-    output logic                data_read_o,
-    output logic                data_write_o,
-    output logic [         3:0] data_write_web_o,
-    output logic [`DataAddrBus] data_addr_o,
-    output logic [    `DataBus] data_in_o,
-    // Stall request from AXI
-    input  logic                stallreq_from_imem,
-    input  logic                stallreq_from_dmem
+    input  logic                        clk,
+    input  logic                        rstn,
+    // Instruction access
+    input  logic [            `InstBus] inst_in_i,
+    output logic                        inst_read_o,
+    output logic [        `InstAddrBus] inst_addr_o,
+    // Data access
+    input  logic [            `DataBus] data_in_i,
+    output logic                        data_read_o,
+    output logic [`CACHE_TYPE_BITS-1:0] data_read_type_o,
+    output logic                        data_write_o,
+    output logic [`CACHE_TYPE_BITS-1:0] data_write_type_o,
+    output logic [        `DataAddrBus] data_write_addr_o,
+    output logic [            `DataBus] data_out_o,
+    // Stall request from cache
+    input  logic                        stallreq_from_imem,
+    input  logic                        stallreq_from_dmem
 );
 
   /* Instruction Fetch (IF) */
@@ -135,9 +139,9 @@ module CPU (
 
   /* Contrller */
   ctrl ctrl0 (
-      .stallreq_from_imem (stallreq_from_imem),
-      .stallreq_from_id (stallreq_from_id),
-      .stallreq_from_ex (stallreq_from_ex),
+      .stallreq_from_imem(stallreq_from_imem),
+      .stallreq_from_id  (stallreq_from_id),
+      .stallreq_from_ex  (stallreq_from_ex),
       .stallreq_from_dmem(stallreq_from_dmem),
 
       .stall(stallreq),
@@ -155,7 +159,7 @@ module CPU (
       .branch_taken_i(id_branch_taken),
       .is_id_branch_inst(id_is_branch),
       .new_pc_i(new_pc),
-      .inst_i(inst_out_i),
+      .inst_i(inst_in_i),
 
       .if_pc_o(if_pc),
       .inst_read_o(inst_read_o),
@@ -318,9 +322,9 @@ module CPU (
 
       .data_read_o(data_read_o),
       .data_write_o(data_write_o),
-      .data_write_web_o(data_write_web_o),
-      .data_addr_o(data_addr_o),
-      .data_in_o(data_in_o)
+      .data_write_type_o(data_write_type_o),
+      .data_write_addr_o(data_write_addr_o),
+      .data_out_o(data_out_o)
   );
 
   // MEM-WB
@@ -351,7 +355,7 @@ module CPU (
   wb wb0 (
       .mem2reg_i(wb_mem2reg),
       .from_reg_i(wb_from_alu),
-      .from_mem_i(data_out_i),
+      .from_mem_i(data_in_i),
       .func3_i(wb_func3),
 
       .wdata_o(wb_wdata)
