@@ -138,8 +138,8 @@ always_comb begin
             ARREADY_S = WLAST_S & Bx_hs_done & ~AWVALID_S;
             RVALID_S = 1'b0;
             CS = 1'b1;
-            OE = WLAST_S & Bx_hs_done & ~AWVALID_S & ARVALID_S;
-            A = (WLAST_S & Bx_hs_done) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2]) : {A_r[13:2] , len_cnt[1:0]};
+            OE = 1'b0;
+            A = (WLAST_S & Bx_hs_done) ? (AWVALID_S ? AWADDR_S[15:2] : ARADDR_S[15:2]) : A_r[13:2];
         end
         default: ;
     endcase
