@@ -36,24 +36,16 @@ module ex(
   `endif
 
   // alu_in1
-  always_comb begin
-    if(alusrc1_i == `SRC1_FROM_REG)
-      alu_in1 = rs1_i;
-    else // `SRC1_FROM_PC
-      alu_in1 = pc_i;
-  end
+  assign alu_in1 = (alusrc1_i == `SRC1_FROM_REG) ? rs1_i : pc_i;
 
   // alu_in2
-  always_comb begin
-    if(alusrc2_i == `SRC2_FROM_REG)
-      alu_in2 = rs2_i;
-    else // `SRC2_FROM_IMM
-      alu_in2 = imm_i;
-  end
+  assign alu_in2 = (alusrc2_i == `SRC2_FROM_REG) ? rs2_i : imm_i;
 
   // wreg_data_o
   always_comb begin
     stallreq = 1'b0;
+    wreg_data_o = `ZeroWord;
+
     unique case (1'b1)
       aluop_i[`ALUOP_ADD]: begin
         wreg_data_o = $signed(alu_in1) + $signed(alu_in2);

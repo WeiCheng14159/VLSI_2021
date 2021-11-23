@@ -57,14 +57,14 @@ module Bx
 
   always_comb begin
     data_arb_lock_next = LOCK_NO;
-    case (data_arb_lock)
-      LOCK_S0:
+    unique case (1'b1)
+      data_arb_lock[LOCK_S0_BIT]:
       data_arb_lock_next = (BREADY_from_master) ? (BVALID_S1) ? LOCK_S1 : (BVALID_S2) ? LOCK_S2 : LOCK_NO : LOCK_S0;
-      LOCK_S1:
+      data_arb_lock[LOCK_S1_BIT]:
       data_arb_lock_next = (BREADY_from_master) ? (BVALID_S2) ? LOCK_S2 : (BVALID_S0) ? LOCK_S0 : LOCK_NO : LOCK_S1;
-      LOCK_S2:
+      data_arb_lock[LOCK_S2_BIT]:
       data_arb_lock_next = (BREADY_from_master) ? (BVALID_S0) ? LOCK_S0 : (BVALID_S1) ? LOCK_S1 : LOCK_NO : LOCK_S2;
-      LOCK_NO: begin
+      data_arb_lock[LOCK_NO_BIT]: begin
         if (Bx_enable) begin
           if (BVALID_S0)
             data_arb_lock_next = (BREADY_from_master) ? LOCK_NO : LOCK_S0;
@@ -76,7 +76,6 @@ module Bx
           data_arb_lock_next = LOCK_NO;
         end
       end
-      default: ;
     endcase
   end  // Next state (C)
 
@@ -88,27 +87,26 @@ module Bx
     BRESP_S = `AXI_RESP_SLVERR;
     {BREADY_S0, BREADY_S1, BREADY_S2} = {1'b0, 1'b0, 1'b0};
 
-    case (data_arb_lock)
-      LOCK_S0: begin
+    unique case (1'b1)
+      data_arb_lock[LOCK_S0_BIT]: begin
         BVALID_S = BVALID_S0;
         BID_S = BID_S0;
         BRESP_S = BRESP_S0;
         BREADY_S0 = BREADY_from_master;
       end
-      LOCK_S1: begin
+      data_arb_lock[LOCK_S1_BIT]: begin
         BVALID_S = BVALID_S1;
         BID_S = BID_S1;
         BRESP_S = BRESP_S1;
         BREADY_S1 = BREADY_from_master;
       end
-      LOCK_S2: begin
+      data_arb_lock[LOCK_S2_BIT]: begin
         BVALID_S = BVALID_S2;
         BID_S = BID_S2;
         BRESP_S = BRESP_S2;
         BREADY_S2 = BREADY_from_master;
       end
-      LOCK_NO: ;
-      default: ;
+      data_arb_lock[LOCK_NO_BIT]: ;
     endcase
   end
 
@@ -120,17 +118,15 @@ module Bx
     BVALID_M1 = 1'b0;
     BREADY_from_master = 1'b0;
 
-    case (decode_result)
-      AXI_MASTER_0_ID: ;
-      AXI_MASTER_1_ID: begin
+    unique case (1'b1)
+      decode_result[AXI_M0_BIT]: ;
+      decode_result[AXI_M1_BIT]: begin
         BID_M1 = BID_S[`AXI_ID_BITS-1:0];
         BRESP_M1 = BRESP_S;
         BVALID_M1 = BVALID_S;
         BREADY_from_master = BREADY_M1;
       end
-      AXI_MASTER_2_ID: ;
-      AXI_MASTER_U_ID: ;
-      default: ;
+      decode_result[AXI_M2_BIT]: ;
     endcase
   end
 

@@ -57,6 +57,7 @@ module id(
   logic                                 inst_valid;
   logic                                 branch_taken;
   logic                                 load_use_for_rs1, load_use_for_rs2;
+  logic                                 is_bubble;
 
   logic                       [`RegBus] pc_next;
   logic                           [6:0] opcode;
@@ -73,6 +74,10 @@ module id(
   assign stallreq = load_use_for_rs1 | load_use_for_rs2;
   assign load_inst_in_ex = (ex_memrd_i == `True) ? `True : `False;
   assign load_inst_in_mem = (mem_memrd_i == `True) ? `True : `False;
+  assign is_bubble = (aluop_o[`ALUOP_ADD] == 1'b1) & (alusrc1_o == `SRC1_FROM_REG) & (alusrc2_o == `SRC2_FROM_REG)
+    & (rd_o == `NopRegAddr) & (wreg_o == `WriteDisable) & (inst_valid == `InstValid) 
+    & (rs1_read_o == `ReadDisable) & (rs2_read_o == `ReadDisable) & (rs1_addr_o == `NopRegAddr) & (rs2_addr_o == `NopRegAddr)
+    & (imm_o == `ZeroWord) & (memrd_o == `ReadDisable) & (memwr_o == `WriteDisable);
 
   always_comb begin
     if (is_in_delayslot_i == `InDelaySlot) begin
@@ -94,7 +99,7 @@ module id(
       link_addr_o                         = `ZeroWord;
       branch_target_addr_o                = `ZeroWord;
       branch_taken                        = `BranchNotTaken;
-      is_branch_o                         = 1'b0;
+      is_branch_o                         = `False;
       branch_taken_o                      = `BranchNotTaken;
       next_inst_in_delayslot_o            = `NotInDelaySlot;
       flush_o                             = `False;
@@ -116,7 +121,7 @@ module id(
       link_addr_o                         = `ZeroWord;
       branch_target_addr_o                = `ZeroWord;
       branch_taken                        = `BranchNotTaken;
-      is_branch_o                         = 1'b0;
+      is_branch_o                         = `False;
       branch_taken_o                      = `BranchNotTaken;
       next_inst_in_delayslot_o            = `NotInDelaySlot;
       flush_o                             = `False;
@@ -145,7 +150,7 @@ module id(
           imm_o                           = $signed({inst_i[31], inst_i[19:12], inst_i[20], inst_i[30:21], 1'b0});
           link_addr_o                     = pc_next;
           branch_target_addr_o            = pc_i + imm_o;
-          is_branch_o                     = 1'b1;
+          is_branch_o                     = `True;
           branch_taken_o                  = `BranchTaken;
           next_inst_in_delayslot_o        = `InDelaySlot;
         end
@@ -158,7 +163,7 @@ module id(
           rs1_addr_o                      = inst_i[`RS1];
           imm_o                           = $signed({inst_i[31:20]});
           link_addr_o                     = pc_next;
-          is_branch_o                     = 1'b1;
+          is_branch_o                     = `True;
           branch_target_addr_o            = rs1_data_o + imm_o;
           branch_taken_o                  = `BranchTaken;
           next_inst_in_delayslot_o        = `InDelaySlot;
@@ -170,7 +175,7 @@ module id(
           rs1_addr_o                      = inst_i[`RS1];
           rs2_addr_o                      = inst_i[`RS2];
           imm_o                           = $signed({inst_i[31], inst_i[7], inst_i[30:25], inst_i[11:8], 1'b0});
-          is_branch_o                     = 1'b1;
+          is_branch_o                     = `True;
           case(func3_o)
             `OP_BEQ: begin
               if(rs1_data_o == rs2_data_o)
@@ -181,13 +186,11 @@ module id(
                 branch_taken              = `BranchTaken;
             end
             `OP_BLT: begin
-              if( (rs1_data_o[31] == 1'b1 && rs2_data_o[31] == 1'b0) || 
-                  (rs1_data_sign < rs2_data_sign) )
+              if(rs1_data_sign < rs2_data_sign)
                 branch_taken              = `BranchTaken;
             end
             `OP_BGE: begin
-              if( (rs1_data_o[31] == 1'b0 && rs2_data_o[31] == 1'b1) || 
-                  (rs1_data_sign >= rs2_data_sign) )
+              if(rs1_data_sign >= rs2_data_sign)
                 branch_taken              = `BranchTaken;
             end
             `OP_BLTU: begin

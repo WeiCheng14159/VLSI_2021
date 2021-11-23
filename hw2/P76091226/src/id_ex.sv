@@ -55,7 +55,7 @@ module id_ex(
       ex_wreg               <= `WriteDisable;
       ex_memrd              <= `ReadDisable;
       ex_memwr              <= `WriteDisable;
-      ex_mem2reg            <= 1'b0;
+      ex_mem2reg            <= `NotMem2Reg;
       ex_link_addr          <= `ZeroWord;
       ex_is_id_in_delayslot <= `NotInDelaySlot;
     end else if (flush == `True | 
@@ -72,7 +72,7 @@ module id_ex(
       ex_wreg               <= `WriteDisable;
       ex_memrd              <= `ReadDisable;
       ex_memwr              <= `WriteDisable;
-      ex_mem2reg            <= 1'b0;
+      ex_mem2reg            <= `NotMem2Reg;
       ex_link_addr          <= `ZeroWord;
       ex_is_id_in_delayslot <= `NotInDelaySlot;
     end else if (stall[`ID_STAGE] == `NoStop) begin

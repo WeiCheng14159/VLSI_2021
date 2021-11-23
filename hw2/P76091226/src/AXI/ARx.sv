@@ -81,10 +81,12 @@ module ARx
 
   always_comb begin
     addr_arb_lock_next = LOCK_FREE;
-    case (addr_arb_lock)
-      LOCK_M0: addr_arb_lock_next = (ARREADY_from_slave) ? LOCK_FREE : LOCK_M0;
-      LOCK_M1: addr_arb_lock_next = (ARREADY_from_slave) ? LOCK_FREE : LOCK_M1;
-      LOCK_FREE: begin
+    unique case (1'b1)
+      addr_arb_lock[LOCK_M0_BIT]:
+      addr_arb_lock_next = (ARREADY_from_slave) ? LOCK_FREE : LOCK_M0;
+      addr_arb_lock[LOCK_M1_BIT]:
+      addr_arb_lock_next = (ARREADY_from_slave) ? LOCK_FREE : LOCK_M1;
+      addr_arb_lock[LOCK_FREE_BIT]: begin
         case ({
           ARVALID_M0, ARVALID_M1
         })
@@ -94,7 +96,6 @@ module ARx
           default: addr_arb_lock_next = LOCK_FREE;
         endcase
       end
-      default: ;
     endcase
   end  // Next state (C)
 
@@ -129,8 +130,8 @@ module ARx
     ARBURST_M = 2'b0;
     ARVALID_M = 1'b0;
     {ARREADY_M0, ARREADY_M1} = {1'b0, 1'b0};
-    case (addr_arb_lock)
-      LOCK_M0: begin
+    unique case (1'b1)
+      addr_arb_lock[LOCK_M0_BIT]: begin
         ARID_M = {AXI_MASTER_0_ID, ARID_M0};
         ARADDR_M = ARADDR_M0;
         ARLEN_M = ARLEN_M0;
@@ -139,7 +140,7 @@ module ARx
         ARVALID_M = ARVALID_M0;
         ARREADY_M0 = ARREADY_from_slave & ~lock_ARREADY_M0;
       end
-      LOCK_M1: begin
+      addr_arb_lock[LOCK_M1_BIT]: begin
         ARID_M = {AXI_MASTER_1_ID, ARID_M1};
         ARADDR_M = ARADDR_M1;
         ARLEN_M = ARLEN_M1;
@@ -148,7 +149,7 @@ module ARx
         ARVALID_M = ARVALID_M1;
         ARREADY_M1 = ARREADY_from_slave & ~lock_ARREADY_M1;
       end
-      LOCK_FREE: begin
+      addr_arb_lock[LOCK_FREE_BIT]: begin
         case ({
           ARVALID_M0, ARVALID_M1
         })
@@ -182,7 +183,6 @@ module ARx
           default: ;
         endcase
       end
-      default: ;
     endcase
   end
 
@@ -204,8 +204,8 @@ module ARx
     };
     {ARBURST_S0, ARBURST_S1, ARBURST_S2} = {2'b0, 2'b0, 2'b0};
     {ARVALID_S0, ARVALID_S1, ARVALID_S2} = {1'b0, 1'b0, 1'b0};
-    case (decode_result)
-      SLAVE_0: begin
+    unique case (1'b1)
+      decode_result[SLAVE_0_BIT]: begin
         ARID_S0 = ARID_M;
         ARADDR_S0 = ARADDR_M;
         ARLEN_S0 = ARLEN_M;
@@ -213,7 +213,7 @@ module ARx
         ARBURST_S0 = ARBURST_M;
         ARVALID_S0 = ARVALID_M & ~lock_ARVALID_S0;
       end
-      SLAVE_1: begin
+      decode_result[SLAVE_1_BIT]: begin
         ARID_S1 = ARID_M;
         ARADDR_S1 = ARADDR_M;
         ARLEN_S1 = ARLEN_M;
@@ -221,7 +221,7 @@ module ARx
         ARBURST_S1 = ARBURST_M;
         ARVALID_S1 = ARVALID_M & ~lock_ARVALID_S1;
       end
-      SLAVE_2: begin
+      decode_result[SLAVE_2_BIT]: begin
         ARID_S2 = ARID_M;
         ARADDR_S2 = ARADDR_M;
         ARLEN_S2 = ARLEN_M;
@@ -229,26 +229,22 @@ module ARx
         ARBURST_S2 = ARBURST_M;
         ARVALID_S2 = ARVALID_M & ~lock_ARVALID_S2;
       end
-      LOCK_NO: ;
-      default: ;
     endcase
   end  // always_comb
 
   // Decoder
   always_comb begin
     ARREADY_from_slave = 1'b0;
-    case (decode_result)
-      SLAVE_0: begin
+    unique case (1'b1)
+      decode_result[SLAVE_0_BIT]: begin
         ARREADY_from_slave = ARREADY_S0;
       end
-      SLAVE_1: begin
+      decode_result[SLAVE_1_BIT]: begin
         ARREADY_from_slave = ARREADY_S1;
       end
-      SLAVE_2: begin
+      decode_result[SLAVE_2_BIT]: begin
         ARREADY_from_slave = ARREADY_S2;
       end
-      LOCK_NO: ;
-      default: ;
     endcase
   end  // always_comb
 

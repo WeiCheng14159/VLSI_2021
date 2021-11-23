@@ -51,11 +51,11 @@ package axi_pkg;
   //   logic                               BREADY;
   // } Bx_bus_t;
 
+  localparam AXI_M0_BIT = 0, AXI_M1_BIT = 1, AXI_M2_BIT = 2;  
   typedef enum logic [`AXI_ID_BITS-1:0] {
-    AXI_MASTER_0_ID = `AXI_ID_BITS'b0001,
-    AXI_MASTER_1_ID = `AXI_ID_BITS'b0010,
-    AXI_MASTER_2_ID = `AXI_ID_BITS'b0100,
-    AXI_MASTER_U_ID = `AXI_ID_BITS'b1000
+    AXI_MASTER_0_ID = 1 << AXI_M0_BIT,
+    AXI_MASTER_1_ID = 1 << AXI_M1_BIT,
+    AXI_MASTER_2_ID = 1 << AXI_M2_BIT
   } axi_master_id_t;
 
   localparam LOCK_M0_BIT = 0, LOCK_M1_BIT = 1, LOCK_FREE_BIT = 2;
@@ -74,17 +74,19 @@ package axi_pkg;
   } data_arb_lock_t;
 
   // Address Decoder
+  localparam SLAVE_0_BIT = 0, SLAVE_1_BIT = 1, SLAVE_2_BIT = 2;
   typedef enum logic [2:0] {
-    SLAVE_0 = 1 << 0,
-    SLAVE_1 = 1 << 1,
-    SLAVE_2 = 1 << 2
+    SLAVE_0 = 1 << SLAVE_0_BIT,
+    SLAVE_1 = 1 << SLAVE_1_BIT,
+    SLAVE_2 = 1 << SLAVE_2_BIT
   } addr_dec_result_t;
 
   function automatic addr_dec_result_t ADDR_DECODER(
       logic [`AXI_ADDR_BITS-1:0] address);
-    if (address >= 32'h0000_0000 && address < 32'h0001_0000)
+    logic [`AXI_ADDR_BITS-1:`AXI_ADDR_BITS/2] address_upper = address[`AXI_ADDR_BITS-1:`AXI_ADDR_BITS/2];
+    if (address_upper < 16'h0001)
       ADDR_DECODER = SLAVE_0;
-    else if (address >= 32'h0001_0000 && address < 32'h0010_0000)
+    else if (address_upper >= 16'h0001 && address_upper < 16'h0010)
       ADDR_DECODER = SLAVE_1;
     else ADDR_DECODER = SLAVE_2;
   endfunction
@@ -96,8 +98,7 @@ package axi_pkg;
     // Use one bit encoding IDs for smaller area
     if (IDS_UPPER[0]) DATA_DECODER = AXI_MASTER_0_ID;
     else if (IDS_UPPER[1]) DATA_DECODER = AXI_MASTER_1_ID;
-    else if (IDS_UPPER[2]) DATA_DECODER = AXI_MASTER_2_ID;
-    else DATA_DECODER = AXI_MASTER_U_ID;
+    else DATA_DECODER = AXI_MASTER_2_ID;
   endfunction
 
 endpackage : axi_pkg
