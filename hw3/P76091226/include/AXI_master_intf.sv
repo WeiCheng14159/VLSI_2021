@@ -1,6 +1,7 @@
 `include "AXI_define.svh"
 
 interface AXI_master_intf;
+  // AWx
   logic [`AXI_ID_BITS-1:0] AWID;
   logic [`AXI_ADDR_BITS-1:0] AWADDR;
   logic [`AXI_LEN_BITS-1:0] AWLEN;
@@ -8,15 +9,18 @@ interface AXI_master_intf;
   logic [1:0] AWBURST;
   logic AWVALID;
   logic AWREADY;
+  // Wx
   logic [`AXI_DATA_BITS-1:0] WDATA;
   logic [`AXI_STRB_BITS-1:0] WSTRB;
   logic WLAST;
   logic WVALID;
   logic WREADY;
+  // Bx
   logic [`AXI_ID_BITS-1:0] BID;
   logic [1:0] BRESP;
   logic BVALID;
   logic BREADY;
+  // ARx
   logic [`AXI_ID_BITS-1:0] ARID;
   logic [`AXI_ADDR_BITS-1:0] ARADDR;
   logic [`AXI_LEN_BITS-1:0] ARLEN;
@@ -24,6 +28,7 @@ interface AXI_master_intf;
   logic [1:0] ARBURST;
   logic ARVALID;
   logic ARREADY;
+  // Rx
   logic [`AXI_ID_BITS-1:0] RID;
   logic [`AXI_DATA_BITS-1:0] RDATA;
   logic [1:0] RRESP;
@@ -32,65 +37,38 @@ interface AXI_master_intf;
   logic RREADY;
 
   modport master(
+      // AWx
       input AWREADY,
+      output AWID, AWADDR, AWLEN, AWSIZE, AWBURST, AWVALID,
+      // Wx
       input WREADY,
-      input BID,
-      input BRESP,
-      input BVALID,
-      input ARREADY,
-      input RID,
-      input RDATA,
-      input RRESP,
-      input RLAST,
-      input RVALID,
-      output AWID,
-      output AWADDR,
-      output AWLEN,
-      output AWSIZE,
-      output AWBURST,
-      output AWVALID,
-      output WDATA,
-      output WSTRB,
-      output WLAST,
-      output WVALID,
+      output WDATA, WSTRB, WLAST, WVALID,
+      // Bx
+      input BID, BRESP, BVALID,
       output BREADY,
-      output ARID,
-      output ARADDR,
-      output ARLEN,
-      output ARSIZE,
-      output ARBURST,
-      output ARVALID,
+      // ARx
+      input ARREADY,
+      output ARID, ARADDR, ARLEN, ARSIZE, ARBURST, ARVALID,
+      // Rx
+      input RID, RDATA, RRESP, RLAST, RVALID,
       output RREADY
   );
+
   modport bridge(
+      // AWx
       output AWREADY,
+      input AWID, AWADDR, AWLEN, AWSIZE, AWBURST, AWVALID,
+      // Wx
       output WREADY,
-      output BID,
-      output BRESP,
-      output BVALID,
-      output ARREADY,
-      output RID,
-      output RDATA,
-      output RRESP,
-      output RLAST,
-      output RVALID,
-      input AWID,
-      input AWADDR,
-      input AWLEN,
-      input AWSIZE,
-      input AWBURST,
-      input AWVALID,
-      input WDATA,
-      input WSTRB,
-      input WLAST,
-      input WVALID,
+      input WDATA, WSTRB, WLAST, WVALID,
+      // Bx
+      output BID, BRESP, BVALID,
       input BREADY,
-      input ARID,
-      input ARADDR,
-      input ARLEN,
-      input ARSIZE,
-      input ARBURST,
-      input ARVALID,
+      // ARx
+      output ARREADY,
+      input ARID, ARADDR, ARLEN, ARSIZE, ARBURST, ARVALID,
+      // Rx
+      output RID, RDATA, RRESP, RLAST, RVALID,
       input RREADY
   );
 

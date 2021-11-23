@@ -1,4 +1,5 @@
 `include "AXI_define.svh"
+
 interface AXI_slave_intf;
 	// AWx
   logic [`AXI_IDS_BITS-1:0] AWID;
@@ -36,65 +37,39 @@ interface AXI_slave_intf;
   logic RREADY;
 
   modport slave(
-      input AWID,
-      input AWADDR,
-      input AWLEN,
-      input AWSIZE,
-      input AWBURST,
-      input AWVALID,
-      input WDATA,
-      input WSTRB,
-      input WLAST,
-      input WVALID,
-      input BREADY,
-      input ARID,
-      input ARADDR,
-      input ARLEN,
-      input ARSIZE,
-      input ARBURST,
-      input ARVALID,
-      input RREADY,
+      // AWx
+      input AWID, AWADDR, AWLEN, AWSIZE, AWBURST, AWVALID,
       output AWREADY,
+      // Wx
+      input WDATA, WSTRB, WLAST, WVALID,
       output WREADY,
-      output BID,
-      output BRESP,
-      output BVALID,
+      // Bx
+      input BREADY,
+      output BID, BRESP, BVALID,
+      // ARx
+      input ARID, ARADDR,ARLEN, ARSIZE,ARBURST,ARVALID,
       output ARREADY,
-      output RID,
-      output RDATA,
-      output RRESP,
-      output RLAST,
-      output RVALID
+      // Rx
+      input RREADY,
+      output RID, RDATA, RRESP, RLAST, RVALID
   );
+
   modport bridge(
-      output AWID,
-      output AWADDR,
-      output AWLEN,
-      output AWSIZE,
-      output AWBURST,
-      output AWVALID,
-      output WDATA,
-      output WSTRB,
-      output WLAST,
-      output WVALID,
-      output BREADY,
-      output ARID,
-      output ARADDR,
-      output ARLEN,
-      output ARSIZE,
-      output ARBURST,
-      output ARVALID,
-      output RREADY,
+      // AWx
+      output AWID, AWADDR, AWLEN, AWSIZE, AWBURST, AWVALID,
       input AWREADY,
+      // Wx
+      output WDATA, WSTRB, WLAST, WVALID,
       input WREADY,
-      input BID,
-      input BRESP,
-      input BVALID,
+      // Bx
+      output BREADY,
+      input BID, BRESP, BVALID,
+      // ARx
+      output ARID, ARADDR,ARLEN, ARSIZE,ARBURST,ARVALID,
       input ARREADY,
-      input RID,
-      input RDATA,
-      input RRESP,
-      input RLAST,
-      input RVALID
+      // Rx
+      output RREADY,
+      input RID, RDATA, RRESP, RLAST, RVALID
   );
+
 endinterface
