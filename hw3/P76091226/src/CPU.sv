@@ -13,24 +13,23 @@
 `include "cache.svh"
 
 module CPU (
-    input  logic                        clk,
-    input  logic                        rstn,
+    input  logic                clk,
+    input  logic                rstn,
     // Instruction access
-    input  logic [            `InstBus] inst_in_i,
-    output logic                        inst_read_o,
-    output logic [        `InstAddrBus] inst_addr_o,
-    output logic                        inst_rw_request_o,
+    input  logic [    `InstBus] inst_in_i,
+    output logic                inst_read_o,
+    output logic [`InstAddrBus] inst_addr_o,
     // Data access
-    input  logic [            `DataBus] data_in_i,
-    output logic                        data_read_o,
-    output logic [`CACHE_TYPE_BITS-1:0] data_read_type_o,
-    output logic                        data_write_o,
-    output logic [`CACHE_TYPE_BITS-1:0] data_write_type_o,
-    output logic [        `DataAddrBus] data_write_addr_o,
-    output logic [            `DataBus] data_out_o,
+    input  logic [    `DataBus] data_in_i,
+    output logic                data_read_o,
+    output logic [         3:0] data_read_type_o,
+    output logic                data_write_o,
+    output logic [         3:0] data_write_type_o,
+    output logic [`DataAddrBus] data_write_addr_o,
+    output logic [    `DataBus] data_out_o,
     // Stall request from cache
-    input  logic                        stallreq_from_imem,
-    input  logic                        stallreq_from_dmem
+    input  logic                stallreq_from_imem,
+    input  logic                stallreq_from_dmem
 );
 
   /* Instruction Fetch (IF) */

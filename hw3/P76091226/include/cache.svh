@@ -4,8 +4,8 @@
 // Description: Hart defination
 // Version:     0.1
 //================================================
-`ifndef DEF_SVH
-`define DEF_SVH
+`ifndef CACHE_SVH
+`define CACHE_SVH
 
 // CPU
 `define DATA_BITS 32

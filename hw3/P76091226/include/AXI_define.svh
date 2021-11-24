@@ -14,6 +14,8 @@
 `define AXI_SIZE_BITS 3
 `define AXI_DATA_BITS 32
 `define AXI_STRB_BITS 4
+`define AXI_BURST_BITS 2
+`define AXI_RESP_BITS 2
 `define AXI_LEN_ONE 4'h0
 `define AXI_SIZE_BYTE 3'b000
 `define AXI_SIZE_HWORD 3'b001

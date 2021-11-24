@@ -4,7 +4,7 @@
 // Description: L1 Cache for data
 // Version:     0.1
 //================================================
-`include "def.svh"
+`include "cache.svh"
 module L1C_data (
     input logic clk,
     input logic rst,

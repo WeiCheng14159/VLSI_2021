@@ -19,10 +19,10 @@ module ifetch (
 
   logic [`RegBus] fetch_pc, fetch_pc_next, next_pc;
   logic [`RegBus] branch_not_taken_addr_r;
-  logic if_stall, branch_taken;
+  logic if_stall, is_taken;
 
   assign if_stall = (stall[`IF_STAGE] == `Stop);
-  assign branch_taken = (branch_taken_i == `BranchTaken);
+  assign is_taken = (branch_taken_i == `BranchTaken);
   assign inst_addr_o = fetch_pc;
   assign next_pc = fetch_pc + 4'h4;
 
@@ -45,7 +45,7 @@ module ifetch (
     if (~rstn) begin
       fetch_pc <= `StartAddr;
     end else begin
-      fetch_pc <= (branch_taken) ? (branch_target_addr_i) : (is_id_branch_inst) ?  branch_not_taken_addr_r : (if_stall) ? fetch_pc : next_pc;
+      fetch_pc <= (is_taken) ? (branch_target_addr_i) : (is_id_branch_inst) ?  branch_not_taken_addr_r : (if_stall) ? fetch_pc : next_pc;
     end
   end
 

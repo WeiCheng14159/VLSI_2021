@@ -4,9 +4,12 @@
 // Description: L1 Cache for instruction
 // Version:     0.1
 //================================================
-`include "def.svh"
-module L1C_inst 
-    import cache_pkg::*;
+`include "cache.svh"
+`include "cache_pkg.sv"
+`include "data_array_wrapper.sv"
+`include "tag_array_wrapper.sv"
+module L1C_inst
+  import cache_pkg::*;
 (
     input logic clk,
     input logic rst,

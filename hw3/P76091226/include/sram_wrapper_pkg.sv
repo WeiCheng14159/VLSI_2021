@@ -9,8 +9,8 @@ package sram_wrapper_pkg;
   localparam ADDR_SIZE = 14;
   localparam DATA_SIZE = 32;
 
-  localparam EMPTY_ADDR = 14'b0;
-  localparam EMPTY_DATA = 32'b0;
+  localparam EMPTY_ADDR = {ADDR_SIZE{1'b0}};
+  localparam EMPTY_DATA = {DATA_SIZE{1'b0}};
 
   localparam CS_ENB = 1'b1, CS_DIS = 1'b0;
   localparam OE_ENB = 1'b1, OE_DIS = 1'b0;
