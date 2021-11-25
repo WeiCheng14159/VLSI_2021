@@ -3,7 +3,9 @@
 
 module master
   import master_pkg::*;
-(
+#(
+    parameter [`AXI_ID_BITS-1:0] master_ID = {`AXI_ID_BITS{1'b0}}
+) (
     input logic clk,
     input logic rstn,
     // AXI master interface
@@ -83,7 +85,7 @@ module master
 
   always_comb begin
     // AWx
-    master.AWID = `AXI_IDS_BITS'b0;
+    master.AWID = master_ID;
     master.AWADDR = AWADDR_r;
     master.AWLEN = `AXI_LEN_BITS'b0;
     master.AWSIZE = `AXI_SIZE_BITS'b0;
@@ -97,7 +99,7 @@ module master
     // Bx
     master.BREADY = 1'b0;
     // ARx
-    master.ARID = `AXI_IDS_BITS'b0;
+    master.ARID = master_ID;
     master.ARADDR = ARADDR_r;
     master.ARLEN = `AXI_LEN_BITS'b0;
     master.ARSIZE = `AXI_SIZE_BITS'b0;

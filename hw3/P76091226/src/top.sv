@@ -34,15 +34,18 @@ module top (
   );
   assign rstn_sync = ~rst_sync;
 
-  AXI_master_intf master0 ();
-  AXI_master_intf master1 ();
-  AXI_master_intf master2 ();
-  AXI_slave_intf slave0 ();
-  AXI_slave_intf slave1 ();
-  AXI_slave_intf slave2 ();
-  AXI_slave_intf slave3 ();
-  AXI_slave_intf slave4 ();
-  AXI_slave_intf slave5 ();
+  // Masters
+  AXI_master_intf master0 ();  // IM master
+  AXI_master_intf master1 ();  // DM master
+  AXI_master_intf master2 ();  // 
+  // Slaves
+  AXI_slave_intf slave0 ();  // ROM wrapper     (0x0000_0000 ~ 0x0000_1FFF)
+  AXI_slave_intf slave1 ();  // IM SRAM wrapper (0x0001_0000 ~ 0x0001_FFFF)
+  AXI_slave_intf slave2 ();  // DM SRAM wrapper (0x0002_0000 ~ 0x0002_FFFF)
+  AXI_slave_intf slave3 ();  // Sensor          (0x1000_0000 ~ 0x1000_03FF)
+  AXI_slave_intf slave4 ();  // DRAM wrapper    (0x2000_0000 ~ 0x201F_FFFF)
+  AXI_slave_intf slave5 ();  // 
+  AXI_slave_intf slave6 ();  // Default slave
 
   CPU_wrapper cpu_wrapper (
       .clk(clk),
@@ -62,7 +65,8 @@ module top (
       .slave2(slave2),
       .slave3(slave3),
       .slave4(slave4),
-      .slave5(slave5)
+      .slave5(slave5),
+      .slave6(slave6)
   );
 
   // slave 0 => ROM
@@ -88,6 +92,13 @@ module top (
       .clk  (clk),
       .rstn (rstn_sync),
       .slave(slave2)
+  );
+
+  // Slave 3
+  default_slave default_slave3 (
+      .clk  (clk),
+      .rstn (rstn_sync),
+      .slave(slave3)
   );
 
   logic DRAM_CSn_r;
@@ -130,5 +141,18 @@ module top (
       .DRAM_D(DRAM_D_r)
   );
 
+  // Slave 5
+  default_slave default_slave5 (
+      .clk  (clk),
+      .rstn (rstn_sync),
+      .slave(slave5)
+  );
+
+  // Slave 6
+  default_slave default_slave6 (
+      .clk  (clk),
+      .rstn (rstn_sync),
+      .slave(slave6)
+  );
 
 endmodule

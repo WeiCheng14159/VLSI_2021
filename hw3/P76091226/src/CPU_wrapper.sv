@@ -99,7 +99,9 @@ module CPU_wrapper
   //       .I_type(I_type)  // write/read byte, half word, or word to CPU wrapper
   //   );
 
-  master M0 (
+  master #(
+      .master_ID(`AXI_ID_BITS'b0)
+  ) M0 (
       .clk(clk),
       .rstn(rstn),
       .master(master0),
@@ -114,8 +116,8 @@ module CPU_wrapper
       //   .stall(I_wait)
       .access_request(inst_rw_request),
       .write(1'b0),
-      .w_type(I_type),
-      .data_in(NoWrite),
+      .w_type(4'hf),
+      .data_in(32'b0),
       .addr(inst_addr),
       .data_out(inst_from_mem),
       .stall(stallreq_from_imem)
@@ -140,18 +142,27 @@ module CPU_wrapper
   //       .D_type(D_type)  // write/read byte, half word, or word to CPU wrapper
   //   );
 
-  master M1 (
+  master #(
+      .master_ID(`AXI_ID_BITS'b01)
+  ) M1 (
       .clk(clk),
       .rstn(rstn),
       .master(master1),
       // CPU interface
-      .access_request(D_req),
-      .write(D_write),
-      .w_type(D_type),
-      .data_in(D_in),
-      .addr(D_addr),
-      .data_out(D_out),
-      .stall(D_wait)
+      // .access_request(D_req),
+      // .write(D_write),
+      // .w_type(D_type),
+      // .data_in(D_in),
+      // .addr(D_addr),
+      // .data_out(D_out),
+      // .stall(D_wait)
+      .access_request(data_rw_request),
+      .write(data_write),
+      .w_type(data_write_type),
+      .data_in(data_to_mem),
+      .addr(data_write_addr),
+      .data_out(data_from_mem),
+      .stall(stallreq_from_dmem)
   );
 
 endmodule

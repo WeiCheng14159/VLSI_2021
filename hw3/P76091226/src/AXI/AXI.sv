@@ -28,16 +28,9 @@ module AXI
     AXI_slave_intf.bridge slave2,
     AXI_slave_intf.bridge slave3,
     AXI_slave_intf.bridge slave4,
-    AXI_slave_intf.bridge slave5
+    AXI_slave_intf.bridge slave5,
+    AXI_slave_intf.bridge slave6
 );
-
-  AXI_slave_intf slave6 ();
-
-  default_slave default_slave0 (
-      .clk  (ACLK),
-      .rstn (ARESETn),
-      .slave(slave6)
-  );
 
   // ARx
   ARx ARx (
