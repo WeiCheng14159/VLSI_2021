@@ -8,6 +8,7 @@ module DRAM_wrapper
     input logic clk,
     input logic rstn,
     AXI_slave_intf.slave slave,
+    // DRAM module
     input logic [DATA_SIZE-1:0] DRAM_Q,
     input logic DRAM_valid,
     output logic DRAM_CSn,
@@ -28,6 +29,8 @@ module DRAM_wrapper
   logic ARx_hs_done, Rx_hs_done, AWx_hs_done, Wx_hs_done, Bx_hs_done;
   logic row_hit, changeRow;
   logic read_done, write_done;
+  dram_op_t dram_op;
+  logic [2:0] RAS_counter, CAS_counter, RCD_counter;
 
   // logic [`AXI_DATA_BITS-1:0] RDATA_r;
   logic [`AXI_LEN_BITS-1:0] rcnt;
@@ -35,8 +38,8 @@ module DRAM_wrapper
   logic [`AXI_LEN_BITS-1:0] rcnt_add;
   logic [`AXI_LEN_BITS-1:0] addrcnt_add;
   logic [ROW_ADDR_SIZE-1:0] ROW, ROW_prev;
-  logic [COL_ADDR_SIZE-1:0] COL;
-  logic [`AXI_ADDR_BITS-1:0] DRAM_ADDR, DRAM_ADDR_prev;
+  logic [ COL_ADDR_SIZE-1:0] COL;
+  logic [`AXI_ADDR_BITS-1:0] DRAM_ADDR_r;
 
   assign ARx_hs_done = slave.ARREADY & slave.ARVALID;
   assign AWx_hs_done = slave.AWREADY & slave.AWVALID;
@@ -45,9 +48,9 @@ module DRAM_wrapper
   assign Rx_hs_done = slave.RREADY & slave.RVALID;
 
   // DRAM address
-  assign DRAM_ADDR = slave.AWVALID ? slave.AWADDR : slave.ARVALID ? slave.ARADDR : EMPTY_ADDR;
-  assign ROW = DRAM_ADDR[22:12];
-  assign COL = DRAM_ADDR[11:2];
+  // assign DRAM_ADDR = slave.AWVALID ? slave.AWADDR : slave.ARVALID ? slave.ARADDR : EMPTY_ADDR;
+  assign ROW = DRAM_ADDR_r[22:12];
+  assign COL = DRAM_ADDR_r[11:2];
 
   // AXI signal
   assign slave.BID = ID_r;
@@ -61,6 +64,7 @@ module DRAM_wrapper
   assign changeRow = ROW_prev != ROW;
   // assign finish = (Bx_hs_done & slave.WLAST) | (Rx_hs_done & slave.RLAST);
   assign DRAM_D = slave.WDATA;
+  assign write_done = (RAS_counter == 0);
 
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
@@ -75,7 +79,8 @@ module DRAM_wrapper
     unique case (1'b1)
       curr_state[IDLE_BIT]:
       next_state = (slave.AWVALID | slave.ARVALID) ? ACT : IDLE;
-      curr_state[ACT_BIT]: next_state = (slave.AWVALID) ? WRITE : READ;
+      curr_state[ACT_BIT]:
+      next_state = (dram_op == DRAM_WRITE) ? WRITE : (dram_op == DRAM_READ) ? READ : ERROR;
       curr_state[READ_BIT]: begin
         if (read_done) begin
           next_state = PRE;
@@ -90,7 +95,7 @@ module DRAM_wrapper
           next_state = WRITE;
         end
       end
-      curr_state[WRITE_RESP_BIT]: next_state = PRE;
+      curr_state[WRITE_RESP_BIT]: next_state = (Bx_hs_done) ? PRE : WRITE_RESP;
       curr_state[PRE_BIT]: next_state = IDLE;
     endcase
   end  // Next state (C)
@@ -100,7 +105,7 @@ module DRAM_wrapper
     DRAM_CSn = CS_DIS;
     DRAM_RASn = RAS_DIS;
     DRAM_CASn = CAS_DIS;
-    DRAM_A = EMPTY_ADDR;
+    DRAM_A = {1'b0, COL};
     DRAM_WEn = {WEB_SIZE{WEB_DIS}};
 
     case (curr_state)
@@ -109,29 +114,29 @@ module DRAM_wrapper
         DRAM_CSn = CS_ENB;
         DRAM_RASn = RAS_ENB;
         DRAM_CASn = CAS_DIS;
-        DRAM_A = ROW;
+        DRAM_A = {1'b0, COL};
         DRAM_WEn = {WEB_SIZE{WEB_DIS}};
       end
       READ: begin
         DRAM_CSn = CS_ENB;
         DRAM_RASn = RAS_DIS;
-        DRAM_CASn = CAS_ENB;
+        DRAM_CASn = CAS_ENB | (|RAS_counter);
         DRAM_A = {1'b0, COL};
         DRAM_WEn = {WEB_SIZE{WEB_DIS}};
       end
       WRITE: begin
         DRAM_CSn = CS_ENB;
         DRAM_RASn = RAS_DIS;
-        DRAM_CASn = CAS_ENB;
-        DRAM_A = EMPTY_ADDR;
-        DRAM_WEn = {WEB_SIZE{WEB_DIS}};
+        DRAM_CASn = CAS_ENB | (|RAS_counter);
+        DRAM_A = {1'b0, COL};
+        DRAM_WEn = (~|RAS_counter) ? {WEB_SIZE{WEB_ENB}} : {WEB_SIZE{WEB_DIS}};
       end
       WRITE_RESP: ;
       PRE: begin
         DRAM_CSn = CS_ENB;
         DRAM_RASn = RAS_ENB;
         DRAM_CASn = CAS_DIS;
-        DRAM_A = EMPTY_ADDR;
+        DRAM_A = {1'b0, COL};
         DRAM_WEn = {WEB_SIZE{WEB_ENB}};
       end
     endcase
@@ -149,7 +154,7 @@ module DRAM_wrapper
       IDLE: begin
         slave.ARREADY = ~slave.AWVALID;
         slave.AWREADY = 1'b1;
-        slave.WREADY  = 1'b0;
+        slave.WREADY  = 1'b1;
         slave.RVALID  = 1'b0;
         slave.BVALID  = 1'b0;
       end
@@ -191,29 +196,58 @@ module DRAM_wrapper
     endcase
   end
 
+  // AXI related
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-      DRAM_ADDR_prev  <= `AXI_ADDR_BITS'b0;
       ID_r    <= `AXI_IDS_BITS'b0;
       BURST_r <= `AXI_BURST_INC;
       LEN_r   <= `AXI_LEN_BITS'b0;
       SIZE_r  <= `AXI_SIZE_BITS'b0;
       // RDATA_r <= `AXI_DATA_BITS'b0;
-      // rcnt <= `AXI_LEN_BITS'b0;
-      // addrcnt <= `AXI_LEN_BITS'b0;
-      CASn_prev <= 1'b0;
-      ROW_prev <= 11'b0;
     end else begin
-      DRAM_ADDR_prev  <= (ARx_hs_done) ? slave.ARADDR : (AWx_hs_done) ? slave.AWADDR : DRAM_ADDR_prev;
       ID_r <= (ARx_hs_done) ? slave.ARID : (AWx_hs_done) ? slave.AWID : ID_r;
       BURST_r    <= (ARx_hs_done) ? slave.ARBURST :(AWx_hs_done) ? slave.AWBURST : BURST_r;
       LEN_r <= (ARx_hs_done) ? slave.ARLEN : (AWx_hs_done) ? slave.AWLEN : LEN_r;
       SIZE_r <= (ARx_hs_done) ? slave.ARSIZE : (AWx_hs_done) ? slave.AWSIZE : SIZE_r;
       // RDATA_r <= (mem.read) ? mem.rdata : RDATA_r;
-      // rcnt <= (Rx_hs_done & slave.RLAST) ? `AXI_LEN_BITS'b0 : (Rx_hs_done) ? rcnt_add : rcnt;
+    end
+  end
+
+  // RAS_counter
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+      RAS_counter <= 3'b1;
+      CAS_counter <= 3'b1;
+      // RCD_counter <= 3'b1;
+    end else begin
+      RAS_counter <= (DRAM_RASn == RAS_ENB) ? 4 : (RAS_counter - 1);
+      CAS_counter <= (DRAM_CASn == CAS_ENB) ? 4 : (CAS_counter - 1);
+      // RCD_counter
+    end
+  end
+
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+      dram_op  <= DRAM_NO;
+      ROW_prev <= {ROW_ADDR_SIZE{1'b0}};
+    end else  /*if (curr_state == IDLE)*/ begin
+      dram_op <= (ARx_hs_done) ? DRAM_READ : (AWx_hs_done) ? DRAM_WRITE : dram_op;
+      ROW_prev <= (ARx_hs_done | AWx_hs_done) ? ROW : ROW_prev;
+    end
+  end
+
+  // DRAM related
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+      DRAM_ADDR_r <= `AXI_ADDR_BITS'b0;
+      rcnt <= `AXI_LEN_BITS'b0;
+      // addrcnt <= `AXI_LEN_BITS'b0;
+      CASn_prev <= 1'b0;
+    end else begin
+      DRAM_ADDR_r  <= (ARx_hs_done) ? slave.ARADDR : (AWx_hs_done) ? slave.AWADDR : DRAM_ADDR_r;
+      rcnt <= (Rx_hs_done & slave.RLAST) ? `AXI_LEN_BITS'b0 : (Rx_hs_done) ? rcnt_add : rcnt;
       // addrcnt <= ((Rx_hs_done & slave.RLAST) | (Bx_hs_done & slave.WLAST)) ? `AXI_LEN_BITS'b0 : (~DRAM_CASn) ? addrcnt_add:addrcnt;
       CASn_prev <= DRAM_CASn;
-      ROW_prev <= ROW;
     end
   end
 
