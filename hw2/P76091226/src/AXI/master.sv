@@ -104,7 +104,7 @@ module master
       m_curr_state[IDLE_BIT]: m_next_state = (write) ? AW : (read) ? AR : IDLE;
       m_curr_state[AR_BIT]: m_next_state = (ARREADY_M) ? R : AR;
       m_curr_state[R_BIT]:
-      m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
+      m_next_state = (Rx_hs_done) ? (write ? AW : IDLE) : R;
       m_curr_state[AW_BIT]:
       m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
       m_curr_state[W_BIT]:
@@ -150,6 +150,7 @@ module master
       m_curr_state[R_BIT]: begin
         // Rx
         RREADY_M = 1'b1;
+        stall = 1'b1;
       end
       m_curr_state[AW_BIT]: begin
         // AWx
