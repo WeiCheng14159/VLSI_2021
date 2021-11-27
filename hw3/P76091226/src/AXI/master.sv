@@ -75,7 +75,7 @@ module master
     case (m_curr_state)
       IDLE: m_next_state = (write) ? AW : (read) ? AR : IDLE;
       AR: m_next_state = (master.ARREADY) ? R : AR;
-      R: m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
+      R: m_next_state = (Rx_hs_done) ? (write ? AW : IDLE) : R;
       AW: m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
       W: m_next_state = (Wx_hs_done) ? (Bx_hs_done) ? IDLE : B : W;
       B: m_next_state = (Bx_hs_done) ? IDLE : B;
@@ -120,6 +120,7 @@ module master
       R: begin
         // Rx
         master.RREADY = 1'b1;
+        stall = 1'b1;
       end
       AW: begin
         // AWx

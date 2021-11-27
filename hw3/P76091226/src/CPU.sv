@@ -33,94 +33,95 @@ module CPU (
 );
 
   /* Instruction Fetch (IF) */
-  logic                             [       `RegBus]  if_pc;
-  logic                             [      `InstBus]  if_inst;
+  logic [`RegBus] if_pc;
+  logic [`InstBus] if_inst;
 
   /* Instruction Decode (ID) */
-  logic                             [       `RegBus]  id_pc;
-  logic                             [      `InstBus]  id_inst;
-  logic                             [     `AluOpBus]  id_aluop;
-  logic                                               id_alusrc1;
-  logic                                               id_alusrc2;
-  logic                             [       `RegBus]  id_imm;
-  logic                             [       `RegBus]  id_rs1;
-  logic                             [       `RegBus]  id_rs2;
-  logic                                               id_wreg;
-  logic                             [   `RegAddrBus]  id_rd;
-  logic                                               id_memrd;
-  logic                                               id_memwr;
-  logic                                               id_mem2reg;
-  logic                                               id_is_branch;
-  logic                                               id_branch_taken;
-  logic                             [       `RegBus]  id_branch_target_addr;
-  logic                                               id_is_in_delayslot;
-  logic                             [       `RegBus]  id_link_addr;
-  logic                                               id_next_inst_in_delayslot;
-  logic                             [     `Func3Bus]  id_func3;
+  logic [`RegBus] id_pc;
+  logic [`InstBus] id_inst;
+  logic [`AluOpBus] id_aluop;
+  logic id_alusrc1;
+  logic id_alusrc2;
+  logic [`RegBus] id_imm;
+  logic [`RegBus] id_rs1;
+  logic [`RegBus] id_rs2;
+  logic id_wreg;
+  logic [`RegAddrBus] id_rd;
+  logic id_memrd;
+  logic id_memwr;
+  logic id_mem2reg;
+  logic id_is_branch;
+  logic id_branch_taken;
+  logic [`RegBus] id_branch_target_addr;
+  logic id_is_in_delayslot;
+  logic [`RegBus] id_link_addr;
+  logic id_next_inst_in_delayslot;
+  logic [`Func3Bus] id_func3;
 
   /* Execution (EX) */
-  logic                             [       `RegBus]  ex_pc;
-  logic                             [     `AluOpBus]  ex_aluop;
-  logic                                               ex_alusrc1;
-  logic                                               ex_alusrc2;
-  logic                             [       `RegBus]  ex_imm;
-  logic                             [       `RegBus]  ex_rs1;
-  logic                             [       `RegBus]  ex_rs2;
-  logic                                               ex_wreg;
-  logic                             [   `RegAddrBus]  ex_rd;
-  logic                             [       `RegBus]  ex_wdata;
-  logic                             [       `RegBus]  ex_wreg_data;
-  logic                                               ex_memrd;
-  logic                                               ex_memwr;
-  logic                                               ex_mem2reg;
-  logic                                               ex_is_in_delayslot;
-  logic                             [       `RegBus]  ex_link_addr;
-  logic                                               ex_is_id_in_delayslot;
-  logic                             [     `Func3Bus]  ex_func3;
+  logic [`RegBus] ex_pc;
+  logic [`AluOpBus] ex_aluop;
+  logic ex_alusrc1;
+  logic ex_alusrc2;
+  logic [`RegBus] ex_imm;
+  logic [`RegBus] ex_rs1;
+  logic [`RegBus] ex_rs2;
+  logic ex_wreg;
+  logic [`RegAddrBus] ex_rd;
+  logic [`RegBus] ex_wdata;
+  logic [`RegBus] ex_wreg_data;
+  logic ex_memrd;
+  logic ex_memwr;
+  logic ex_mem2reg;
+  logic ex_is_in_delayslot;
+  logic [`RegBus] ex_link_addr;
+  logic ex_is_id_in_delayslot;
+  logic [`Func3Bus] ex_func3;
 
   /* Memory Read Write (MEM) */
-  logic                             [       `RegBus]  mem_pc;
-  logic                                               mem_wreg;
-  logic                             [   `RegAddrBus]  mem_rd;
-  logic                             [       `RegBus]  mem_wdata;
-  logic                             [       `RegBus]  mem_wreg_data;
-  logic                                               mem_memrd;
-  logic                                               mem_memwr;
-  logic                                               mem_mem2reg;
-  logic                             [     `Func3Bus]  mem_func3;
-  logic                                               mem_is_id_in_delayslot;
+  logic [`RegBus] mem_pc;
+  logic mem_wreg;
+  logic [`RegAddrBus] mem_rd;
+  logic [`RegBus] mem_wdata;
+  logic [`RegBus] mem_wreg_data;
+  logic mem_memrd;
+  logic mem_memwr;
+  logic mem_mem2reg;
+  logic [`Func3Bus] mem_func3;
+  logic mem_is_id_in_delayslot;
 
   /* Write Back (WB) */
-  logic                             [       `RegBus]  wb_pc;
-  logic                                               wb_wreg;
-  logic                             [   `RegAddrBus]  wb_rd;
-  logic                             [       `RegBus]  wb_wdata;
-  logic                                               wb_mem2reg;
-  logic                             [       `RegBus]  wb_from_alu;
-  logic                             [     `Func3Bus]  wb_func3;
-  logic                                               wb_is_id_in_delayslot;
+  logic [`RegBus] wb_pc;
+  logic wb_wreg;
+  logic [`RegAddrBus] wb_rd;
+  logic [`RegBus] wb_wdata;
+  logic wb_mem2reg;
+  logic [`RegBus] wb_from_alu;
+  logic [`Func3Bus] wb_func3;
+  logic wb_is_id_in_delayslot;
 
   /* Other */
-  logic                             [           3:0 ] wb_nxt_is_id_in_delayslot;
+  logic [3:0] wb_nxt_is_id_in_delayslot;
 
   /* Register file */
-  logic                                               rs1_read;
-  logic                                               rs2_read;
-  logic                             [       `RegBus]  rs1_data;
-  logic                             [       `RegBus]  rs2_data;
-  logic                             [   `RegAddrBus]  rs1_addr;
-  logic                             [   `RegAddrBus]  rs2_addr;
+  logic rs1_read;
+  logic rs2_read;
+  logic [`RegBus] rs1_data;
+  logic [`RegBus] rs2_data;
+  logic [`RegAddrBus] rs1_addr;
+  logic [`RegAddrBus] rs2_addr;
 
   /* Stall signal */
-  logic                                               stallreq_from_id;
-  logic                                               stallreq_from_ex;
-  logic                             [`STAGE_NUM-1:0 ] stallreq;
+  logic stallreq_from_id;
+  logic stallreq_from_ex;
+  logic [`STAGE_NUM-1:0] stallreq;
 
   /* Flush */
-  logic                                               flush;
-  logic                             [       `RegBus]  new_pc;
+  logic flush;
+  logic [`RegBus] new_pc;
 
-  wire is_dram = (if_pc == 32'hd8);
+  //   wire is_dram = (if_pc == 32'h184);
+  //   wire boot_done = (if_pc == 32'h27c);
 
   /* Register file */
   regfile regfile0 (
@@ -198,8 +199,9 @@ module CPU (
       .mem_rd_i(mem_rd),
       .mem_memrd_i(mem_memrd),
       .is_in_delayslot_i(ex_is_id_in_delayslot | mem_is_id_in_delayslot | 
-        wb_is_id_in_delayslot | wb_nxt_is_id_in_delayslot[0] | wb_nxt_is_id_in_delayslot[1])
-      ,  // Current branch delay slot is 5 cycle
+        wb_is_id_in_delayslot | wb_nxt_is_id_in_delayslot[0] | wb_nxt_is_id_in_delayslot[1] |
+        wb_nxt_is_id_in_delayslot[2]),
+      // Current branch delay slot is 6 cycle
       .func3_o(id_func3),
       .rs1_read_o(rs1_read),
       .rs2_read_o(rs2_read),
