@@ -31,7 +31,7 @@ module DRAM_wrapper
   logic row_hit, changeRow;
   logic read_done, write_done;
   dram_op_t dram_op;
-  logic [2:0] RAS_counter, CAS_counter, RCD_counter;
+  logic [2:0] RAS_counter, CAS_counter;
 
   // logic [`AXI_DATA_BITS-1:0] RDATA_r;
   logic [`AXI_LEN_BITS-1:0] rcnt;
@@ -62,7 +62,7 @@ module DRAM_wrapper
   assign slave.RLAST = rcnt == LEN_r;
   assign rcnt_add = rcnt + `AXI_LEN_BITS'b1;
   assign addrcnt_add = addrcnt + `AXI_LEN_BITS'b1;
-  assign changeRow = ROW_prev != ROW;
+  assign changeRow = (ROW_prev != ROW);
   // assign finish = (Bx_hs_done & slave.WLAST) | (Rx_hs_done & slave.RLAST);
   assign DRAM_D = WDATA_r;
   assign write_done = (RAS_counter == 0);
@@ -104,7 +104,7 @@ module DRAM_wrapper
 
   // DRAM control signal
   always_comb begin
-    DRAM_CSn = CS_DIS;
+    DRAM_CSn = CS_ENB;
     DRAM_RASn = RAS_DIS;
     DRAM_CASn = CAS_DIS;
     DRAM_A = {1'b0, COL};
@@ -113,32 +113,28 @@ module DRAM_wrapper
     case (curr_state)
       IDLE: ;
       ACT: begin
-        DRAM_CSn = CS_ENB;
-        DRAM_RASn = RAS_ENB;
+        DRAM_RASn = (changeRow) ? RAS_ENB : RAS_DIS;
         DRAM_CASn = CAS_DIS;
-        DRAM_A = {1'b0, COL};
+        DRAM_A = {1'b0, ROW};
         DRAM_WEn = {WEB_SIZE{WEB_DIS}};
       end
       READ: begin
-        DRAM_CSn = CS_ENB;
         DRAM_RASn = RAS_DIS;
         DRAM_CASn = CAS_ENB | (|RAS_counter);
         DRAM_A = {1'b0, COL};
         DRAM_WEn = {WEB_SIZE{WEB_DIS}};
       end
       WRITE: begin
-        DRAM_CSn = CS_ENB;
         DRAM_RASn = RAS_DIS;
         DRAM_CASn = CAS_ENB | (|RAS_counter);
         DRAM_A = {1'b0, COL};
         DRAM_WEn = (~|RAS_counter) ? {WEB_SIZE{WEB_ENB}} : {WEB_SIZE{WEB_DIS}};
       end
-      WRITE_RESP: ;
+      WRITE_RESP: DRAM_WEn = {WEB_SIZE{WEB_ENB}};
       PRE: begin
-        DRAM_CSn = CS_ENB;
         DRAM_RASn = RAS_ENB;
         DRAM_CASn = CAS_DIS;
-        DRAM_A = {1'b0, COL};
+        DRAM_A = {1'b0, ROW};
         DRAM_WEn = {WEB_SIZE{WEB_ENB}};
       end
     endcase
@@ -157,44 +153,12 @@ module DRAM_wrapper
         slave.ARREADY = ~slave.AWVALID;
         slave.AWREADY = 1'b1;
         slave.WREADY  = 1'b1;
-        slave.RVALID  = 1'b0;
-        slave.BVALID  = 1'b0;
       end
-      ACT: begin
-        slave.ARREADY = 1'b0;
-        slave.AWREADY = 1'b0;
-        slave.WREADY  = 1'b0;
-        slave.RVALID  = 1'b0;
-        slave.BVALID  = 1'b0;
-      end
-      READ: begin
-        slave.ARREADY = 1'b0;
-        slave.AWREADY = 1'b0;
-        slave.WREADY  = 1'b0;
-        slave.RVALID  = DRAM_valid;
-        slave.BVALID  = 1'b0;
-      end
-      WRITE: begin
-        slave.ARREADY = 1'b0;
-        slave.AWREADY = 1'b0;
-        slave.WREADY  = 1'b0;
-        slave.RVALID  = 1'b0;
-        slave.BVALID  = 1'b0;
-      end
-      WRITE_RESP: begin
-        slave.ARREADY = 1'b0;
-        slave.AWREADY = 1'b0;
-        slave.WREADY  = 1'b0;
-        slave.RVALID  = 1'b0;
-        slave.BVALID  = 1'b1;
-      end
-      PRE: begin
-        slave.ARREADY = 1'b0;
-        slave.AWREADY = 1'b0;
-        slave.WREADY  = 1'b0;
-        slave.RVALID  = 1'b0;
-        slave.BVALID  = 1'b0;
-      end
+      ACT: ;
+      READ: slave.RVALID = DRAM_valid;
+      WRITE: ;
+      WRITE_RESP: slave.BVALID = 1'b1;
+      PRE: ;
     endcase
   end
 
@@ -222,11 +186,9 @@ module DRAM_wrapper
     if (~rstn) begin
       RAS_counter <= 3'b1;
       CAS_counter <= 3'b1;
-      // RCD_counter <= 3'b1;
     end else begin
       RAS_counter <= (DRAM_RASn == RAS_ENB) ? 4 : (RAS_counter - 1);
       CAS_counter <= (DRAM_CASn == CAS_ENB) ? 4 : (CAS_counter - 1);
-      // RCD_counter
     end
   end
 
@@ -234,7 +196,7 @@ module DRAM_wrapper
     if (~rstn) begin
       dram_op  <= DRAM_NO;
       ROW_prev <= {ROW_ADDR_SIZE{1'b0}};
-    end else  /*if (curr_state == IDLE)*/ begin
+    end else begin
       dram_op <= (ARx_hs_done) ? DRAM_READ : (AWx_hs_done) ? DRAM_WRITE : dram_op;
       ROW_prev <= (ARx_hs_done | AWx_hs_done) ? ROW : ROW_prev;
     end
