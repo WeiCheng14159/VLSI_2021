@@ -120,8 +120,9 @@ module CPU (
   logic flush;
   logic [`RegBus] new_pc;
 
-    wire boot_start = (id_pc == 32'h128);
-    wire boot_done = (id_pc == 32'h10008);
+  wire boot_start = (id_pc == 32'h128);
+  wire boot_done = (id_pc == 32'h10008);
+  wire prog_end = (id_pc == 32'h10150);
 
   /* Register file */
   regfile regfile0 (
@@ -200,8 +201,8 @@ module CPU (
       .mem_memrd_i(mem_memrd),
       .is_in_delayslot_i(ex_is_id_in_delayslot | mem_is_id_in_delayslot | 
         wb_is_id_in_delayslot | wb_nxt_is_id_in_delayslot[0] | wb_nxt_is_id_in_delayslot[1] |
-        wb_nxt_is_id_in_delayslot[2]),
-      // Current branch delay slot is 6 cycle
+        wb_nxt_is_id_in_delayslot[2] | wb_nxt_is_id_in_delayslot[3]),
+      // Current branch delay slot is 7 cycle
       .func3_o(id_func3),
       .rs1_read_o(rs1_read),
       .rs2_read_o(rs2_read),
