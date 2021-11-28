@@ -1,15 +1,15 @@
 void boot() {
-  extern unsigned int _dram_i_start;
-  extern unsigned int _dram_i_end;
-  extern unsigned int _imem_start;
+  extern unsigned int _dram_i_start; //instruction start address in DRAM
+  extern unsigned int _dram_i_end; // instruction end address in DRAM
+  extern unsigned int _imem_start; // instruction start address in IM
 
-  extern unsigned int __sdata_start;
-  extern unsigned int __sdata_end;
-  extern unsigned int __sdata_paddr_start;
+  extern unsigned int __sdata_start; // Main_data start address in DM
+  extern unsigned int __sdata_end; // Main_data end address in DM
+  extern unsigned int __sdata_paddr_start; // Main_data start address in DRAM
 
-  extern unsigned int __data_start;
-  extern unsigned int __data_end;
-  extern unsigned int __data_paddr_start;
+  extern unsigned int __data_start; // Main_data start address in DM
+  extern unsigned int __data_end; // Main_data end address in DM
+  extern unsigned int __data_paddr_start; // Main_data start address in DRAM
 
 	int i;
 	int num ;
