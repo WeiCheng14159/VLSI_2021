@@ -24,13 +24,12 @@ package dram_wrapper_pkg;
   WRITE_RESP_BIT = 4, PRE_BIT = 5, ERROR_BIT = 6;
 
   typedef enum logic [6:0] {
-    IDLE  = 1 << IDLE_BIT,
-    ACT   = 1 << ACT_BIT,
-    READ  = 1 << READ_BIT,
-    WRITE = 1 << WRITE_BIT,
-    WRITE_RESP = 1 << WRITE_RESP_BIT,
-    PRE = 1 << PRE_BIT,
-    ERROR = 1 << ERROR_BIT
+    IDLE  = 1 << IDLE_BIT, // Idle state
+    ACT   = 1 << ACT_BIT, // Activate row
+    READ  = 1 << READ_BIT, // Read column
+    WRITE = 1 << WRITE_BIT, // Write column
+    WRITE_RESP = 1 << WRITE_RESP_BIT, // AXI write response
+    PRE = 1 << PRE_BIT // Precharge
   } dram_wrapper_state_t;
 
   typedef enum logic [1:0] {
