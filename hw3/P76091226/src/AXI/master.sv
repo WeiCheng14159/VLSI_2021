@@ -58,7 +58,7 @@ module master
       WSTRB_r <= `AXI_STRB_BITS'b1111;
     end else if (m_curr_state != AW & m_next_state == AW) begin
       WDATA_r <= data_in;
-      WSTRB_r <= `AXI_STRB_WORD;
+      WSTRB_r <= w_type;
     end
   end
 

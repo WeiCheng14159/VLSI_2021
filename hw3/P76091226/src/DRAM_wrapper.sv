@@ -26,6 +26,7 @@ module DRAM_wrapper
   logic [`AXI_SIZE_BITS-1:0] SIZE_r;
   logic [`AXI_BURST_BITS-1:0] BURST_r;
   logic [`AXI_DATA_BITS-1:0] WDATA_r;
+  logic [WEB_SIZE-1:0] WSTRB_r;
   logic CASn_prev;
   logic ARx_hs_done, Rx_hs_done, AWx_hs_done, Wx_hs_done, Bx_hs_done;
   logic row_hit, changeRow;
@@ -115,7 +116,7 @@ module DRAM_wrapper
         DRAM_RASn = RAS_DIS;
         DRAM_CASn = CAS_ENB | (|RAS_counter);
         DRAM_A = {1'b0, COL};
-        DRAM_WEn = (~|RAS_counter) ? {WEB_SIZE{WEB_ENB}} : {WEB_SIZE{WEB_DIS}};
+        DRAM_WEn = (~|RAS_counter) ? (1'b1 == WEB_ENB) ? WSTRB_r : ~WSTRB_r : {WEB_SIZE{WEB_DIS}};
       end
       WRITE_RESP: ;
       PRE: begin
@@ -158,6 +159,7 @@ module DRAM_wrapper
       SIZE_r  <= `AXI_SIZE_BITS'b0;
       WDATA_r <= `AXI_DATA_BITS'b0;
       RDATA_r <= `AXI_DATA_BITS'b0;
+      WSTRB_r <= {WEB_SIZE{WEB_DIS}};
     end else begin
       ID_r <= (ARx_hs_done) ? slave.ARID : (AWx_hs_done) ? slave.AWID : ID_r;
       BURST_r    <= (ARx_hs_done) ? slave.ARBURST :(AWx_hs_done) ? slave.AWBURST : BURST_r;
@@ -165,6 +167,7 @@ module DRAM_wrapper
       SIZE_r <= (ARx_hs_done) ? slave.ARSIZE : (AWx_hs_done) ? slave.AWSIZE : SIZE_r;
       WDATA_r <= (Wx_hs_done) ? slave.WDATA : WDATA_r;
       RDATA_r <= (Rx_hs_done) ? slave.RDATA : RDATA_r;
+      WSTRB_r <= (Wx_hs_done) ? slave.WSTRB : WSTRB_r;
     end
   end
 
