@@ -120,8 +120,8 @@ module CPU (
   logic flush;
   logic [`RegBus] new_pc;
 
-  //   wire is_dram = (if_pc == 32'h184);
-  //   wire boot_done = (if_pc == 32'h27c);
+    wire boot_start = (id_pc == 32'h128);
+    wire boot_done = (id_pc == 32'h10008);
 
   /* Register file */
   regfile regfile0 (

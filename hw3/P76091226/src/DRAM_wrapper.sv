@@ -25,6 +25,7 @@ module DRAM_wrapper
   logic [`AXI_LEN_BITS-1:0] LEN_r;
   logic [`AXI_SIZE_BITS-1:0] SIZE_r;
   logic [`AXI_BURST_BITS-1:0] BURST_r;
+  logic [`AXI_DATA_BITS-1:0] WDATA_r;
   logic CASn_prev;
   logic ARx_hs_done, Rx_hs_done, AWx_hs_done, Wx_hs_done, Bx_hs_done;
   logic row_hit, changeRow;
@@ -55,7 +56,7 @@ module DRAM_wrapper
   // AXI signal
   assign slave.BID = ID_r;
   assign slave.RID = ID_r;
-  assign slave.RDATA = (slave.RVALID) ? DRAM_D : EMPTY_DATA;
+  assign slave.RDATA = (slave.RVALID) ? DRAM_Q : EMPTY_DATA;
   assign slave.BRESP = `AXI_RESP_OKAY;
   assign slave.RRESP = `AXI_RESP_OKAY;
   assign slave.RLAST = rcnt == LEN_r;
@@ -63,8 +64,9 @@ module DRAM_wrapper
   assign addrcnt_add = addrcnt + `AXI_LEN_BITS'b1;
   assign changeRow = ROW_prev != ROW;
   // assign finish = (Bx_hs_done & slave.WLAST) | (Rx_hs_done & slave.RLAST);
-  assign DRAM_D = slave.WDATA;
+  assign DRAM_D = WDATA_r;
   assign write_done = (RAS_counter == 0);
+  assign read_done = (DRAM_valid == 1'b1);
 
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
@@ -169,7 +171,7 @@ module DRAM_wrapper
         slave.ARREADY = 1'b0;
         slave.AWREADY = 1'b0;
         slave.WREADY  = 1'b0;
-        slave.RVALID  = 1'b1;
+        slave.RVALID  = DRAM_valid;
         slave.BVALID  = 1'b0;
       end
       WRITE: begin
@@ -203,12 +205,14 @@ module DRAM_wrapper
       BURST_r <= `AXI_BURST_INC;
       LEN_r   <= `AXI_LEN_BITS'b0;
       SIZE_r  <= `AXI_SIZE_BITS'b0;
+      WDATA_r <= `AXI_DATA_BITS'b0;
       // RDATA_r <= `AXI_DATA_BITS'b0;
     end else begin
       ID_r <= (ARx_hs_done) ? slave.ARID : (AWx_hs_done) ? slave.AWID : ID_r;
       BURST_r    <= (ARx_hs_done) ? slave.ARBURST :(AWx_hs_done) ? slave.AWBURST : BURST_r;
       LEN_r <= (ARx_hs_done) ? slave.ARLEN : (AWx_hs_done) ? slave.AWLEN : LEN_r;
       SIZE_r <= (ARx_hs_done) ? slave.ARSIZE : (AWx_hs_done) ? slave.AWSIZE : SIZE_r;
+      WDATA_r <= (Wx_hs_done) ? slave.WDATA : WDATA_r;
       // RDATA_r <= (mem.read) ? mem.rdata : RDATA_r;
     end
   end
