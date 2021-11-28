@@ -101,7 +101,7 @@ module Bx
       data_arb_lock[LOCK_S2_BIT]:  // S2
       data_arb_lock_next = (BREADY_from_master) ? (BVALID_S3) ? LOCK_S3 : (BVALID_S4) ? LOCK_S4 : (BVALID_S5) ? LOCK_S5 : (BVALID_S6) ? LOCK_S6 : (BVALID_S0) ? LOCK_S0 : (BVALID_S1) ? LOCK_S1 : LOCK_NO : LOCK_S2;
       data_arb_lock[LOCK_S3_BIT]:  // S3
-      data_arb_lock_next = (BREADY_from_master) ? (BVALID_S4) ? LOCK_S4 : (BVALID_S5) ? LOCK_S5 : (BVALID_S6) ? LOCK_S6 : (BVALID_S0) ? LOCK_S0 : (BVALID_S2) ? LOCK_S2 : (BVALID_S3) ? LOCK_S3 : LOCK_NO : LOCK_S3;
+      data_arb_lock_next = (BREADY_from_master) ? (BVALID_S4) ? LOCK_S4 : (BVALID_S5) ? LOCK_S5 : (BVALID_S6) ? LOCK_S6 : (BVALID_S0) ? LOCK_S0 : (BVALID_S1) ? LOCK_S1 : (BVALID_S2) ? LOCK_S2 : LOCK_NO : LOCK_S3;
       data_arb_lock[LOCK_S4_BIT]:  // S4
       data_arb_lock_next = (BREADY_from_master) ? (BVALID_S5) ? LOCK_S5 : (BVALID_S6) ? LOCK_S6 : (BVALID_S0) ? LOCK_S0 : (BVALID_S1) ? LOCK_S1 : (BVALID_S2) ? LOCK_S2 : (BVALID_S3) ? LOCK_S3 : LOCK_NO : LOCK_S4;
       data_arb_lock[LOCK_S5_BIT]:  // S5
