@@ -9,16 +9,13 @@ module ifetch (
     input logic                  branch_taken_i,
     input logic                  is_id_branch_inst,
     input logic [       `RegBus] new_pc_i,
-    input logic [      `InstBus] inst_i,
 
-    output logic [ `RegBus] if_pc_o,
-    output logic            inst_read_o,
-    output logic [ `RegBus] inst_addr_o,
-    output logic [`InstBus] inst_o
+    output logic [`RegBus] if_pc_o,
+    output logic           inst_read_o,
+    output logic [`RegBus] inst_addr_o
 );
 
-  logic [`RegBus] fetch_pc, fetch_pc_next, next_pc;
-  logic [`RegBus] branch_not_taken_addr_r;
+  logic [`RegBus] fetch_pc, next_pc, branch_not_taken_addr_r;
   logic if_stall, is_taken;
 
   assign if_stall = (stall[`IF_STAGE] == `Stop);
@@ -27,16 +24,14 @@ module ifetch (
   assign next_pc = fetch_pc + 4'h4;
 
   // inst_read_o
-  assign inst_read_o = (if_stall) ? `ReadDisable : `ReadEnable;
+  assign inst_read_o = (if_stall | is_id_branch_inst) ? `ReadDisable : `ReadEnable;
 
-  // fetch_pc_next, if_pc_o
+  // if_pc_o
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
-      fetch_pc_next <= `StartAddr;
       if_pc_o <= `StartAddr;
     end else begin
-      fetch_pc_next <= (if_stall) ? fetch_pc_next : fetch_pc;
-      if_pc_o <= (if_stall) ? if_pc_o : fetch_pc_next;
+      if_pc_o <= (if_stall) ? if_pc_o : fetch_pc;
     end
   end
 
@@ -55,15 +50,6 @@ module ifetch (
       branch_not_taken_addr_r <= `StartAddr;
     end else begin
       branch_not_taken_addr_r <= (~is_id_branch_inst) ? next_pc : branch_not_taken_addr_r;
-    end
-  end
-
-  // inst_o
-  always_ff @(posedge clk, negedge rstn) begin
-    if (~rstn) begin
-      inst_o <= `StartAddr;
-    end else begin
-      inst_o <= (if_stall) ? inst_o : inst_i;
     end
   end
 

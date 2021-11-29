@@ -163,12 +163,10 @@ module CPU (
       .branch_taken_i(id_branch_taken),
       .is_id_branch_inst(id_is_branch),
       .new_pc_i(new_pc),
-      .inst_i(inst_in_i),
 
       .if_pc_o(if_pc),
       .inst_read_o(inst_read_o),
-      .inst_addr_o(inst_addr_o),
-      .inst_o(if_inst)
+      .inst_addr_o(inst_addr_o)
   );
 
   // IF-ID
@@ -177,7 +175,7 @@ module CPU (
       .rstn(rstn),
 
       .if_pc  (if_pc),
-      .if_inst(if_inst),
+      .if_inst(inst_in_i),
       .stall  (stallreq),
       .flush  (flush),
 
@@ -199,9 +197,7 @@ module CPU (
       .mem_wreg_data_i(mem_wreg_data),
       .mem_rd_i(mem_rd),
       .mem_memrd_i(mem_memrd),
-      .is_in_delayslot_i(ex_is_id_in_delayslot | mem_is_id_in_delayslot | 
-        wb_is_id_in_delayslot | wb_nxt_is_id_in_delayslot[0] | wb_nxt_is_id_in_delayslot[1] |
-        wb_nxt_is_id_in_delayslot[2] | wb_nxt_is_id_in_delayslot[3]),
+      .is_in_delayslot_i(ex_is_id_in_delayslot | mem_is_id_in_delayslot),
       // Current branch delay slot is 7 cycle
       .func3_o(id_func3),
       .rs1_read_o(rs1_read),
