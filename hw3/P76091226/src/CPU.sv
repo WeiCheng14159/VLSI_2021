@@ -147,6 +147,7 @@ module CPU (
       .stallreq_from_id  (stallreq_from_id),
       .stallreq_from_ex  (stallreq_from_ex),
       .stallreq_from_dmem(stallreq_from_dmem),
+      .is_id_branch_inst (id_is_branch),
 
       .stall(stallreq),
       .new_pc_o(new_pc)
