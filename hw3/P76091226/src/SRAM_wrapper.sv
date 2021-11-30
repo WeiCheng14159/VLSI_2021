@@ -151,11 +151,10 @@ end
 always_comb begin
     WEB = {WEB_DIS, WEB_DIS, WEB_DIS, WEB_DIS};
     if(slave.WVALID) begin
-        case(slave.WSTRB)
-            `AXI_STRB_BYTE: WEB[w_offset] = WEB_ENB;
-            `AXI_STRB_HWORD: WEB[{w_offset[1],1'b0}+:2] = {WEB_ENB, WEB_ENB};
-            default: WEB = {WEB_ENB, WEB_ENB, WEB_ENB, WEB_ENB};
-        endcase
+        WEB[0] = (slave.WSTRB[0]) ? WEB_ENB : WEB_DIS;
+        WEB[1] = (slave.WSTRB[1]) ? WEB_ENB : WEB_DIS;
+        WEB[2] = (slave.WSTRB[2]) ? WEB_ENB : WEB_DIS;
+        WEB[3] = (slave.WSTRB[3]) ? WEB_ENB : WEB_DIS;
     end
 end
 
