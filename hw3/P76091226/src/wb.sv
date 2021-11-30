@@ -1,30 +1,44 @@
 `include "def.v"
-module wb(
-  input logic                           mem2reg_i,
-  input logic                 [`RegBus] from_reg_i,
-  input logic                [`DataBus] from_mem_i,
-  input logic               [`Func3Bus] func3_i,
+module wb (
+    input logic             mem2reg_i,
+    input logic [  `RegBus] from_reg_i,
+    input logic [ `DataBus] from_mem_i,
+    input logic [`Func3Bus] func3_i,
 
-  output logic                [`RegBus] wdata_o
+    output logic [`RegBus] wdata_o
 );
-  logic                 [`RegBus] load_addr_i;
+  logic [`RegBus] load_addr_i;
   assign load_addr_i = from_reg_i;
 
   // wdata_o
   always_comb begin
     if (mem2reg_i == `Mem2Reg) begin
-      case(func3_i) // LW, LH, LB, LBU, LHU
-        `OP_LB:  wdata_o = $signed(from_mem_i[7:0]);
-        `OP_LH:  begin
-          case(load_addr_i[1])
+      case (func3_i)  // LW, LH, LB, LBU, LHU
+        `OP_LB: begin
+          case (load_addr_i[1:0])
+            2'b00: wdata_o = $signed(from_mem_i[7:0]);
+            2'b01: wdata_o = $signed(from_mem_i[15:8]);
+            2'b10: wdata_o = $signed(from_mem_i[23:16]);
+            2'b11: wdata_o = $signed(from_mem_i[31:24]);
+          endcase
+        end
+        `OP_LH: begin
+          case (load_addr_i[1])
             1'b1: wdata_o = $signed(from_mem_i[31:16]);
             1'b0: wdata_o = $signed(from_mem_i[15:0]);
           endcase
         end
         `OP_LW:  wdata_o = from_mem_i;
-        `OP_LBU: wdata_o = {24'h0, from_mem_i[7:0]};
-        `OP_LHU: begin  
-          case(load_addr_i[1])
+        `OP_LBU: begin
+          case (load_addr_i[1:0])
+            2'b00: wdata_o = {24'b0, from_mem_i[7:0]};
+            2'b01: wdata_o = {24'b0, from_mem_i[15:8]};
+            2'b10: wdata_o = {24'b0, from_mem_i[23:16]};
+            2'b11: wdata_o = {24'b0, from_mem_i[31:24]};
+          endcase
+        end
+        `OP_LHU: begin
+          case (load_addr_i[1])
             1'b1: wdata_o = {16'h0, from_mem_i[31:16]};
             1'b0: wdata_o = {16'h0, from_mem_i[15:0]};
           endcase
