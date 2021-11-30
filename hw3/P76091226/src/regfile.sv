@@ -27,7 +27,7 @@ module regfile
         regs[i] <= ZeroWord;
       end
     end else begin
-      if ((we_i == `WriteEnable) && (waddr_i != {RegNumLog2{1'b0}})) begin
+      if ((we_i == WriteEnable) && (waddr_i != {RegNumLog2{1'b0}})) begin
         regs[waddr_i] <= wdata_i;
       end
     end
@@ -37,10 +37,10 @@ module regfile
   always_comb begin
     if (raddr1_i == {RegNumLog2{1'b0}}) begin
       rdata1_o = ZeroWord;
-    end else if((raddr1_i == waddr_i) && (we_i == `WriteEnable) &&
-                (re1_i == `ReadEnable)) begin
+    end else if((raddr1_i == waddr_i) && (we_i == WriteEnable) &&
+                (re1_i == ReadEnable)) begin
       rdata1_o = wdata_i;
-    end else if (re1_i == `ReadEnable) begin
+    end else if (re1_i == ReadEnable) begin
       rdata1_o = regs[raddr1_i];
     end else begin
       rdata1_o = ZeroWord;
@@ -51,10 +51,10 @@ module regfile
   always_comb begin
     if (raddr2_i == {RegNumLog2{1'b0}}) begin
       rdata2_o = ZeroWord;
-    end else if((raddr2_i == waddr_i) && (we_i == `WriteEnable) &&
-                (re2_i == `ReadEnable)) begin
+    end else if((raddr2_i == waddr_i) && (we_i == WriteEnable) &&
+                (re2_i == ReadEnable)) begin
       rdata2_o = wdata_i;
-    end else if (re2_i == `ReadEnable) begin
+    end else if (re2_i == ReadEnable) begin
       rdata2_o = regs[raddr2_i];
     end else begin
       rdata2_o = ZeroWord;

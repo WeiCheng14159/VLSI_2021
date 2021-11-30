@@ -95,22 +95,27 @@ package cpu_pkg;
 
   localparam AluOpBusWidth = 15;
   // ALUop
+  localparam ALUOP_ADD_BIT = 0, ALUOP_SUB_BIT = 1, ALUOP_SLL_BIT = 2, ALUOP_SRL_BIT = 3,
+  ALUOP_SRA_BIT = 4,ALUOP_SLT_BIT = 5, ALUOP_SLTU_BIT = 6, ALUOP_OR_BIT = 7, 
+  ALUOP_XOR_BIT = 8, ALUOP_AND_BIT = 9, ALUOP_MUL_BIT = 10, ALUOP_MULH_BIT = 11, 
+  ALUOP_MULHU_BIT = 12, ALUOP_MULSU_BIT = 13, ALUOP_LINK_BIT = 14;
+
   typedef enum logic [AluOpBusWidth-1:0] {
-    ALUOP_ADD = 1 << 0,
-    ALUOP_SUB = 1 << 1,
-    ALUOP_SLL = 1 << 2,
-    ALUOP_SRL = 1 << 3,
-    ALUOP_SRA = 1 << 4,
-    ALUOP_SLT = 1 << 5,
-    ALUOP_SLTU = 1 << 6,
-    ALUOP_OR = 1 << 7,
-    ALUOP_XOR = 1 << 8,
-    ALUOP_AND = 1 << 9,
-    ALUOP_MUL = 1 << 10,
-    ALUOP_MULH = 1 << 11,
-    ALUOP_MULU = 1 << 12,
-    ALUOP_MULSU = 1 << 13,
-    ALUOP_LINK = 1 << 14
+    ALUOP_ADD = 1 << ALUOP_ADD_BIT,
+    ALUOP_SUB = 1 << ALUOP_SUB_BIT,
+    ALUOP_SLL = 1 << ALUOP_SLL_BIT,
+    ALUOP_SRL = 1 << ALUOP_SRL_BIT,
+    ALUOP_SRA = 1 << ALUOP_SRA_BIT,
+    ALUOP_SLT = 1 << ALUOP_SLT_BIT,
+    ALUOP_SLTU = 1 << ALUOP_SLTU_BIT,
+    ALUOP_OR = 1 << ALUOP_OR_BIT,
+    ALUOP_XOR = 1 << ALUOP_XOR_BIT,
+    ALUOP_AND = 1 << ALUOP_AND_BIT,
+    ALUOP_MUL = 1 << ALUOP_MUL_BIT,
+    ALUOP_MULH = 1 << ALUOP_MULH_BIT,
+    ALUOP_MULHU = 1 << ALUOP_MULHU_BIT,
+    ALUOP_MULSU = 1 << ALUOP_MULSU_BIT,
+    ALUOP_LINK = 1 << ALUOP_LINK_BIT
   } aluop_t;
 
   // ALU source

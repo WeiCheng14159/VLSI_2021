@@ -29,7 +29,7 @@ module id
     output logic [RegAddrWidth-1:0] rs2_addr_o,
 
     // Control signals
-    output logic        [AluOpBusWidth-1:0] aluop_o,
+    output aluop_t                          aluop_o,
     output logic                            alusrc1_o,
     output logic                            alusrc2_o,
     output logic signed [  RegBusWidth-1:0] imm_o,
@@ -79,7 +79,7 @@ module id
   always_comb begin
     if (is_in_delayslot_i == InDelaySlot) begin
       // NOP instruction
-      aluop_o                  = (1'b1 << `ALUOP_ADD);
+      aluop_o                  = ALUOP_ADD;
       alusrc1_o                = SRC1_FROM_REG;
       alusrc2_o                = SRC2_FROM_REG;
       rd_o                     = NopRegAddr;
@@ -101,7 +101,7 @@ module id
       next_inst_in_delayslot_o = NotInDelaySlot;
       flush_o                  = False;
     end else begin
-      aluop_o                  = (1'b1 << `ALUOP_ADD);
+      aluop_o                  = ALUOP_ADD;
       alusrc1_o                = SRC1_FROM_REG;
       alusrc2_o                = SRC2_FROM_REG;
       rd_o                     = NopRegAddr;
@@ -140,7 +140,7 @@ module id
           imm_o      = {inst_i[31:12], 12'b0};
         end
         `OP_JAL: begin
-          aluop_o = (1'b1 << `ALUOP_LINK);
+          aluop_o = ALUOP_LINK;
           rd_o = inst_i[`RD];
           wreg_o = WriteEnable;
           inst_valid = InstValid;
@@ -153,7 +153,7 @@ module id
           next_inst_in_delayslot_o = InDelaySlot;
         end
         `OP_JALR: begin
-          aluop_o                  = (1'b1 << `ALUOP_LINK);
+          aluop_o                  = ALUOP_LINK;
           rd_o                     = inst_i[`RD];
           wreg_o                   = WriteEnable;
           inst_valid               = InstValid;
@@ -228,15 +228,14 @@ module id
         end
         `OP_ARITHI: begin
           case (func3_o)
-            `OP_ADD: aluop_o = (1'b1 << `ALUOP_ADD);
-            `OP_SLL: aluop_o = (1'b1 << `ALUOP_SLL);
-            `OP_SLT: aluop_o = (1'b1 << `ALUOP_SLT);
-            `OP_SLTU: aluop_o = (1'b1 << `ALUOP_SLTU);
-            `OP_XOR: aluop_o = (1'b1 << `ALUOP_XOR);
-            `OP_SR:
-            aluop_o             = (inst_i[30]) ? (1'b1 << `ALUOP_SRA) : (1'b1 << `ALUOP_SRL);
-            `OP_OR: aluop_o = (1'b1 << `ALUOP_OR);
-            `OP_AND: aluop_o = (1'b1 << `ALUOP_AND);
+            `OP_ADD:  aluop_o = ALUOP_ADD;
+            `OP_SLL:  aluop_o = ALUOP_SLL;
+            `OP_SLT:  aluop_o = ALUOP_SLT;
+            `OP_SLTU: aluop_o = ALUOP_SLTU;
+            `OP_XOR:  aluop_o = ALUOP_XOR;
+            `OP_SR:   aluop_o = (inst_i[30]) ? ALUOP_SRA : ALUOP_SRL;
+            `OP_OR:   aluop_o = ALUOP_OR;
+            `OP_AND:  aluop_o = ALUOP_AND;
           endcase
           rd_o       = inst_i[`RD];
           alusrc1_o  = SRC1_FROM_REG;
@@ -251,24 +250,22 @@ module id
           if (func7[0] == 1'b1) begin  // Multiply instruction
 `ifdef MulEnable
             case (func3_o)
-              `OP_MUL:    aluop_o = (1'b1 << `ALUOP_MUL);
-              `OP_MULH:   aluop_o = (1'b1 << `ALUOP_MUL);
-              `OP_MULHSU: aluop_o = (1'b1 << `ALUOP_MUL);
-              `OP_MULHU:  aluop_o = (1'b1 << `ALUOP_MUL);
+              `OP_MUL:    aluop_o = ALUOP_MUL;
+              `OP_MULH:   aluop_o = ALUOP_MULH;
+              `OP_MULHSU: aluop_o = ALUOP_MULSU;
+              `OP_MULHU:  aluop_o = ALUOP_MULHU;
             endcase
 `endif
           end else begin  // Other instruction
             case (func3_o)
-              `OP_ADD:
-              aluop_o           = (inst_i[30]) ? (1'b1 << `ALUOP_SUB) : (1'b1 << `ALUOP_ADD);
-              `OP_SLL: aluop_o = (1'b1 << `ALUOP_SLL);
-              `OP_SLT: aluop_o = (1'b1 << `ALUOP_SLT);
-              `OP_SLTU: aluop_o = (1'b1 << `ALUOP_SLTU);
-              `OP_XOR: aluop_o = (1'b1 << `ALUOP_XOR);
-              `OP_SR:
-              aluop_o           = (inst_i[30]) ? (1'b1 << `ALUOP_SRA) : (1'b1 << `ALUOP_SRL);
-              `OP_OR: aluop_o = (1'b1 << `ALUOP_OR);
-              `OP_AND: aluop_o = (1'b1 << `ALUOP_AND);
+              `OP_ADD:  aluop_o = (inst_i[30]) ? ALUOP_SUB : ALUOP_ADD;
+              `OP_SLL:  aluop_o = ALUOP_SLL;
+              `OP_SLT:  aluop_o = ALUOP_SLT;
+              `OP_SLTU: aluop_o = ALUOP_SLTU;
+              `OP_XOR:  aluop_o = ALUOP_XOR;
+              `OP_SR:   aluop_o = (inst_i[30]) ? ALUOP_SRA : ALUOP_SRL;
+              `OP_OR:   aluop_o = ALUOP_OR;
+              `OP_AND:  aluop_o = ALUOP_AND;
             endcase
           end
           rd_o       = inst_i[`RD];
