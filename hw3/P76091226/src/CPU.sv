@@ -120,10 +120,6 @@ module CPU (
   logic flush;
   logic [`RegBus] new_pc;
 
-  wire boot_start = (id_pc == 32'h128);
-  wire boot_done = (id_pc == 32'h10008);
-  wire prog_end = (id_pc == 32'h10150);
-
   /* Register file */
   regfile regfile0 (
       .clk (clk),
