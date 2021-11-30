@@ -17,8 +17,8 @@ package rom_wrapper_pkg;
   localparam IDLE_BIT = 0, READ_BIT = 1;
 
   typedef enum logic [3:0] {
-    IDLE  = 1 << IDLE_BIT,
-    READ  = 1 << READ_BIT
+    IDLE = 1 << IDLE_BIT,
+    READ = 1 << READ_BIT
   } rom_wrapper_state_t;
 
 endpackage : rom_wrapper_pkg

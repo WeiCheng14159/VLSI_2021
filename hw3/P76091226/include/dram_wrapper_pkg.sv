@@ -19,17 +19,17 @@ package dram_wrapper_pkg;
 
   localparam ROW_ADDR_SIZE = 11;
   localparam COL_ADDR_SIZE = 10;
-  
+
   localparam IDLE_BIT = 0, ACT_BIT = 1, READ_BIT = 2, WRITE_BIT = 3, 
   WRITE_RESP_BIT = 4, PRE_BIT = 5, ERROR_BIT = 6;
 
   typedef enum logic [6:0] {
-    IDLE  = 1 << IDLE_BIT, // Idle state
-    ACT   = 1 << ACT_BIT, // Activate row
-    READ  = 1 << READ_BIT, // Read column
-    WRITE = 1 << WRITE_BIT, // Write column
-    WRITE_RESP = 1 << WRITE_RESP_BIT, // AXI write response
-    PRE = 1 << PRE_BIT // Precharge
+    IDLE = 1 << IDLE_BIT,  // Idle state
+    ACT = 1 << ACT_BIT,  // Activate row
+    READ = 1 << READ_BIT,  // Read column
+    WRITE = 1 << WRITE_BIT,  // Write column
+    WRITE_RESP = 1 << WRITE_RESP_BIT,  // AXI write response
+    PRE = 1 << PRE_BIT  // Precharge
   } dram_wrapper_state_t;
 
   typedef enum logic [1:0] {
