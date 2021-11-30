@@ -2,12 +2,14 @@
 `include "CPU.sv"
 `include "AXI_define.svh"
 `include "cpu_wrapper_pkg.sv"
+`include "cpu_pkg.sv"
 `include "AXI/master.sv"
 `include "L1C_inst.sv"
 `include "L1C_data.sv"
 
 module CPU_wrapper
   import cpu_wrapper_pkg::*;
+  import cpu_pkg::*;
 (
     input logic clk,
     input logic rstn,
@@ -16,43 +18,43 @@ module CPU_wrapper
 );
 
   // CPU - Instruction
-  logic [            `InstBus]  inst_from_mem;
-  logic                         inst_read;
-  logic [        `InstAddrBus]  inst_addr;
-  logic                         inst_rw_request;
+  logic [      InstrWidth-1:0] inst_from_mem;
+  logic                        inst_read;
+  logic [  InstrAddrWidth-1:0] inst_addr;
+  logic                        inst_rw_request;
 
   // CPU - Data
-  logic [            `DataBus]  data_from_mem;
-  logic                         data_read;
-  logic [                 3:0 ] data_read_type;
-  logic                         data_write;
-  logic [                 3:0 ] data_write_type;
-  logic [        `DataAddrBus]  data_write_addr;
-  logic [            `DataBus]  data_to_mem;
-  logic                         data_rw_request;
+  logic [       DataWidth-1:0] data_from_mem;
+  logic                        data_read;
+  logic [                 3:0] data_read_type;
+  logic                        data_write;
+  logic [                 3:0] data_write_type;
+  logic [   DataAddrWidth-1:0] data_write_addr;
+  logic [       DataWidth-1:0] data_to_mem;
+  logic                        data_rw_request;
 
-  logic                         stallreq_from_imem;
-  logic                         stallreq_from_dmem;
+  logic                        stallreq_from_imem;
+  logic                        stallreq_from_dmem;
 
   // Cache 
-  logic [`CACHE_TYPE_BITS-1:0 ] core_type;
-  logic [`CACHE_TYPE_BITS-1:0 ] read_type;
+  logic [`CACHE_TYPE_BITS-1:0] core_type;
+  logic [`CACHE_TYPE_BITS-1:0] read_type;
   // L1-D$ 
-  logic [      `DATA_BITS-1:0 ] D_out;
-  logic                         D_req;
-  logic [      `DATA_BITS-1:0 ] D_addr;
-  logic                         D_write;
-  logic [      `DATA_BITS-1:0 ] D_in;
-  logic [`CACHE_TYPE_BITS-1:0 ] D_type;
-  logic                         D_wait;
+  logic [      `DATA_BITS-1:0] D_out;
+  logic                        D_req;
+  logic [      `DATA_BITS-1:0] D_addr;
+  logic                        D_write;
+  logic [      `DATA_BITS-1:0] D_in;
+  logic [`CACHE_TYPE_BITS-1:0] D_type;
+  logic                        D_wait;
   // L1-I$
-  logic [      `DATA_BITS-1:0 ] I_out;
-  logic                         I_req;
-  logic [      `DATA_BITS-1:0 ] I_addr;
-  logic                         I_write;
-  logic [      `DATA_BITS-1:0 ] I_in;
-  logic [`CACHE_TYPE_BITS-1:0 ] I_type;
-  logic                         I_wait;
+  logic [      `DATA_BITS-1:0] I_out;
+  logic                        I_req;
+  logic [      `DATA_BITS-1:0] I_addr;
+  logic                        I_write;
+  logic [      `DATA_BITS-1:0] I_in;
+  logic [`CACHE_TYPE_BITS-1:0] I_type;
+  logic                        I_wait;
 
   // Cache signals
   assign inst_rw_request = inst_read;

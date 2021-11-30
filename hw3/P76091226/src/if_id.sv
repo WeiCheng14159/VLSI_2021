@@ -1,26 +1,27 @@
-`include "def.v"
-module if_id (
+module if_id
+  import cpu_pkg::*;
+(
     input logic clk,
     input logic rstn,
 
-    input logic [       `RegBus] if_pc,
-    input logic [      `InstBus] if_inst,
-    input logic                  flush,
-    input logic [`STAGE_NUM-1:0] stall,
+    input logic [RegBusWidth-1:0] if_pc,
+    input logic [ InstrWidth-1:0] if_inst,
+    input logic                   flush,
+    input logic [  STAGE_NUM-1:0] stall,
 
-    output logic [ `RegBus] id_pc,
-    output logic [`InstBus] id_inst
+    output logic [RegBusWidth-1:0] id_pc,
+    output logic [ InstrWidth-1:0] id_inst
 );
 
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
-      id_pc   <= `ZeroWord;
-      id_inst <= `NOP;
-    end else if (flush == `True | 
-      (stall[`IF_STAGE] == `Stop && stall[`ID_STAGE] == `NoStop) ) begin
-      id_pc   <= `ZeroWord;
-      id_inst <= `NOP;
-    end else if (stall[`IF_STAGE] == `NoStop) begin
+      id_pc   <= ZeroWord;
+      id_inst <= NOP;
+    end else if (flush == True | 
+      (stall[IF_STAGE] == Stop && stall[ID_STAGE] == NoStop) ) begin
+      id_pc   <= ZeroWord;
+      id_inst <= NOP;
+    end else if (stall[IF_STAGE] == NoStop) begin
       id_pc   <= if_pc;
       id_inst <= if_inst;
     end

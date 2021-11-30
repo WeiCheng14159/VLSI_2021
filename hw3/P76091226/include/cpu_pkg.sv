@@ -5,16 +5,11 @@ package cpu_pkg;
   localparam VERSION = "v1.0";
   localparam AUTHOR = "Wei Cheng";
 
-  // `define MulEnable
-
   // Bus
   localparam InstrWidth = 32, InstrAddrWidth = 32, DataWidth = 32, DataAddrWidth = 32;
-  localparam RegBusWidth = 32, Func3BusWidth = 3;
+  localparam RegBusWidth = 32, RegAddrWidth = 5, Func3BusWidth = 3;
   // Address
   localparam ZeroWord = {InstrAddrWidth{1'b0}}, StartAddr = {InstrAddrWidth{1'b0}};
-  // Instruction
-  localparam NOP = 32'h0000_0013;
-
   // Signal alias
   localparam WriteEnable = 1'b1, WriteDisable = 1'b0;
   localparam ReadEnable = 1'b1, ReadDisable = 1'b0;
@@ -25,16 +20,16 @@ package cpu_pkg;
   localparam BranchTaken = 1'b1, BranchNotTaken = 1'b0;
   localparam InDelaySlot = 1'b1, NotInDelaySlot = 1'b0;
   localparam True = 1'b1, False = 1'b0;
-
   // Register
   localparam RegNum = 32, RegNumLog2 = 5;
-
   // Pipeline stages
   localparam STAGE_NUM = 5;
   localparam IF_STAGE = 0, ID_STAGE = 1, EX_STAGE = 2, ME_STAGE = 3, WB_STAGE = 4;
-
   // Multiply
-  localparam MulBusWidth = 32;
+  // `define MulEnable
+  localparam MulBusWidth = 64;
+  // NOP
+  localparam NOP = 32'h0000_0013, NopRegAddr = 5'b0;
 
   /* Instruction field */
   `define OPCODE 6:0

@@ -1,18 +1,19 @@
-`include "def.v"
-module wb (
-    input logic             mem2reg_i,
-    input logic [  `RegBus] from_reg_i,
-    input logic [ `DataBus] from_mem_i,
-    input logic [`Func3Bus] func3_i,
+module wb
+  import cpu_pkg::*;
+(
+    input logic                     mem2reg_i,
+    input logic [  RegBusWidth-1:0] from_reg_i,
+    input logic [    DataWidth-1:0] from_mem_i,
+    input logic [Func3BusWidth-1:0] func3_i,
 
-    output logic [`RegBus] wdata_o
+    output logic [RegBusWidth-1:0] wdata_o
 );
-  logic [`RegBus] load_addr_i;
+  logic [RegBusWidth-1:0] load_addr_i;
   assign load_addr_i = from_reg_i;
 
   // wdata_o
   always_comb begin
-    if (mem2reg_i == `Mem2Reg) begin
+    if (mem2reg_i == Mem2Reg) begin
       case (func3_i)  // LW, LH, LB, LBU, LHU
         `OP_LB: begin
           case (load_addr_i[1:0])

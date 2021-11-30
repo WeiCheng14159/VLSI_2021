@@ -1,23 +1,25 @@
 `include "def.v"
-module ex (
-    input logic [  `RegBus] pc_i,
-    input logic [`AluOpBus] aluop_i,
-    input logic             alusrc1_i,
-    input logic             alusrc2_i,
-    input logic [  `RegBus] rs1_i,
-    input logic [  `RegBus] rs2_i,
-    input logic [  `RegBus] imm_i,
-    input logic [  `RegBus] link_addr_i,
 
-    output logic        [`RegBus] wdata_o,
-    output logic signed [`RegBus] wreg_data_o,
-    output logic                  stallreq
+module ex
+  import cpu_pkg::*;
+(
+    input logic [  RegBusWidth-1:0] pc_i,
+    input logic [AluOpBusWidth-1:0] aluop_i,
+    input logic                     alusrc1_i,
+    input logic                     alusrc2_i,
+    input logic [  RegBusWidth-1:0] rs1_i,
+    input logic [  RegBusWidth-1:0] rs2_i,
+    input logic [  RegBusWidth-1:0] imm_i,
+    input logic [  RegBusWidth-1:0] link_addr_i,
+
+    output logic        [RegBusWidth-1:0] wdata_o,
+    output logic signed [RegBusWidth-1:0] wreg_data_o,
+    output logic                          stallreq
 );
 
-  logic [`RegBus] alu_in1, alu_in2;
-  logic [`RegBus] alu_in1_mult, alu_in2_mult;
-  logic [`MulBus] hilo_temp;
-  logic [`MulBus] mulres;
+  logic [RegBusWidth-1:0] alu_in1, alu_in2;
+  logic [RegBusWidth-1:0] alu_in1_mult, alu_in2_mult;
+  logic [MulBusWidth-1:0] hilo_temp, mulres;
 
 `ifdef MulEnable
   assign alu_in1_mult = ( (aluop_i[`ALUOP_MUL] || aluop_i[`ALUOP_MULH]) && (rs1_i[31] == 1'b1) ) ? 
@@ -27,12 +29,14 @@ module ex (
   assign hilo_temp = alu_in1_mult * alu_in2_mult;
 
   always_comb begin
-    if(aluop_i[`ALUOP_MUL] || aluop_i[`ALUOP_MULH]) begin
+    if (aluop_i[`ALUOP_MUL] || aluop_i[`ALUOP_MULH]) begin
       mulres = (rs1_i[31] ^ rs2_i[31]) ? (~hilo_temp + 1'b1) : hilo_temp;
     end else begin
       mulres = hilo_temp;
     end
   end
+`else
+  assign mulres = {MulBusWidth{1'b0}};
 `endif
 
   // alu_in1
@@ -77,7 +81,6 @@ module ex (
       aluop_i[`ALUOP_AND]: begin
         wreg_data_o = alu_in1 & alu_in2;
       end
-`ifdef MulEnable
       aluop_i[`ALUOP_MUL]: begin
         wreg_data_o = mulres[31:0];
       end
@@ -90,7 +93,6 @@ module ex (
       aluop_i[`ALUOP_MULSU]: begin
         wreg_data_o = mulres[63:32];
       end
-`endif
       aluop_i[`ALUOP_LINK]: begin
         wreg_data_o = link_addr_i;
       end

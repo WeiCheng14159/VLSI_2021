@@ -1,57 +1,58 @@
-`include "def.v"
-module ex_mem (
+module ex_mem
+  import cpu_pkg::*;
+(
     input logic clk,
     input logic rstn,
 
-    input logic [       `RegBus] ex_pc,
-    input logic [   `RegAddrBus] ex_rd,
-    input logic                  ex_wreg,
-    input logic [       `RegBus] ex_wdata,
-    input logic [       `RegBus] ex_wreg_data,
-    input logic                  ex_memrd,
-    input logic                  ex_memwr,
-    input logic                  ex_mem2reg,
-    input logic [     `Func3Bus] ex_func3,
-    input logic                  ex_is_id_in_delayslot,
-    input logic [`STAGE_NUM-1:0] stall,
-    input logic                  flush,
+    input logic [  RegBusWidth-1:0] ex_pc,
+    input logic [ RegAddrWidth-1:0] ex_rd,
+    input logic                     ex_wreg,
+    input logic [  RegBusWidth-1:0] ex_wdata,
+    input logic [  RegBusWidth-1:0] ex_wreg_data,
+    input logic                     ex_memrd,
+    input logic                     ex_memwr,
+    input logic                     ex_mem2reg,
+    input logic [Func3BusWidth-1:0] ex_func3,
+    input logic                     ex_is_id_in_delayslot,
+    input logic [    STAGE_NUM-1:0] stall,
+    input logic                     flush,
 
-    output logic [    `RegBus] mem_pc,
-    output logic [  `Func3Bus] mem_func3,
-    output logic [`RegAddrBus] mem_rd,
-    output logic               mem_wreg,
-    output logic [    `RegBus] mem_wdata,
-    output logic [    `RegBus] mem_wreg_data,
-    output logic               mem_memrd,
-    output logic               mem_memwr,
-    output logic               mem_mem2reg,
-    output logic               mem_is_id_in_delayslot
+    output logic [  RegBusWidth-1:0] mem_pc,
+    output logic [Func3BusWidth-1:0] mem_func3,
+    output logic [ RegAddrWidth-1:0] mem_rd,
+    output logic                     mem_wreg,
+    output logic [  RegBusWidth-1:0] mem_wdata,
+    output logic [  RegBusWidth-1:0] mem_wreg_data,
+    output logic                     mem_memrd,
+    output logic                     mem_memwr,
+    output logic                     mem_mem2reg,
+    output logic                     mem_is_id_in_delayslot
 );
 
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
-      mem_pc                 <= `ZeroWord;
-      mem_func3              <= 3'b0;
-      mem_rd                 <= `NopRegAddr;
-      mem_wreg               <= `WriteDisable;
-      mem_wdata              <= `ZeroWord;
-      mem_memrd              <= `ReadDisable;
-      mem_memwr              <= `WriteDisable;
-      mem_mem2reg            <= `NotMem2Reg;
-      mem_wreg_data          <= `ZeroWord;
-      mem_is_id_in_delayslot <= `NotInDelaySlot;
-    end else if (flush == `True | (stall[`EX_STAGE] == `Stop && stall[`ME_STAGE] == `NoStop)) begin
-      mem_pc                 <= `ZeroWord;
-      mem_func3              <= 3'b0;
-      mem_rd                 <= `NopRegAddr;
-      mem_wreg               <= `WriteDisable;
-      mem_wdata              <= `ZeroWord;
-      mem_memrd              <= `ReadDisable;
-      mem_memwr              <= `WriteDisable;
-      mem_mem2reg            <= `NotMem2Reg;
-      mem_wreg_data          <= `ZeroWord;
-      mem_is_id_in_delayslot <= `NotInDelaySlot;
-    end else if (stall[`ME_STAGE] == `NoStop) begin
+      mem_pc                 <= ZeroWord;
+      mem_func3              <= {Func3BusWidth{1'b0}};
+      mem_rd                 <= NopRegAddr;
+      mem_wreg               <= WriteDisable;
+      mem_wdata              <= ZeroWord;
+      mem_memrd              <= ReadDisable;
+      mem_memwr              <= WriteDisable;
+      mem_mem2reg            <= NotMem2Reg;
+      mem_wreg_data          <= ZeroWord;
+      mem_is_id_in_delayslot <= NotInDelaySlot;
+    end else if (flush == True | (stall[EX_STAGE] == Stop && stall[ME_STAGE] == NoStop)) begin
+      mem_pc                 <= ZeroWord;
+      mem_func3              <= {Func3BusWidth{1'b0}};
+      mem_rd                 <= NopRegAddr;
+      mem_wreg               <= WriteDisable;
+      mem_wdata              <= ZeroWord;
+      mem_memrd              <= ReadDisable;
+      mem_memwr              <= WriteDisable;
+      mem_mem2reg            <= NotMem2Reg;
+      mem_wreg_data          <= ZeroWord;
+      mem_is_id_in_delayslot <= NotInDelaySlot;
+    end else if (stall[ME_STAGE] == NoStop) begin
       mem_pc                 <= ex_pc;
       mem_func3              <= ex_func3;
       mem_rd                 <= ex_rd;
