@@ -41,7 +41,9 @@ module ifetch
     if (~rstn) begin
       fetch_pc <= StartAddr;
     end else begin
-      fetch_pc <= (is_taken) ? (branch_target_addr_i) : (is_id_branch_inst) ?  branch_not_taken_addr_r : (if_stall) ? fetch_pc : next_pc;
+      fetch_pc <= (is_id_branch_inst & ~is_taken) ? (branch_not_taken_addr_r) : 
+                  (is_id_branch_inst & is_taken) ? branch_target_addr_i : 
+                  (if_stall) ? fetch_pc : next_pc;
     end
   end
 
