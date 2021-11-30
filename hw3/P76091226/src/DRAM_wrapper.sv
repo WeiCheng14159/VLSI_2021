@@ -96,28 +96,28 @@ module DRAM_wrapper
     DRAM_A = {1'b0, COL};
     DRAM_WEn = {WEB_SIZE{WEB_DIS}};
 
-    case (curr_state)
-      IDLE: ;
-      ACT: begin
+    unique case (1'b1)
+      curr_state[IDLE_BIT]: ;
+      curr_state[ACT_BIT]: begin
         DRAM_RASn = (change_row) ? RAS_ENB : RAS_DIS;
         DRAM_CASn = CAS_DIS;
         DRAM_A = {1'b0, ROW};
         DRAM_WEn = {WEB_SIZE{WEB_DIS}};
       end
-      READ: begin
+      curr_state[READ_BIT]: begin
         DRAM_RASn = RAS_DIS;
         DRAM_CASn = CAS_ENB | (|RAS_counter);
         DRAM_A = {1'b0, COL};
         DRAM_WEn = {WEB_SIZE{WEB_DIS}};
       end
-      WRITE: begin
+      curr_state[WRITE_BIT]: begin
         DRAM_RASn = RAS_DIS;
         DRAM_CASn = CAS_ENB | (|RAS_counter);
         DRAM_A = {1'b0, COL};
         DRAM_WEn = (~|RAS_counter) ? (1'b1 == WEB_ENB) ? WSTRB_r : ~WSTRB_r : {WEB_SIZE{WEB_DIS}};
       end
-      WRITE_RESP: ;
-      PRE: begin
+      curr_state[WRITE_RESP_BIT]: ;
+      curr_state[PRE_BIT]: begin
         DRAM_RASn = RAS_ENB;
         DRAM_CASn = CAS_DIS;
         DRAM_A = {1'b0, ROW};
@@ -134,17 +134,17 @@ module DRAM_wrapper
     slave.RVALID  = 1'b0;
     slave.BVALID  = 1'b0;
 
-    case (curr_state)
-      IDLE: begin
+    case (1'b1)
+      curr_state[IDLE_BIT]: begin
         slave.ARREADY = ~slave.AWVALID;
         slave.AWREADY = 1'b1;
         slave.WREADY  = 1'b1;
       end
-      ACT: ;
-      READ: slave.RVALID = DRAM_valid;
-      WRITE: ;
-      WRITE_RESP: slave.BVALID = 1'b1;
-      PRE: ;
+      curr_state[ACT_BIT]: ;
+      curr_state[READ_BIT]: slave.RVALID = DRAM_valid;
+      curr_state[WRITE_BIT]: ;
+      curr_state[WRITE_RESP_BIT]: slave.BVALID = 1'b1;
+      curr_state[PRE_BIT]: ;
     endcase
   end
 

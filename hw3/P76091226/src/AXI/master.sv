@@ -72,14 +72,17 @@ module master
 
   always_comb begin
     m_next_state = IDLE;
-    case (m_curr_state)
-      IDLE: m_next_state = (write) ? AW : (read) ? AR : IDLE;
-      AR: m_next_state = (master.ARREADY) ? R : AR;
-      R: m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
-      AW: m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
-      W: m_next_state = (Wx_hs_done) ? (Bx_hs_done) ? IDLE : B : W;
-      B: m_next_state = (Bx_hs_done) ? (write ? AW : read ? AR : IDLE) : B;
-      default: m_next_state = IDLE;
+    unique case (1'b1)
+      m_curr_state[IDLE_BIT]: m_next_state = (write) ? AW : (read) ? AR : IDLE;
+      m_curr_state[AR_BIT]: m_next_state = (master.ARREADY) ? R : AR;
+      m_curr_state[R_BIT]:
+      m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
+      m_curr_state[AW_BIT]:
+      m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
+      m_curr_state[W_BIT]:
+      m_next_state = (Wx_hs_done) ? (Bx_hs_done) ? IDLE : B : W;
+      m_curr_state[B_BIT]:
+      m_next_state = (Bx_hs_done) ? (write ? AW : read ? AR : IDLE) : B;
     endcase
   end  // Next state (C)
 
@@ -110,32 +113,33 @@ module master
     // stall
     stall = 1'b0;
 
-    case (m_curr_state)
-      AR: begin
+    unique case (1'b1)
+      m_curr_state[IDLE_BIT]: ;
+      m_curr_state[AR_BIT]: begin
         // ARx
         master.ARBURST = `AXI_BURST_INC;
         master.ARVALID = 1'b1;
         stall = 1'b1;
       end
-      R: begin
+      m_curr_state[R_BIT]: begin
         // Rx
         master.RREADY = 1'b1;
         stall = ~master.RLAST;
       end
-      AW: begin
+      m_curr_state[AW_BIT]: begin
         // AWx
         master.AWVALID = 1'b1;
         stall = 1'b1;
         master.WVALID = AWx_hs_done;
       end
-      W: begin
+      m_curr_state[W_BIT]: begin
         // Wx
         master.WVALID = 1'b1;
         // Bx
         master.BREADY = 1'b1;
         stall = 1'b1;
       end
-      B: begin
+      m_curr_state[B_BIT]: begin
         // Bx
         master.BREADY = 1'b1;
         stall = ~master.BVALID;
