@@ -8,9 +8,10 @@ package cpu_pkg;
   // `define MulEnable
 
   // Bus
-  localparam AddressWidth = 32, DataWidth = 32, RegBusWidth = 32, Func3BusWidth = 3;
+  localparam InstrWidth = 32, InstrAddrWidth = 32, DataWidth = 32, DataAddrWidth = 32;
+  localparam RegBusWidth = 32, Func3BusWidth = 3;
   // Address
-  localparam ZeroWord = {AddressWidth{1'b0}}, StartAddr = {AddressWidth{1'b0}};
+  localparam ZeroWord = {InstrAddrWidth{1'b0}}, StartAddr = {InstrAddrWidth{1'b0}};
   // Instruction
   localparam NOP = 32'h0000_0013;
 
@@ -127,74 +128,74 @@ package cpu_pkg;
   } alusrc_t;
 
   typedef enum logic [4:0] {
-    REG_ZERO = 5'h0,
-    REG_RA   = 5'h1,
-    REG_SP   = 5'h2,
-    REG_GP   = 5'h3,
-    REG_TP   = 5'h4,
-    REG_T0   = 5'h5,
-    REG_T1   = 5'h6,
-    REG_T2   = 5'h7,
-    REG_S0   = 5'h8,
-    REG_S1   = 5'h9,
-    REG_A0   = 5'h10,
-    REG_A1   = 5'h11,
-    REG_A2   = 5'h12,
-    REG_A3   = 5'h13,
-    REG_A4   = 5'h14,
-    REG_A5   = 5'h15,
-    REG_A6   = 5'h16,
-    REG_A7   = 5'h17,
-    REG_S2   = 5'h18,
-    REG_S3   = 5'h19,
-    REG_S4   = 5'h20,
-    REG_S5   = 5'h21,
-    REG_S6   = 5'h22,
-    REG_S7   = 5'h23,
-    REG_S8   = 5'h24,
-    REG_S9   = 5'h25,
-    REG_S10  = 5'h26,
-    REG_S11  = 5'h27,
-    REG_T3   = 5'h28,
-    REG_T4   = 5'h29,
-    REG_T5   = 5'h30,
-    REG_T6   = 5'h31
+    REG_ZERO = 5'd0,
+    REG_RA   = 5'd1,
+    REG_SP   = 5'd2,
+    REG_GP   = 5'd3,
+    REG_TP   = 5'd4,
+    REG_T0   = 5'd5,
+    REG_T1   = 5'd6,
+    REG_T2   = 5'd7,
+    REG_S0   = 5'd8,
+    REG_S1   = 5'd9,
+    REG_A0   = 5'd10,
+    REG_A1   = 5'd11,
+    REG_A2   = 5'd12,
+    REG_A3   = 5'd13,
+    REG_A4   = 5'd14,
+    REG_A5   = 5'd15,
+    REG_A6   = 5'd16,
+    REG_A7   = 5'd17,
+    REG_S2   = 5'd18,
+    REG_S3   = 5'd19,
+    REG_S4   = 5'd20,
+    REG_S5   = 5'd21,
+    REG_S6   = 5'd22,
+    REG_S7   = 5'd23,
+    REG_S8   = 5'd24,
+    REG_S9   = 5'd25,
+    REG_S10  = 5'd26,
+    REG_S11  = 5'd27,
+    REG_T3   = 5'd28,
+    REG_T4   = 5'd29,
+    REG_T5   = 5'd30,
+    REG_T6   = 5'd31
   } register_t;
 
   function automatic register_t REG_CONVERT(logic [4:0] reg_num_in);
     unique case (reg_num_in)
-      5'h0:  REG_CONVERT = REG_ZERO;
-      5'h1:  REG_CONVERT = REG_RA;
-      5'h2:  REG_CONVERT = REG_SP;
-      5'h3:  REG_CONVERT = REG_GP;
-      5'h4:  REG_CONVERT = REG_TP;
-      5'h5:  REG_CONVERT = REG_T0;
-      5'h6:  REG_CONVERT = REG_T1;
-      5'h7:  REG_CONVERT = REG_T2;
-      5'h8:  REG_CONVERT = REG_S0;
-      5'h9:  REG_CONVERT = REG_S1;
-      5'h10: REG_CONVERT = REG_A0;
-      5'h11: REG_CONVERT = REG_A1;
-      5'h12: REG_CONVERT = REG_A2;
-      5'h13: REG_CONVERT = REG_A3;
-      5'h14: REG_CONVERT = REG_A4;
-      5'h15: REG_CONVERT = REG_A5;
-      5'h16: REG_CONVERT = REG_A6;
-      5'h17: REG_CONVERT = REG_A7;
-      5'h18: REG_CONVERT = REG_S2;
-      5'h19: REG_CONVERT = REG_S3;
-      5'h20: REG_CONVERT = REG_S4;
-      5'h21: REG_CONVERT = REG_S5;
-      5'h22: REG_CONVERT = REG_S6;
-      5'h23: REG_CONVERT = REG_S7;
-      5'h24: REG_CONVERT = REG_S8;
-      5'h25: REG_CONVERT = REG_S9;
-      5'h26: REG_CONVERT = REG_S10;
-      5'h27: REG_CONVERT = REG_S11;
-      5'h28: REG_CONVERT = REG_T3;
-      5'h29: REG_CONVERT = REG_T4;
-      5'h30: REG_CONVERT = REG_T5;
-      5'h31: REG_CONVERT = REG_T6;
+      5'd0:  REG_CONVERT = REG_ZERO;
+      5'd1:  REG_CONVERT = REG_RA;
+      5'd2:  REG_CONVERT = REG_SP;
+      5'd3:  REG_CONVERT = REG_GP;
+      5'd4:  REG_CONVERT = REG_TP;
+      5'd5:  REG_CONVERT = REG_T0;
+      5'd6:  REG_CONVERT = REG_T1;
+      5'd7:  REG_CONVERT = REG_T2;
+      5'd8:  REG_CONVERT = REG_S0;
+      5'd9:  REG_CONVERT = REG_S1;
+      5'd10: REG_CONVERT = REG_A0;
+      5'd11: REG_CONVERT = REG_A1;
+      5'd12: REG_CONVERT = REG_A2;
+      5'd13: REG_CONVERT = REG_A3;
+      5'd14: REG_CONVERT = REG_A4;
+      5'd15: REG_CONVERT = REG_A5;
+      5'd16: REG_CONVERT = REG_A6;
+      5'd17: REG_CONVERT = REG_A7;
+      5'd18: REG_CONVERT = REG_S2;
+      5'd19: REG_CONVERT = REG_S3;
+      5'd20: REG_CONVERT = REG_S4;
+      5'd21: REG_CONVERT = REG_S5;
+      5'd22: REG_CONVERT = REG_S6;
+      5'd23: REG_CONVERT = REG_S7;
+      5'd24: REG_CONVERT = REG_S8;
+      5'd25: REG_CONVERT = REG_S9;
+      5'd26: REG_CONVERT = REG_S10;
+      5'd27: REG_CONVERT = REG_S11;
+      5'd28: REG_CONVERT = REG_T3;
+      5'd29: REG_CONVERT = REG_T4;
+      5'd30: REG_CONVERT = REG_T5;
+      5'd31: REG_CONVERT = REG_T6;
     endcase
   endfunction
 
