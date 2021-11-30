@@ -4,9 +4,9 @@
 module SRAM_wrapper
   import sram_wrapper_pkg::*;
 (
-    input logic clk,
-    input logic rstn,
-    AXI_slave_intf.slave slave
+    input logic                clk,
+    input logic                rstn,
+          AXI_slave_intf.slave slave
 );
 
   // SRAM module

@@ -1,23 +1,24 @@
-`include "AXI_define.svh"
-`include "master_pkg.sv"
+// `include "AXI_define.svh"
+// `include "master_pkg.sv"
 
 module master
   import master_pkg::*;
+  import axi_pkg::*;
 #(
     parameter [`AXI_ID_BITS-1:0] master_ID = {`AXI_ID_BITS{1'b0}}
 ) (
-    input logic clk,
-    input logic rstn,
+    input  logic                                       clk,
+    input  logic                                       rstn,
     // AXI master interface
-    AXI_master_intf.master master,
+           AXI_master_intf.master                      master,
     //interface for cpu
-    input logic access_request,
-    input logic write,
-    input logic [`AXI_STRB_BITS-1:0] w_type,
-    input logic [`AXI_DATA_BITS-1:0] data_in,
-    input logic [`AXI_ADDR_BITS-1:0] addr,
-    output logic [`AXI_DATA_BITS-1:0] data_out,
-    output logic stall
+    input  logic                                       access_request,
+    input  logic                                       write,
+    input  logic                  [`AXI_STRB_BITS-1:0] w_type,
+    input  logic                  [`AXI_DATA_BITS-1:0] data_in,
+    input  logic                  [`AXI_ADDR_BITS-1:0] addr,
+    output logic                  [`AXI_DATA_BITS-1:0] data_out,
+    output logic                                       stall
 );
 
   logic [`AXI_ADDR_BITS-1:0] ARADDR_r, AWADDR_r;

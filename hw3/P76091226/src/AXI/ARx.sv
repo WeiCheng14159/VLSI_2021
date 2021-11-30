@@ -1,4 +1,4 @@
-`include "AXI_define.svh"
+`include "pkg_include.sv"
 
 module ARx
   import axi_pkg::*;

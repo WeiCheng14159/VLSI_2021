@@ -38,6 +38,8 @@ package dram_wrapper_pkg;
     DRAM_WRITE = 2'b10
   } dram_op_t;
 
+  localparam tRCD = 5, tRP = 5, tCL = 5;
+
 endpackage : dram_wrapper_pkg
 
 `endif

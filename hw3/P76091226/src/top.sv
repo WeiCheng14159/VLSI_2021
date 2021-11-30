@@ -8,22 +8,22 @@
 `include "DRAM_wrapper.sv"
 
 module top (
-    input logic clk,
-    input logic rst,
+    input  logic        clk,
+    input  logic        rst,
     // ROM
-    input logic [31:0] ROM_out,
-    output logic ROM_read,
-    output logic ROM_enable,
+    input  logic [31:0] ROM_out,
+    output logic        ROM_read,
+    output logic        ROM_enable,
     output logic [11:0] ROM_address,
     // DRAM
-    input logic DRAM_valid,
-    output logic DRAM_CSn,
-    output logic [3:0] DRAM_WEn,
-    output logic DRAM_RASn,
-    output logic DRAM_CASn,
+    input  logic        DRAM_valid,
+    output logic        DRAM_CSn,
+    output logic [ 3:0] DRAM_WEn,
+    output logic        DRAM_RASn,
+    output logic        DRAM_CASn,
     output logic [10:0] DRAM_A,
     output logic [31:0] DRAM_D,
-    input logic [31:0] DRAM_Q
+    input  logic [31:0] DRAM_Q
 );
 
   logic rst_sync, rstn_sync;

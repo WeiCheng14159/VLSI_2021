@@ -10,10 +10,10 @@ module CPU_wrapper
   import cpu_wrapper_pkg::*;
   import cpu_pkg::*;
 (
-    input logic clk,
-    input logic rstn,
-    AXI_master_intf.master master0,
-    AXI_master_intf.master master1
+    input logic                  clk,
+    input logic                  rstn,
+          AXI_master_intf.master master0,
+          AXI_master_intf.master master1
 );
 
   // CPU - Instruction

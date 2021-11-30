@@ -4,14 +4,14 @@
 module rom_wrapper
   import rom_wrapper_pkg::*;
 (
-    input logic clk,
-    input logic rstn,
-    AXI_slave_intf.slave slave,
+    input  logic                                clk,
+    input  logic                                rstn,
+           AXI_slave_intf.slave                 slave,
     // ROM module
-    input logic [DATA_SIZE-1:0] ROM_out,
-    output logic ROM_read,
-    output logic ROM_enable,
-    output logic [ADDR_SIZE-1:0] ROM_address
+    input  logic                [DATA_SIZE-1:0] ROM_out,
+    output logic                                ROM_read,
+    output logic                                ROM_enable,
+    output logic                [ADDR_SIZE-1:0] ROM_address
 );
 
   rom_wrapper_state_t curr_state, next_state;
