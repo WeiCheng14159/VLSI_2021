@@ -30,8 +30,8 @@ module id
 
     // Control signals
     output aluop_t                          aluop_o,
-    output alusrc_t                         alusrc1_o,
-    output alusrc_t                         alusrc2_o,
+    output logic                            alusrc1_o,
+    output logic                            alusrc2_o,
     output logic signed [  RegBusWidth-1:0] imm_o,
     output logic        [  RegBusWidth-1:0] rs1_data_o,
     output logic        [  RegBusWidth-1:0] rs2_data_o,
@@ -80,8 +80,8 @@ module id
     if (is_in_delayslot_i == InDelaySlot) begin
       // NOP instruction
       aluop_o                  = ALUOP_ADD;
-      alusrc1_o                = SRC_FROM_REG;
-      alusrc2_o                = SRC_FROM_REG;
+      alusrc1_o                = SRC1_FROM_REG;
+      alusrc2_o                = SRC2_FROM_REG;
       rd_o                     = NopRegAddr;
       wreg_o                   = WriteDisable;
       inst_valid               = InstValid;
@@ -102,8 +102,8 @@ module id
       flush_o                  = False;
     end else begin
       aluop_o                  = ALUOP_ADD;
-      alusrc1_o                = SRC_FROM_REG;
-      alusrc2_o                = SRC_FROM_REG;
+      alusrc1_o                = SRC1_FROM_REG;
+      alusrc2_o                = SRC2_FROM_REG;
       rd_o                     = NopRegAddr;
       wreg_o                   = WriteDisable;
       inst_valid               = InstInvalid;
@@ -125,8 +125,8 @@ module id
       case (opcode)
         OP_AUIPC: begin
           rd_o       = inst_i[`RD];
-          alusrc1_o  = SRC_FROM_PC;
-          alusrc2_o  = SRC_FROM_IMM;
+          alusrc1_o  = SRC1_FROM_PC;
+          alusrc2_o  = SRC2_FROM_IMM;
           wreg_o     = WriteEnable;
           inst_valid = InstValid;
           imm_o      = {inst_i[31:12], 12'b0};
@@ -134,8 +134,8 @@ module id
         OP_LUI: begin
           rd_o       = inst_i[`RD];
           wreg_o     = WriteEnable;
-          alusrc1_o  = SRC_FROM_REG;
-          alusrc2_o  = SRC_FROM_IMM;
+          alusrc1_o  = SRC1_FROM_REG;
+          alusrc2_o  = SRC2_FROM_IMM;
           inst_valid = InstValid;
           imm_o      = {inst_i[31:12], 12'b0};
         end
@@ -205,8 +205,8 @@ module id
         end
         OP_LOAD: begin
           rd_o       = inst_i[`RD];  // rd
-          alusrc1_o  = SRC_FROM_REG;
-          alusrc2_o  = SRC_FROM_IMM;
+          alusrc1_o  = SRC1_FROM_REG;
+          alusrc2_o  = SRC2_FROM_IMM;
           wreg_o     = WriteEnable;
           inst_valid = InstValid;
           rs1_read_o = ReadEnable;
@@ -217,8 +217,8 @@ module id
         end
         OP_STORE: begin
           inst_valid = InstValid;
-          alusrc1_o  = SRC_FROM_REG;
-          alusrc2_o  = SRC_FROM_IMM;
+          alusrc1_o  = SRC1_FROM_REG;
+          alusrc2_o  = SRC2_FROM_IMM;
           rs1_read_o = ReadEnable;
           rs2_read_o = ReadEnable;
           rs1_addr_o = inst_i[`RS1];
@@ -238,8 +238,8 @@ module id
             OP_AND:  aluop_o = ALUOP_AND;
           endcase
           rd_o       = inst_i[`RD];
-          alusrc1_o  = SRC_FROM_REG;
-          alusrc2_o  = SRC_FROM_IMM;
+          alusrc1_o  = SRC1_FROM_REG;
+          alusrc2_o  = SRC2_FROM_IMM;
           wreg_o     = WriteEnable;
           inst_valid = InstValid;
           rs1_read_o = ReadEnable;

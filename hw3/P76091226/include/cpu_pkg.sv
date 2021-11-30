@@ -119,12 +119,10 @@ package cpu_pkg;
   } aluop_t;
 
   // ALU source
-  localparam AluSrcBusWidth = 2;
-  typedef enum logic [AluSrcBusWidth-1:0] {
-    SRC_FROM_REG = 2'b01,
-    SRC_FROM_PC  = 2'b10,
-    SRC_FROM_IMM = 2'b11
-  } alusrc_t;
+  localparam SRC1_FROM_REG = 1'b0;
+  localparam SRC1_FROM_PC = 1'b1;
+  localparam SRC2_FROM_REG = 1'b0;
+  localparam SRC2_FROM_IMM = 1'b1;
 
   typedef enum logic [4:0] {
     REG_ZERO = 5'd0,
