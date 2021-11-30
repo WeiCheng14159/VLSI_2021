@@ -146,18 +146,13 @@ module Wx
         WREADY_M1 = WREADY_from_slave;
       end
       addr_arb_lock[LOCK_FREE_BIT]: begin
-        case ({
-          1'b0, WVALID_M1
-        })
-          2'b01: begin  // M1
-            WDATA_M   = WDATA_M1;
-            WSTRB_M   = WSTRB_M1;
-            WLAST_M   = WLAST_M1;
-            WVALID_M  = WVALID_M1;
-            WREADY_M1 = WREADY_from_slave;
-          end
-          default: ;
-        endcase
+        if (WVALID_M1) begin
+          WDATA_M   = WDATA_M1;
+          WSTRB_M   = WSTRB_M1;
+          WLAST_M   = WLAST_M1;
+          WVALID_M  = WVALID_M1;
+          WREADY_M1 = WREADY_from_slave;
+        end
       end
     endcase
   end
@@ -178,25 +173,13 @@ module Wx
   always_comb begin
     // Default
     {WDATA_S0, WDATA_S1, WDATA_S2, WDATA_S3, WDATA_S4, WDATA_S5, WDATA_S6} = {
-      `AXI_DATA_BITS'b0,
-      `AXI_DATA_BITS'b0,
-      `AXI_DATA_BITS'b0,
-      `AXI_DATA_BITS'b0,
-      `AXI_DATA_BITS'b0,
-      `AXI_DATA_BITS'b0,
-      `AXI_DATA_BITS'b0
+      WDATA_M, WDATA_M, WDATA_M, WDATA_M, WDATA_M, WDATA_M, WDATA_M
     };
     {WSTRB_S0, WSTRB_S1, WSTRB_S2, WSTRB_S3, WSTRB_S4, WSTRB_S5, WSTRB_S6} = {
-      `AXI_STRB_BITS'b0,
-      `AXI_STRB_BITS'b0,
-      `AXI_STRB_BITS'b0,
-      `AXI_STRB_BITS'b0,
-      `AXI_STRB_BITS'b0,
-      `AXI_STRB_BITS'b0,
-      `AXI_STRB_BITS'b0
+      WSTRB_M, WSTRB_M, WSTRB_M, WSTRB_M, WSTRB_M, WSTRB_M, WSTRB_M
     };
     {WLAST_S0, WLAST_S1, WLAST_S2, WLAST_S3, WLAST_S4, WLAST_S5, WLAST_S6} = {
-      1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0
+      WLAST_M, WLAST_M, WLAST_M, WLAST_M, WLAST_M, WLAST_M, WLAST_M
     };
     {WVALID_S0, WVALID_S1, WVALID_S2, WVALID_S3, WVALID_S4, WVALID_S5, WVALID_S6} = {
       1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0
@@ -204,45 +187,24 @@ module Wx
 
     unique case (1'b1)
       Wx_slave_lock[LOCK_S0_BIT]: begin
-        WDATA_S0  = WDATA_M;
-        WSTRB_S0  = WSTRB_M;
-        WLAST_S0  = WLAST_M;
         WVALID_S0 = WVALID_M;
       end
       Wx_slave_lock[LOCK_S1_BIT]: begin
-        WDATA_S1  = WDATA_M;
-        WSTRB_S1  = WSTRB_M;
-        WLAST_S1  = WLAST_M;
         WVALID_S1 = WVALID_M;
       end
       Wx_slave_lock[LOCK_S2_BIT]: begin
-        WDATA_S2  = WDATA_M;
-        WSTRB_S2  = WSTRB_M;
-        WLAST_S2  = WLAST_M;
         WVALID_S2 = WVALID_M;
       end
       Wx_slave_lock[LOCK_S3_BIT]: begin
-        WDATA_S3  = WDATA_M;
-        WSTRB_S3  = WSTRB_M;
-        WLAST_S3  = WLAST_M;
         WVALID_S3 = WVALID_M;
       end
       Wx_slave_lock[LOCK_S4_BIT]: begin
-        WDATA_S4  = WDATA_M;
-        WSTRB_S4  = WSTRB_M;
-        WLAST_S4  = WLAST_M;
         WVALID_S4 = WVALID_M;
       end
       Wx_slave_lock[LOCK_S5_BIT]: begin
-        WDATA_S5  = WDATA_M;
-        WSTRB_S5  = WSTRB_M;
-        WLAST_S5  = WLAST_M;
         WVALID_S5 = WVALID_M;
       end
       Wx_slave_lock[LOCK_S6_BIT]: begin
-        WDATA_S6  = WDATA_M;
-        WSTRB_S6  = WSTRB_M;
-        WLAST_S6  = WLAST_M;
         WVALID_S6 = WVALID_M;
       end
       Wx_slave_lock[LOCK_NO_BIT]: ;

@@ -151,43 +151,25 @@ module AWx
   always_comb begin
     // Default
     {AWID_S0, AWID_S1, AWID_S2, AWID_S3, AWID_S4, AWID_S5, AWID_S6} = {
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0
+      AWID_M, AWID_M, AWID_M, AWID_M, AWID_M, AWID_M, AWID_M
     };
     {AWADDR_S0, AWADDR_S1, AWADDR_S2, AWADDR_S3, AWADDR_S4, AWADDR_S5, AWADDR_S6} = {
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0
+      AWADDR_M, AWADDR_M, AWADDR_M, AWADDR_M, AWADDR_M, AWADDR_M, AWADDR_M
     };
     {AWLEN_S0, AWLEN_S1, AWLEN_S2, AWLEN_S3, AWLEN_S4, AWLEN_S5, AWLEN_S6} = {
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0
+      AWLEN_M, AWLEN_M, AWLEN_M, AWLEN_M, AWLEN_M, AWLEN_M, AWLEN_M
     };
     {AWSIZE_S0, AWSIZE_S1, AWSIZE_S2, AWSIZE_S3, AWSIZE_S4, AWSIZE_S5, AWSIZE_S6} = {
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0
+      AWSIZE_M, AWSIZE_M, AWSIZE_M, AWSIZE_M, AWSIZE_M, AWSIZE_M, AWSIZE_M
     };
     {AWBURST_S0, AWBURST_S1, AWBURST_S2, AWBURST_S3, AWBURST_S4, AWBURST_S5, AWBURST_S6} = {
-      2'b0, 2'b0, 2'b0, 2'b0, 2'b0, 2'b0, 2'b0
+      AWBURST_M,
+      AWBURST_M,
+      AWBURST_M,
+      AWBURST_M,
+      AWBURST_M,
+      AWBURST_M,
+      AWBURST_M
     };
     {AWVALID_S0, AWVALID_S1, AWVALID_S2, AWVALID_S3, AWVALID_S4, AWVALID_S5, AWVALID_S6} = {
       1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0
@@ -195,59 +177,24 @@ module AWx
 
     unique case (1'b1)
       decode_result[SLAVE_0_BIT]: begin
-        AWID_S0 = AWID_M;
-        AWADDR_S0 = AWADDR_M;
-        AWLEN_S0 = AWLEN_M;
-        AWSIZE_S0 = AWSIZE_M;
-        AWBURST_S0 = AWBURST_M;
         AWVALID_S0 = AWVALID_M;
       end
       decode_result[SLAVE_1_BIT]: begin
-        AWID_S1 = AWID_M;
-        AWADDR_S1 = AWADDR_M;
-        AWLEN_S1 = AWLEN_M;
-        AWSIZE_S1 = AWSIZE_M;
-        AWBURST_S1 = AWBURST_M;
         AWVALID_S1 = AWVALID_M;
       end
       decode_result[SLAVE_2_BIT]: begin
-        AWID_S2 = AWID_M;
-        AWADDR_S2 = AWADDR_M;
-        AWLEN_S2 = AWLEN_M;
-        AWSIZE_S2 = AWSIZE_M;
-        AWBURST_S2 = AWBURST_M;
         AWVALID_S2 = AWVALID_M;
       end
       decode_result[SLAVE_3_BIT]: begin
-        AWID_S3 = AWID_M;
-        AWADDR_S3 = AWADDR_M;
-        AWLEN_S3 = AWLEN_M;
-        AWSIZE_S3 = AWSIZE_M;
-        AWBURST_S3 = AWBURST_M;
         AWVALID_S3 = AWVALID_M;
       end
       decode_result[SLAVE_4_BIT]: begin
-        AWID_S4 = AWID_M;
-        AWADDR_S4 = AWADDR_M;
-        AWLEN_S4 = AWLEN_M;
-        AWSIZE_S4 = AWSIZE_M;
-        AWBURST_S4 = AWBURST_M;
         AWVALID_S4 = AWVALID_M;
       end
       decode_result[SLAVE_5_BIT]: begin
-        AWID_S5 = AWID_M;
-        AWADDR_S5 = AWADDR_M;
-        AWLEN_S5 = AWLEN_M;
-        AWSIZE_S5 = AWSIZE_M;
-        AWBURST_S5 = AWBURST_M;
         AWVALID_S5 = AWVALID_M;
       end
       decode_result[SLAVE_6_BIT]: begin
-        AWID_S6 = AWID_M;
-        AWADDR_S6 = AWADDR_M;
-        AWLEN_S6 = AWLEN_M;
-        AWSIZE_S6 = AWSIZE_M;
-        AWBURST_S6 = AWBURST_M;
         AWVALID_S6 = AWVALID_M;
       end
     endcase

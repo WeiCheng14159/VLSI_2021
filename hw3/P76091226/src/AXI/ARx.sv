@@ -252,102 +252,50 @@ module ARx
   always_comb begin
     // Default 
     {ARID_S0, ARID_S1, ARID_S2, ARID_S3, ARID_S4, ARID_S5, ARID_S6} = {
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0,
-      `AXI_IDS_BITS'b0
+      ARID_M, ARID_M, ARID_M, ARID_M, ARID_M, ARID_M, ARID_M
     };
     {ARADDR_S0, ARADDR_S1, ARADDR_S2, ARADDR_S3, ARADDR_S4, ARADDR_S5, ARADDR_S6} = {
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0,
-      `AXI_ADDR_BITS'b0
+      ARADDR_M, ARADDR_M, ARADDR_M, ARADDR_M, ARADDR_M, ARADDR_M, ARADDR_M
     };
     {ARLEN_S0, ARLEN_S1, ARLEN_S2, ARLEN_S3, ARLEN_S4, ARLEN_S5, ARLEN_S6} = {
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0,
-      `AXI_LEN_BITS'b0
+      ARLEN_M, ARLEN_M, ARLEN_M, ARLEN_M, ARLEN_M, ARLEN_M, ARLEN_M
     };
     {ARSIZE_S0, ARSIZE_S1, ARSIZE_S2, ARSIZE_S3, ARSIZE_S4, ARSIZE_S5, ARSIZE_S6} = {
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0,
-      `AXI_SIZE_BITS'b0
+      ARSIZE_M, ARSIZE_M, ARSIZE_M, ARSIZE_M, ARSIZE_M, ARSIZE_M, ARSIZE_M
     };
     {ARBURST_S0, ARBURST_S1, ARBURST_S2, ARBURST_S3, ARBURST_S4, ARBURST_S5, ARBURST_S6} = {
-      2'b0, 2'b0, 2'b0, 2'b0, 2'b0, 2'b0, 2'b0
+      // 2'b0, 2'b0, 2'b0, 2'b0, 2'b0, 2'b0, 2'b0
+      ARBURST_M,
+      ARBURST_M,
+      ARBURST_M,
+      ARBURST_M,
+      ARBURST_M,
+      ARBURST_M,
+      ARBURST_M
     };
     {ARVALID_S0, ARVALID_S1, ARVALID_S2, ARVALID_S3, ARVALID_S4, ARVALID_S5, ARVALID_S6} = {
       1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0
     };
     unique case (1'b1)
       decode_result[SLAVE_0_BIT]: begin
-        ARID_S0 = ARID_M;
-        ARADDR_S0 = ARADDR_M;
-        ARLEN_S0 = ARLEN_M;
-        ARSIZE_S0 = ARSIZE_M;
-        ARBURST_S0 = ARBURST_M;
         ARVALID_S0 = ARVALID_M & ~lock_ARVALID_S0;
       end
       decode_result[SLAVE_1_BIT]: begin
-        ARID_S1 = ARID_M;
-        ARADDR_S1 = ARADDR_M;
-        ARLEN_S1 = ARLEN_M;
-        ARSIZE_S1 = ARSIZE_M;
-        ARBURST_S1 = ARBURST_M;
         ARVALID_S1 = ARVALID_M & ~lock_ARVALID_S1;
       end
       decode_result[SLAVE_2_BIT]: begin
-        ARID_S2 = ARID_M;
-        ARADDR_S2 = ARADDR_M;
-        ARLEN_S2 = ARLEN_M;
-        ARSIZE_S2 = ARSIZE_M;
-        ARBURST_S2 = ARBURST_M;
         ARVALID_S2 = ARVALID_M & ~lock_ARVALID_S2;
       end
       decode_result[SLAVE_3_BIT]: begin
-        ARID_S3 = ARID_M;
-        ARADDR_S3 = ARADDR_M;
-        ARLEN_S3 = ARLEN_M;
-        ARSIZE_S3 = ARSIZE_M;
-        ARBURST_S3 = ARBURST_M;
         ARVALID_S3 = ARVALID_M & ~lock_ARVALID_S3;
       end
       decode_result[SLAVE_4_BIT]: begin
-        ARID_S4 = ARID_M;
-        ARADDR_S4 = ARADDR_M;
-        ARLEN_S4 = ARLEN_M;
-        ARSIZE_S4 = ARSIZE_M;
-        ARBURST_S4 = ARBURST_M;
         ARVALID_S4 = ARVALID_M & ~lock_ARVALID_S4;
       end
       decode_result[SLAVE_5_BIT]: begin
-        ARID_S5 = ARID_M;
-        ARADDR_S5 = ARADDR_M;
-        ARLEN_S5 = ARLEN_M;
-        ARSIZE_S5 = ARSIZE_M;
-        ARBURST_S5 = ARBURST_M;
         ARVALID_S5 = ARVALID_M & ~lock_ARVALID_S5;
       end
       decode_result[SLAVE_6_BIT]: begin
-        ARID_S6 = ARID_M;
-        ARADDR_S6 = ARADDR_M;
-        ARLEN_S6 = ARLEN_M;
-        ARSIZE_S6 = ARSIZE_M;
-        ARBURST_S6 = ARBURST_M;
         ARVALID_S6 = ARVALID_M & ~lock_ARVALID_S6;
       end
     endcase

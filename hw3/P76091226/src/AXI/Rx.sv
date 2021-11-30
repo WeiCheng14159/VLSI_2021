@@ -262,25 +262,19 @@ module Rx
   assign decode_result = DATA_DECODER(RID_S);
   always_comb begin
     // Default
-    {RID_M0, RID_M1} = {`AXI_ID_BITS'b0, `AXI_ID_BITS'b0};
-    {RDATA_M0, RDATA_M1} = {`AXI_DATA_BITS'b0, `AXI_DATA_BITS'b0};
-    {RRESP_M0, RRESP_M1} = {2'b0, 2'b0};
+    {RID_M0, RID_M1} = {RID_S[`AXI_ID_BITS-1:0], RID_S[`AXI_ID_BITS-1:0]};
+    {RDATA_M0, RDATA_M1} = {RDATA_S, RDATA_S};
+    {RRESP_M0, RRESP_M1} = {RRESP_S, RRESP_S};
     {RLAST_M0, RLAST_M1} = {1'b0, 1'b0};
     {RVALID_M0, RVALID_M1} = {1'b0, 1'b0};
 
     unique case (1'b1)
       decode_result[AXI_M0_BIT]: begin
-        RID_M0 = RID_S[`AXI_ID_BITS-1:0];
-        RDATA_M0 = RDATA_S;
-        RRESP_M0 = RRESP_S;
-        RLAST_M0 = RLAST_S;
+        RLAST_M0  = RLAST_S;
         RVALID_M0 = RVALID_S;
       end
       decode_result[AXI_M1_BIT]: begin
-        RID_M1 = RID_S[`AXI_ID_BITS-1:0];
-        RDATA_M1 = RDATA_S;
-        RRESP_M1 = RRESP_S;
-        RLAST_M1 = RLAST_S;
+        RLAST_M1  = RLAST_S;
         RVALID_M1 = RVALID_S;
       end
       decode_result[AXI_M2_BIT]: ;

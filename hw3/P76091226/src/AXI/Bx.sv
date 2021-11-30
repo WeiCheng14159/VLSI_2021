@@ -190,16 +190,14 @@ module Bx
   // Decoder
   assign decode_result = DATA_DECODER(BID_S);
   always_comb begin
-    BID_M1 = `AXI_ID_BITS'b0;
-    BRESP_M1 = `AXI_RESP_SLVERR;
+    BID_M1 = BID_S[`AXI_ID_BITS-1:0];
+    BRESP_M1 = BRESP_S;
     BVALID_M1 = 1'b0;
     BREADY_from_master = 1'b0;
 
     unique case (1'b1)
       decode_result[AXI_M0_BIT]: ;
       decode_result[AXI_M1_BIT]: begin
-        BID_M1 = BID_S[`AXI_ID_BITS-1:0];
-        BRESP_M1 = BRESP_S;
         BVALID_M1 = BVALID_S;
         BREADY_from_master = BREADY_M1;
       end
