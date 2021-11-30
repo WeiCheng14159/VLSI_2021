@@ -4,8 +4,7 @@
 // Description: Top module of AXI                  
 // Version:     1.0 
 //================================================
-`include "AXI_define.svh"
-`include "axi_pkg.sv"
+`include "pkg_include.sv"
 `include "default_slave.sv"
 `include "ARx.sv"
 `include "Rx.sv"

@@ -1,8 +1,6 @@
 `ifndef MASTER_PKG_SV
 `define MASTER_PKG_SV
 
-`include "AXI_define.svh"
-
 package master_pkg;
   localparam VERSION = "v1.0";
   localparam AUTHOR = "Wei Cheng";

@@ -1,8 +1,6 @@
 `ifndef CPU_WRAPPER_PKG_SV
 `define CPU_WRAPPER_PKG_SV
 
-`include "AXI_define.svh"
-
 package cpu_wrapper_pkg;
   localparam VERSION = "v1.0";
   localparam AUTHOR = "Wei Cheng";

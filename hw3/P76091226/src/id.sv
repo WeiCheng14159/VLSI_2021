@@ -1,3 +1,5 @@
+`include "pkg_include.sv"
+
 module id
   import cpu_pkg::*;
 (

@@ -10,10 +10,10 @@
 `include "AXI_define.svh"
 // Cache
 `include "cache_pkg.sv"
+`include "cache.svh"
 // CPU
 `include "cpu_wrapper_pkg.sv"
 `include "cpu_pkg.sv"
-`include "cache.svh"
 // DRAM
 `include "dram_wrapper_pkg.sv"
 // ROM

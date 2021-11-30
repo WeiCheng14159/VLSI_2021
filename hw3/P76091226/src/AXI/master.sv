@@ -1,5 +1,4 @@
-// `include "AXI_define.svh"
-// `include "master_pkg.sv"
+`include "pkg_include.sv"
 
 module master
   import master_pkg::*;

@@ -1,9 +1,8 @@
+`include "pkg_include.sv"
 `include "SRAM_wrapper.sv"
 `include "CPU_wrapper.sv"
 `include "AXI/AXI.sv"
 `include "util.sv"
-`include "AXI_master_intf.sv"
-`include "AXI_slave_intf.sv"
 `include "rom_wrapper.sv"
 `include "DRAM_wrapper.sv"
 

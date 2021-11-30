@@ -1,4 +1,4 @@
-`include "cpu_pkg.sv"
+`include "pkg_include.sv"
 `include "ex_mem.sv"
 `include "id_ex.sv"
 `include "if_id.sv"

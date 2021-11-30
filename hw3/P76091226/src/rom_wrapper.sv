@@ -1,5 +1,4 @@
-`include "AXI_define.svh"
-`include "rom_wrapper_pkg.sv"
+`include "pkg_include.sv"
 
 module rom_wrapper
   import rom_wrapper_pkg::*;

@@ -1,5 +1,4 @@
-`include "sram_wrapper_pkg.sv"
-`include "AXI_define.svh"
+`include "pkg_include.sv"
 
 module SRAM_wrapper
   import sram_wrapper_pkg::*;

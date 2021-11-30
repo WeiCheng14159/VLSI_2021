@@ -1,4 +1,5 @@
-`include "AXI_define.svh"
+`include "pkg_include.sv"
+
 module default_slave
   import axi_pkg::*;
 (

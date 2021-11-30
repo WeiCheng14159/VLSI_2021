@@ -1,7 +1,5 @@
+`include "pkg_include.sv"
 `include "CPU.sv"
-`include "AXI_define.svh"
-`include "cpu_wrapper_pkg.sv"
-`include "cpu_pkg.sv"
 `include "AXI/master.sv"
 `include "L1C_inst.sv"
 `include "L1C_data.sv"
