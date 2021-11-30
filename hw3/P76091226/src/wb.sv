@@ -15,7 +15,7 @@ module wb
   always_comb begin
     if (mem2reg_i == Mem2Reg) begin
       case (func3_i)  // LW, LH, LB, LBU, LHU
-        `OP_LB: begin
+        OP_LB: begin
           case (load_addr_i[1:0])
             2'b00: wdata_o = $signed(from_mem_i[7:0]);
             2'b01: wdata_o = $signed(from_mem_i[15:8]);
@@ -23,14 +23,14 @@ module wb
             2'b11: wdata_o = $signed(from_mem_i[31:24]);
           endcase
         end
-        `OP_LH: begin
+        OP_LH: begin
           case (load_addr_i[1])
             1'b1: wdata_o = $signed(from_mem_i[31:16]);
             1'b0: wdata_o = $signed(from_mem_i[15:0]);
           endcase
         end
-        `OP_LW:  wdata_o = from_mem_i;
-        `OP_LBU: begin
+        OP_LW:   wdata_o = from_mem_i;
+        OP_LBU: begin
           case (load_addr_i[1:0])
             2'b00: wdata_o = {24'b0, from_mem_i[7:0]};
             2'b01: wdata_o = {24'b0, from_mem_i[15:8]};
@@ -38,7 +38,7 @@ module wb
             2'b11: wdata_o = {24'b0, from_mem_i[31:24]};
           endcase
         end
-        `OP_LHU: begin
+        OP_LHU: begin
           case (load_addr_i[1])
             1'b1: wdata_o = {16'h0, from_mem_i[31:16]};
             1'b0: wdata_o = {16'h0, from_mem_i[15:0]};

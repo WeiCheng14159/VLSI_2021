@@ -41,60 +41,60 @@ package cpu_pkg;
   `define IMM12 31:20
 
   // OPCODE, INST[6:0]
-  `define OP_AUIPC 7'b0010111 // U-type
-  `define OP_LUI 7'b0110111 // U-type
-  `define OP_JAL 7'b1101111 // J-type
-  `define OP_JALR 7'b1100111 // I-type
-  `define OP_BRANCH 7'b1100011 // B-type
-  `define OP_LOAD 7'b0000011 // I-type
-  `define OP_STORE 7'b0100011 // S-type
-  `define OP_ARITHI 7'b0010011 // I-type
-  `define OP_ARITHR 7'b0110011 // R-type
-  `define OP_FENCE 7'b0001111
-  `define OP_SYSTEM 7'b1110011
+  localparam OP_AUIPC = 7'b0010111;  // U-type
+  localparam OP_LUI = 7'b0110111;  // U-type
+  localparam OP_JAL = 7'b1101111;  // J-type
+  localparam OP_JALR = 7'b1100111;  // I-type
+  localparam OP_BRANCH = 7'b1100011;  // B-type
+  localparam OP_LOAD = 7'b0000011;  // I-type
+  localparam OP_STORE = 7'b0100011;  // S-type
+  localparam OP_ARITHI = 7'b0010011;  // I-type
+  localparam OP_ARITHR = 7'b0110011;  // R-type
+  localparam OP_FENCE = 7'b0001111;
+  localparam OP_SYSTEM = 7'b1110011;
 
   // FUNC3, INST[14:12], INST[6:0] = OP_BRANCH
-  `define OP_BEQ 3'b000
-  `define OP_BNE 3'b001
-  `define OP_BLT 3'b100
-  `define OP_BGE 3'b101
-  `define OP_BLTU 3'b110
-  `define OP_BGEU 3'b111
+  localparam OP_BEQ = 3'b000;
+  localparam OP_BNE = 3'b001;
+  localparam OP_BLT = 3'b100;
+  localparam OP_BGE = 3'b101;
+  localparam OP_BLTU = 3'b110;
+  localparam OP_BGEU = 3'b111;
 
   // FUNC3, INST[14:12], INST[6:0] = OP_LOAD
-  `define OP_LB 3'b000
-  `define OP_LH 3'b001
-  `define OP_LW 3'b010
-  `define OP_LBU 3'b100
-  `define OP_LHU 3'b101
+  localparam OP_LB = 3'b000;
+  localparam OP_LH = 3'b001;
+  localparam OP_LW = 3'b010;
+  localparam OP_LBU = 3'b100;
+  localparam OP_LHU = 3'b101;
 
   // FUNC3, INST[14:12], INST[6:0] = OP_STORE
-  `define OP_SB 3'b000
-  `define OP_SH 3'b001
-  `define OP_SW 3'b010
+  localparam OP_SB = 3'b000;
+  localparam OP_SH = 3'b001;
+  localparam OP_SW = 3'b010;
 
   // FUNC3, INST[14:12], INST[6:0] = OP_ARTHI, OP_ARTHR
-  `define OP_ADD 3'b000    // SUB: inst[30] == 1
-  `define OP_SLL 3'b001
-  `define OP_SLT 3'b010
-  `define OP_SLTU 3'b011
-  `define OP_XOR 3'b100
-  `define OP_OR 3'b110
-  `define OP_SR 3'b101    // SRA: inst[30] == 1
-  `define OP_AND 3'b111
+  localparam OP_ADD = 3'b000;  // SUB: inst[30] == 1
+  localparam OP_SLL = 3'b001;
+  localparam OP_SLT = 3'b010;
+  localparam OP_SLTU = 3'b011;
+  localparam OP_XOR = 3'b100;
+  localparam OP_OR = 3'b110;
+  localparam OP_SR = 3'b101;  // SRA: inst[30] == 1
+  localparam OP_AND = 3'b111;
 
   // FUNC3, INST[14:12], INST[6:0] = OP_ARTHR, FUNC7 INST[31:25] == 0x01
-  `define OP_MUL 3'b000
-  `define OP_MULH 3'b001
-  `define OP_MULHSU 3'b010
-  `define OP_MULHU 3'b011
-  `define OP_DIV 3'b100
-  `define OP_DIVU 3'b101
-  `define OP_REM 3'b110
-  `define OP_REMU 3'b111
+  localparam OP_MUL = 3'b000;
+  localparam OP_MULH = 3'b001;
+  localparam OP_MULHSU = 3'b010;
+  localparam OP_MULHU = 3'b011;
+  localparam OP_DIV = 3'b100;
+  localparam OP_DIVU = 3'b101;
+  localparam OP_REM = 3'b110;
+  localparam OP_REMU = 3'b111;
 
-  localparam AluOpBusWidth = 15;
   // ALUop
+  localparam AluOpBusWidth = 15;
   localparam ALUOP_ADD_BIT = 0, ALUOP_SUB_BIT = 1, ALUOP_SLL_BIT = 2, ALUOP_SRL_BIT = 3,
   ALUOP_SRA_BIT = 4,ALUOP_SLT_BIT = 5, ALUOP_SLTU_BIT = 6, ALUOP_OR_BIT = 7, 
   ALUOP_XOR_BIT = 8, ALUOP_AND_BIT = 9, ALUOP_MUL_BIT = 10, ALUOP_MULH_BIT = 11, 
@@ -121,10 +121,9 @@ package cpu_pkg;
   // ALU source
   localparam AluSrcBusWidth = 2;
   typedef enum logic [AluSrcBusWidth-1:0] {
-    SRC1_FROM_REG = 2'b000,
-    SRC1_FROM_PC  = 2'b001,
-    SRC2_FROM_REG = 2'b010,
-    SRC2_FROM_IMM = 2'b011
+    SRC_FROM_REG = 2'b01,
+    SRC_FROM_PC  = 2'b10,
+    SRC_FROM_IMM = 2'b11
   } alusrc_t;
 
   typedef enum logic [4:0] {

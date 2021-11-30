@@ -1,4 +1,3 @@
-`include "def.v"
 `include "CPU.sv"
 `include "AXI_define.svh"
 `include "cpu_wrapper_pkg.sv"

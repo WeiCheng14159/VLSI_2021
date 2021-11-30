@@ -35,13 +35,13 @@ module mem
       data_write_o = WriteEnable;
       data_write_addr_o = memaddr_i;
       case (func3_i)
-        `OP_SW: begin
+        OP_SW: begin
           data_write_type_o = {
             WriteEnable, WriteEnable, WriteEnable, WriteEnable
           };
           data_out_o = wdata_i;
         end
-        `OP_SH: begin
+        OP_SH: begin
           case (memaddr_i[1])
             1'b1: begin
               data_write_type_o = {
@@ -57,7 +57,7 @@ module mem
             end
           endcase
         end
-        `OP_SB: begin
+        OP_SB: begin
           case (memaddr_i[1:0])
             2'b00: begin
               data_write_type_o = {
