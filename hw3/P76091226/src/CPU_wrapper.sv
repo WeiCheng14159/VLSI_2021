@@ -23,9 +23,9 @@ module CPU_wrapper
   // CPU - Data
   logic [       DataWidth-1:0] data_from_mem;
   logic                        data_read;
-  logic [                 3:0] data_read_type;
+  logic [   Func3BusWidth-1:0] data_read_type;
   logic                        data_write;
-  logic [                 3:0] data_write_type;
+  logic [   Func3BusWidth-1:0] data_write_type;
   logic [   DataAddrWidth-1:0] data_write_addr;
   logic [       DataWidth-1:0] data_to_mem;
   logic                        data_rw_request;

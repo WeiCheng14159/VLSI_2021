@@ -23,9 +23,9 @@ module CPU
     // Data access
     input  logic [     DataWidth-1:0] data_in_i,
     output logic                      data_read_o,
-    output logic [               3:0] data_read_type_o,
+    output logic [ Func3BusWidth-1:0] data_read_type_o,
     output logic                      data_write_o,
-    output logic [               3:0] data_write_type_o,
+    output logic [ Func3BusWidth-1:0] data_write_type_o,
     output logic [ DataAddrWidth-1:0] data_write_addr_o,
     output logic [     DataWidth-1:0] data_out_o,
     // Stall request from cache
