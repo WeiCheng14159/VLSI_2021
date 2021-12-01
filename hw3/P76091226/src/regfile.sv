@@ -4,17 +4,17 @@ module regfile
     input logic clk,
     input logic rstn,
 
-    input logic                    we_i,
-    input logic [RegAddrWidth-1:0] waddr_i,
-    input logic [ RegBusWidth-1:0] wdata_i,
+    input logic                        we_i,
+    input reg_addr_t                   waddr_i,
+    input logic      [RegBusWidth-1:0] wdata_i,
 
-    input  logic                    re1_i,
-    input  logic [RegAddrWidth-1:0] raddr1_i,
-    output logic [ RegBusWidth-1:0] rdata1_o,
+    input  logic                        re1_i,
+    input  reg_addr_t                   raddr1_i,
+    output logic      [RegBusWidth-1:0] rdata1_o,
 
-    input  logic                    re2_i,
-    input  logic [RegAddrWidth-1:0] raddr2_i,
-    output logic [ RegBusWidth-1:0] rdata2_o
+    input  logic                        re2_i,
+    input  reg_addr_t                   raddr2_i,
+    output logic      [RegBusWidth-1:0] rdata2_o
 );
 
   integer                   i;
@@ -27,7 +27,7 @@ module regfile
         regs[i] <= ZeroWord;
       end
     end else begin
-      if ((we_i == WriteEnable) && (waddr_i != {RegNumLog2{1'b0}})) begin
+      if ((we_i == WriteEnable) && (waddr_i != ZERO_REG)) begin
         regs[waddr_i] <= wdata_i;
       end
     end
@@ -35,7 +35,7 @@ module regfile
 
   // rdata1_o
   always_comb begin
-    if (raddr1_i == {RegNumLog2{1'b0}}) begin
+    if (raddr1_i == ZERO_REG) begin
       rdata1_o = ZeroWord;
     end else if((raddr1_i == waddr_i) && (we_i == WriteEnable) &&
                 (re1_i == ReadEnable)) begin
@@ -49,7 +49,7 @@ module regfile
 
   // rdata2_o
   always_comb begin
-    if (raddr2_i == {RegNumLog2{1'b0}}) begin
+    if (raddr2_i == ZERO_REG) begin
       rdata2_o = ZeroWord;
     end else if((raddr2_i == waddr_i) && (we_i == WriteEnable) &&
                 (re2_i == ReadEnable)) begin

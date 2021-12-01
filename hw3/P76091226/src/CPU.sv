@@ -34,92 +34,92 @@ module CPU
 );
 
   /* Instruction Fetch (IF) */
-  logic   [  RegBusWidth-1:0] if_pc;
-  logic   [   InstrWidth-1:0] if_inst;
+  logic      [  RegBusWidth-1:0] if_pc;
+  logic      [   InstrWidth-1:0] if_inst;
 
   /* Instruction Decode (ID) */
-  logic   [  RegBusWidth-1:0] id_pc;
-  logic   [   InstrWidth-1:0] id_inst;
-  aluop_t                     id_aluop;
-  logic                       id_alusrc1;
-  logic                       id_alusrc2;
-  logic   [  RegBusWidth-1:0] id_imm;
-  logic   [  RegBusWidth-1:0] id_rs1;
-  logic   [  RegBusWidth-1:0] id_rs2;
-  logic                       id_wreg;
-  logic   [ RegAddrWidth-1:0] id_rd;
-  logic                       id_memrd;
-  logic                       id_memwr;
-  logic                       id_mem2reg;
-  logic                       id_is_branch;
-  logic                       id_branch_taken;
-  logic   [  RegBusWidth-1:0] id_branch_target_addr;
-  logic                       id_is_in_delayslot;
-  logic   [  RegBusWidth-1:0] id_link_addr;
-  logic                       id_next_inst_in_delayslot;
-  logic   [Func3BusWidth-1:0] id_func3;
+  logic      [  RegBusWidth-1:0] id_pc;
+  logic      [   InstrWidth-1:0] id_inst;
+  aluop_t                        id_aluop;
+  logic                          id_alusrc1;
+  logic                          id_alusrc2;
+  logic      [  RegBusWidth-1:0] id_imm;
+  logic      [  RegBusWidth-1:0] id_rs1;
+  logic      [  RegBusWidth-1:0] id_rs2;
+  logic                          id_wreg;
+  reg_addr_t                     id_rd;
+  logic                          id_memrd;
+  logic                          id_memwr;
+  logic                          id_mem2reg;
+  logic                          id_is_branch;
+  logic                          id_branch_taken;
+  logic      [  RegBusWidth-1:0] id_branch_target_addr;
+  logic                          id_is_in_delayslot;
+  logic      [  RegBusWidth-1:0] id_link_addr;
+  logic                          id_next_inst_in_delayslot;
+  logic      [Func3BusWidth-1:0] id_func3;
 
   /* Execution (EX) */
-  logic   [  RegBusWidth-1:0] ex_pc;
-  aluop_t                     ex_aluop;
-  logic                       ex_alusrc1;
-  logic                       ex_alusrc2;
-  logic   [  RegBusWidth-1:0] ex_imm;
-  logic   [  RegBusWidth-1:0] ex_rs1;
-  logic   [  RegBusWidth-1:0] ex_rs2;
-  logic                       ex_wreg;
-  logic   [ RegAddrWidth-1:0] ex_rd;
-  logic   [  RegBusWidth-1:0] ex_wdata;
-  logic   [  RegBusWidth-1:0] ex_wreg_data;
-  logic                       ex_memrd;
-  logic                       ex_memwr;
-  logic                       ex_mem2reg;
-  logic                       ex_is_in_delayslot;
-  logic   [  RegBusWidth-1:0] ex_link_addr;
-  logic                       ex_is_id_in_delayslot;
-  logic   [Func3BusWidth-1:0] ex_func3;
+  logic      [  RegBusWidth-1:0] ex_pc;
+  aluop_t                        ex_aluop;
+  logic                          ex_alusrc1;
+  logic                          ex_alusrc2;
+  logic      [  RegBusWidth-1:0] ex_imm;
+  logic      [  RegBusWidth-1:0] ex_rs1;
+  logic      [  RegBusWidth-1:0] ex_rs2;
+  logic                          ex_wreg;
+  reg_addr_t                     ex_rd;
+  logic      [  RegBusWidth-1:0] ex_wdata;
+  logic      [  RegBusWidth-1:0] ex_wreg_data;
+  logic                          ex_memrd;
+  logic                          ex_memwr;
+  logic                          ex_mem2reg;
+  logic                          ex_is_in_delayslot;
+  logic      [  RegBusWidth-1:0] ex_link_addr;
+  logic                          ex_is_id_in_delayslot;
+  logic      [Func3BusWidth-1:0] ex_func3;
 
   /* Memory Read Write (MEM) */
-  logic   [  RegBusWidth-1:0] mem_pc;
-  logic                       mem_wreg;
-  logic   [ RegAddrWidth-1:0] mem_rd;
-  logic   [  RegBusWidth-1:0] mem_wdata;
-  logic   [  RegBusWidth-1:0] mem_wreg_data;
-  logic                       mem_memrd;
-  logic                       mem_memwr;
-  logic                       mem_mem2reg;
-  logic   [Func3BusWidth-1:0] mem_func3;
-  logic                       mem_is_id_in_delayslot;
+  logic      [  RegBusWidth-1:0] mem_pc;
+  logic                          mem_wreg;
+  reg_addr_t                     mem_rd;
+  logic      [  RegBusWidth-1:0] mem_wdata;
+  logic      [  RegBusWidth-1:0] mem_wreg_data;
+  logic                          mem_memrd;
+  logic                          mem_memwr;
+  logic                          mem_mem2reg;
+  logic      [Func3BusWidth-1:0] mem_func3;
+  logic                          mem_is_id_in_delayslot;
 
   /* Write Back (WB) */
-  logic   [  RegBusWidth-1:0] wb_pc;
-  logic                       wb_wreg;
-  logic   [ RegAddrWidth-1:0] wb_rd;
-  logic   [  RegBusWidth-1:0] wb_wdata;
-  logic                       wb_mem2reg;
-  logic   [  RegBusWidth-1:0] wb_from_alu;
-  logic   [Func3BusWidth-1:0] wb_func3;
-  logic                       wb_is_id_in_delayslot;
+  logic      [  RegBusWidth-1:0] wb_pc;
+  logic                          wb_wreg;
+  reg_addr_t                     wb_rd;
+  logic      [  RegBusWidth-1:0] wb_wdata;
+  logic                          wb_mem2reg;
+  logic      [  RegBusWidth-1:0] wb_from_alu;
+  logic      [Func3BusWidth-1:0] wb_func3;
+  logic                          wb_is_id_in_delayslot;
 
   /* Other */
-  logic   [              3:0] wb_nxt_is_id_in_delayslot;
+  logic      [              3:0] wb_nxt_is_id_in_delayslot;
 
   /* Register file */
-  logic                       rs1_read;
-  logic                       rs2_read;
-  logic   [  RegBusWidth-1:0] rs1_data;
-  logic   [  RegBusWidth-1:0] rs2_data;
-  logic   [ RegAddrWidth-1:0] rs1_addr;
-  logic   [ RegAddrWidth-1:0] rs2_addr;
+  logic                          rs1_read;
+  logic                          rs2_read;
+  logic      [  RegBusWidth-1:0] rs1_data;
+  logic      [  RegBusWidth-1:0] rs2_data;
+  reg_addr_t                     rs1_addr;
+  reg_addr_t                     rs2_addr;
 
   /* Stall signal */
-  logic                       stallreq_from_id;
-  logic                       stallreq_from_ex;
-  logic   [    STAGE_NUM-1:0] stallreq;
+  logic                          stallreq_from_id;
+  logic                          stallreq_from_ex;
+  logic      [    STAGE_NUM-1:0] stallreq;
 
   /* Flush */
-  logic                       flush;
-  logic   [  RegBusWidth-1:0] new_pc;
+  logic                          flush;
+  logic      [  RegBusWidth-1:0] new_pc;
 
   /* Register file */
   regfile regfile0 (
