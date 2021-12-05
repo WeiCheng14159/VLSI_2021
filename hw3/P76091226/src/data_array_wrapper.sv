@@ -1,11 +1,11 @@
 module data_array_wrapper (
-    input CK,
-    input CS,
-    input OE,
-    input [15:0] WEB,
-    input [5:0] A,
-    input [127:0] DI,
-    output [127:0] DO
+    input logic CK,
+    input logic CS,
+    input logic OE,
+    input logic [15:0] WEB,
+    input logic [5:0] A,
+    input logic [127:0] DI,
+    output logic [127:0] DO
 );
 
   data_array i_data_array (

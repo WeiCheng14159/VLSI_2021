@@ -1,11 +1,11 @@
 module tag_array_wrapper (
-    input CK,
-    input CS,
-    input OE,
-    input WEB,
-    input [5:0] A,
-    input [21:0] DI,
-    output [21:0] DO
+    input logic CK,
+    input logic CS,
+    input logic OE,
+    input logic WEB,
+    input logic [5:0] A,
+    input logic [21:0] DI,
+    output logic [21:0] DO
 );
 
   tag_array i_tag_array (
