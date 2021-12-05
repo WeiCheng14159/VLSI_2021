@@ -27,6 +27,7 @@ module master
 );
 
   logic [`AXI_ADDR_BITS-1:0] ARADDR_r, AWADDR_r;
+  logic [`AXI_LEN_BITS-1:0] ARLEN_r, len_cnt;
   logic [`AXI_DATA_BITS-1:0] RDATA_r, WDATA_r;
   logic [`AXI_STRB_BITS-1:0] WSTRB_r;
   logic read;
@@ -48,13 +49,26 @@ module master
     else RDATA_r <= (Rx_hs_done) ? master.RDATA : RDATA_r;
   end
 
-  // ARADDR_r, AWADDR_r
+  // len_cnt
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+      len_cnt <= `AXI_LEN_BITS'b0;
+    end else if (m_curr_state[R_BIT] & Rx_hs_done) begin
+      len_cnt <= len_cnt + 1'b1;
+    end else if (m_curr_state[AR_BIT]) begin
+      len_cnt <= `AXI_LEN_BITS'b0;
+    end
+  end
+
+  // ARADDR_r, AWADDR_r, ARLEN_r
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
       ARADDR_r <= `AXI_ADDR_BITS'b0;
       AWADDR_r <= `AXI_ADDR_BITS'b0;
+      ARLEN_r  <= `AXI_LEN_BITS'b0;
     end else if (m_curr_state != AR & m_next_state == AR) begin
       ARADDR_r <= addr;
+      ARLEN_r  <= master.ARLEN;
     end else if (m_curr_state != AW & m_next_state == AW) begin
       AWADDR_r <= addr;
     end
@@ -114,7 +128,7 @@ module master
       m_curr_state[IDLE_BIT]: m_next_state = (write) ? AW : (read) ? AR : IDLE;
       m_curr_state[AR_BIT]: m_next_state = (master.ARREADY) ? R : AR;
       m_curr_state[R_BIT]:
-      m_next_state = (Rx_hs_done) ? (write ? AW : read ? AR : IDLE) : R;
+      m_next_state = (Rx_hs_done & len_cnt == ARLEN_r) ? (write ? AW : read ? AR : IDLE) : R;
       m_curr_state[AW_BIT]:
       m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
       m_curr_state[W_BIT]:
@@ -142,7 +156,7 @@ module master
     // ARx
     master.ARID = master_ID;
     master.ARADDR = ARADDR_r;
-    master.ARLEN = `AXI_LEN_BITS'b0;
+    master.ARLEN = `AXI_LEN_FOUR;
     master.ARSIZE = `AXI_SIZE_BITS'b0;
     master.ARBURST = `AXI_BURST_INC;
     master.ARVALID = 1'b0;
