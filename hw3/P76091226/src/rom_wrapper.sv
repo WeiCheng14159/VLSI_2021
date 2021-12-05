@@ -70,7 +70,7 @@ module rom_wrapper
         slave.RVALID = 1'b1;
         ROM_read = ROM_READ_ENB;
         ROM_enable = ROM_ENB;
-        ROM_address = (slave.RLAST & Rx_hs_done) ? (EMPTY_ADDR) : ROM_address_r;
+        ROM_address = (slave.RLAST & Rx_hs_done) ? (EMPTY_ADDR) : (ROM_address_r  + len_cnt + 1'b1);
       end
       default: ;
     endcase
