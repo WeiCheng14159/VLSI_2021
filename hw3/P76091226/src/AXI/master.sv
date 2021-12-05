@@ -53,9 +53,9 @@ module master
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
       len_cnt <= `AXI_LEN_BITS'b0;
-    end else if (m_curr_state[R_BIT] & Rx_hs_done) begin
+    end else if (m_curr_state[READ_BIT] & Rx_hs_done) begin
       len_cnt <= len_cnt + 1'b1;
-    end else if (m_curr_state[AR_BIT]) begin
+    end else if (m_curr_state[IDLE_BIT]) begin
       len_cnt <= `AXI_LEN_BITS'b0;
     end
   end
@@ -66,10 +66,10 @@ module master
       ARADDR_r <= `AXI_ADDR_BITS'b0;
       AWADDR_r <= `AXI_ADDR_BITS'b0;
       ARLEN_r  <= `AXI_LEN_BITS'b0;
-    end else if (m_curr_state != AR & m_next_state == AR) begin
+    end else if (m_curr_state != READ & m_next_state == READ) begin
       ARADDR_r <= addr;
       ARLEN_r  <= master.ARLEN;
-    end else if (m_curr_state != AW & m_next_state == AW) begin
+    end else if (m_curr_state != WRITE & m_next_state == WRITE) begin
       AWADDR_r <= addr;
     end
   end
@@ -78,7 +78,7 @@ module master
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
       WDATA_r <= `AXI_ADDR_BITS'b0;
-    end else if (m_curr_state != AW & m_next_state == AW) begin
+    end else if (m_curr_state != WRITE & m_next_state == WRITE) begin
       WDATA_r <= data_in;
     end
   end
@@ -87,7 +87,7 @@ module master
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
       WSTRB_r <= {WriteDisable, WriteDisable, WriteDisable, WriteDisable};
-    end else if (m_curr_state != AW & m_next_state == AW) begin
+    end else if (m_curr_state != WRITE & m_next_state == WRITE) begin
       case (w_type)
         OP_SW: WSTRB_r <= {WriteEnable, WriteEnable, WriteEnable, WriteEnable};
         OP_SH: begin
@@ -125,16 +125,13 @@ module master
   always_comb begin
     m_next_state = IDLE;
     unique case (1'b1)
-      m_curr_state[IDLE_BIT]: m_next_state = (write) ? AW : (read) ? AR : IDLE;
-      m_curr_state[AR_BIT]: m_next_state = (master.ARREADY) ? R : AR;
-      m_curr_state[R_BIT]:
-      m_next_state = (Rx_hs_done & len_cnt == ARLEN_r) ? (write ? AW : read ? AR : IDLE) : R;
-      m_curr_state[AW_BIT]:
-      m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
-      m_curr_state[W_BIT]:
-      m_next_state = (Wx_hs_done) ? (Bx_hs_done) ? IDLE : B : W;
-      m_curr_state[B_BIT]:
-      m_next_state = (Bx_hs_done) ? (write ? AW : read ? AR : IDLE) : B;
+      m_curr_state[IDLE_BIT]:
+      m_next_state = (write) ? WRITE : (read) ? READ : IDLE;
+      m_curr_state[READ_BIT]:
+      m_next_state = (Rx_hs_done & len_cnt == ARLEN_r) ? (write ? WRITE : read ? READ : IDLE) : READ;
+      m_curr_state[WRITE_BIT]: m_next_state = (Wx_hs_done) ? RESP : WRITE;
+      m_curr_state[RESP_BIT]:
+      m_next_state = (Bx_hs_done) ? (write ? WRITE : read ? READ : IDLE) : RESP;
     endcase
   end  // Next state (C)
 
@@ -166,36 +163,47 @@ module master
     stall = 1'b0;
 
     unique case (1'b1)
-      m_curr_state[IDLE_BIT]: ;
-      m_curr_state[AR_BIT]: begin
-        // ARx
-        master.ARBURST = `AXI_BURST_INC;
-        master.ARVALID = 1'b1;
+      m_curr_state[IDLE_BIT]: begin
+        master.ARVALID = read;
+        master.AWVALID = write;
+      end
+      m_curr_state[READ_BIT]: begin
+        // master.ARVALID = 1'b1;
         stall = 1'b1;
       end
-      m_curr_state[R_BIT]: begin
-        // Rx
-        master.RREADY = 1'b1;
-        stall = ~master.RLAST;
-      end
-      m_curr_state[AW_BIT]: begin
-        // AWx
+      // m_curr_state[R_BIT]: begin
+      //   // Rx
+      //   master.RREADY = 1'b1;
+      //   stall = ~master.RLAST;
+      // end
+      m_curr_state[WRITE_BIT]: begin
         master.AWVALID = 1'b1;
         stall = 1'b1;
         master.WVALID = AWx_hs_done;
       end
-      m_curr_state[W_BIT]: begin
-        // Wx
+      m_curr_state[RESP_BIT]: begin
         master.WVALID = 1'b1;
-        // Bx
         master.BREADY = 1'b1;
         stall = 1'b1;
       end
-      m_curr_state[B_BIT]: begin
-        // Bx
-        master.BREADY = 1'b1;
-        stall = ~master.BVALID;
-      end
+      // m_curr_state[AW_BIT]: begin
+      //   // AWx
+      //   master.AWVALID = 1'b1;
+      //   stall = 1'b1;
+      //   master.WVALID = AWx_hs_done;
+      // end
+      // m_curr_state[W_BIT]: begin
+      //   // Wx
+      //   master.WVALID = 1'b1;
+      //   // Bx
+      //   master.BREADY = 1'b1;
+      //   stall = 1'b1;
+      // end
+      // m_curr_state[B_BIT]: begin
+      //   // Bx
+      //   master.BREADY = 1'b1;
+      //   stall = ~master.BVALID;
+      // end
     endcase
   end
 
