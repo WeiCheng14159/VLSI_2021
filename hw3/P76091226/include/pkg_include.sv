@@ -9,8 +9,11 @@
 `include "axi_pkg.sv"
 `include "AXI_define.svh"
 // Cache
-`include "cache_pkg.sv"
+`include "i_cache_pkg.sv"
+`include "d_cache_pkg.sv"
 `include "cache.svh"
+`include "data_array_wrapper.sv"
+`include "tag_array_wrapper.sv"
 // CPU
 `include "cpu_wrapper_pkg.sv"
 `include "cpu_pkg.sv"

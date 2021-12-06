@@ -81,31 +81,36 @@ module CPU_wrapper
 
   //   L1C_inst I_cache (
   //       .clk(clk),
-  //       .rst(~rstn),
-  //       .core_addr(inst_addr),  // address from CPU
-  //       .core_req(inst_rw_request),  // memory access request from CPU
-  //       .core_write(1'b0),  // write signal from CPU
-  //       .core_in(`DATA_BITS'b0),  // data from CPU
-  //       .core_type(`CACHE_WORD),  // write/read byte, half word, or word from CPU
-  //       .I_out(I_out),  // data from CPU wrapper
-  //       .I_wait(I_wait),  // wait signal from CPU wrapper
-  //       .core_out(inst_from_mem),  // data to CPU
-  //       .core_wait(stallreq_from_imem),  // wait signal to CPU
-  //       .I_req(I_req),  // request to CPU wrapper
-  //       .I_addr(I_addr),  // address to CPU wrapper
-  //       .I_write(I_write),  // write signal to CPU wrapper
-  //       .I_in(I_in),  // write data to CPU wrapper
-  //       .I_type(I_type)  // write/read byte, half word, or word to CPU wrapper
+  //       .rstn(rstn),
+  //       // CPU -> cache
+  //       .core_addr(inst_addr),
+  //       .core_req(inst_rw_request),
+  //       .core_write(1'b0),
+  //       .core_in(`DATA_BITS'b0),
+  //       .core_type(`CACHE_WORD),
+  //       // Cache -> Master
+  //       .I_out(I_out),  
+  //       .I_wait(I_wait), 
+  //       // Master -> CPU
+  //       .core_out(inst_from_mem), 
+  //       .core_wait(stallreq_from_imem), 
+  //       // Master -> cache 
+  //       .I_req(I_req),  
+  //       .I_addr(I_addr),  
+  //       .I_write(I_write),
+  //       .I_in(I_in), 
+  //       .I_type(I_type)  
   //   );
 
   master #(
-      .master_ID(`AXI_ID_BITS'b0)
+      .master_ID(`AXI_ID_BITS'b0),
+      .READ_BLOCK_SIZE(`AXI_LEN_ONE)
   ) M0 (
       .clk(clk),
       .rstn(rstn),
       .master(master0),
 
-      // CPU interface
+      // With cache
       //   .access_request(I_req),
       //   .write(I_write),
       //   .w_type(I_type),
@@ -113,9 +118,10 @@ module CPU_wrapper
       //   .addr(I_addr),
       //   .data_out(I_out),
       //   .stall(I_wait)
+      // Without cache
       .access_request(inst_rw_request),
       .write(1'b0),
-      .w_type(4'hf),
+      .w_type(OP_SW),
       .data_in(32'b0),
       .addr(inst_addr),
       .data_out(inst_from_mem),
@@ -124,21 +130,21 @@ module CPU_wrapper
 
   //   L1C_data D_cache (
   //       .clk(clk),
-  //       .rst(~rstn),
-  //       .core_addr(data_write_addr),  // address from CPU
-  //       .core_req(data_rw_request),  // memory access request from CPU
-  //       .core_write(data_write),  // write signal from CPU
-  //       .core_in(data_to_mem),  // data from CPU
-  //       .core_type(`CACHE_WORD),  // write/read byte, half word, or word from CPU
-  //       .D_out(D_out),  // data from CPU wrapper
-  //       .D_wait(D_wait),  // wait signal from CPU wrapper
-  //       .core_out(data_from_mem),  // data to CPU
-  //       .core_wait(stallreq_from_dmem),  // wait signal to CPU
-  //       .D_req(D_req),  // request to CPU wrapper
-  //       .D_addr(D_addr),  // address to CPU wrapper
-  //       .D_write(D_write),  // write signal to CPU wrapper
-  //       .D_in(D_in),  // write data to CPU wrapper
-  //       .D_type(D_type)  // write/read byte, half word, or word to CPU wrapper
+  //       .rstn(rstn),
+  //       .core_addr(data_write_addr),  
+  //       .core_req(data_rw_request), 
+  //       .core_write(data_write),  
+  //       .core_in(data_to_mem), 
+  //       .core_type(data_write_type),  
+  //       .D_out(D_out),  
+  //       .D_wait(D_wait), 
+  //       .core_out(data_from_mem), 
+  //       .core_wait(stallreq_from_dmem),  
+  //       .D_req(D_req),  
+  //       .D_addr(D_addr),
+  //       .D_write(D_write), 
+  //       .D_in(D_in),  
+  //       .D_type(D_type) 
   //   );
 
   master #(
@@ -147,14 +153,15 @@ module CPU_wrapper
       .clk(clk),
       .rstn(rstn),
       .master(master1),
-      // CPU interface
-      // .access_request(D_req),
-      // .write(D_write),
-      // .w_type(D_type),
-      // .data_in(D_in),
-      // .addr(D_addr),
-      // .data_out(D_out),
-      // .stall(D_wait)
+      // With cache
+      //   .access_request(D_req),
+      //   .write(D_write),
+      //   .w_type(D_type),
+      //   .data_in(D_in),
+      //   .addr(D_addr),
+      //   .data_out(D_out),
+      //   .stall(D_wait)
+      // Without cache
       .access_request(data_rw_request),
       .write(data_write),
       .w_type(data_write_type),
