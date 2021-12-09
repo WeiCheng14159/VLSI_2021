@@ -93,7 +93,7 @@ module SRAM_wrapper
         slave.RVALID = 1'b1;
         CS = 1'b1;
         OE = 1'b1;
-        A = (slave.RLAST & Rx_hs_done) ? (slave.AWVALID ? slave.AWADDR[15:2] : A_r ) :A_r;
+        A = (slave.RLAST & Rx_hs_done) ? (slave.AWVALID ? slave.AWADDR[15:2] : A_r ) : (A_r + len_cnt + 1);
       end
       WRITE: begin
         slave.AWREADY = slave.WLAST & Bx_hs_done;
