@@ -55,9 +55,7 @@ module CPU
   logic                          id_is_branch;
   logic                          id_branch_taken;
   logic      [  RegBusWidth-1:0] id_branch_target_addr;
-  logic                          id_is_in_delayslot;
   logic      [  RegBusWidth-1:0] id_link_addr;
-  logic                          id_next_inst_in_delayslot;
   logic      [Func3BusWidth-1:0] id_func3;
 
   /* Execution (EX) */
@@ -75,9 +73,7 @@ module CPU
   logic                          ex_memrd;
   logic                          ex_memwr;
   logic                          ex_mem2reg;
-  logic                          ex_is_in_delayslot;
   logic      [  RegBusWidth-1:0] ex_link_addr;
-  logic                          ex_is_id_in_delayslot;
   logic      [Func3BusWidth-1:0] ex_func3;
 
   /* Memory Read Write (MEM) */
@@ -90,7 +86,6 @@ module CPU
   logic                          mem_memwr;
   logic                          mem_mem2reg;
   logic      [Func3BusWidth-1:0] mem_func3;
-  logic                          mem_is_id_in_delayslot;
 
   /* Write Back (WB) */
   logic      [  RegBusWidth-1:0] wb_pc;
@@ -100,10 +95,6 @@ module CPU
   logic                          wb_mem2reg;
   logic      [  RegBusWidth-1:0] wb_from_alu;
   logic      [Func3BusWidth-1:0] wb_func3;
-  logic                          wb_is_id_in_delayslot;
-
-  /* Other */
-  logic      [              3:0] wb_nxt_is_id_in_delayslot;
 
   /* Register file */
   logic                          rs1_read;
@@ -121,6 +112,9 @@ module CPU
   /* Flush */
   logic                          flush;
   logic      [  RegBusWidth-1:0] new_pc;
+
+  logic                          booting;
+  assign booting = (inst_addr_o >= 32'h128 && inst_addr_o <= 32'h27c);
 
   /* Register file */
   regfile regfile0 (
@@ -198,8 +192,6 @@ module CPU
       .mem_wreg_data_i(mem_wreg_data),
       .mem_rd_i(mem_rd),
       .mem_memrd_i(mem_memrd),
-      .is_in_delayslot_i(ex_is_id_in_delayslot | mem_is_id_in_delayslot),
-      // Current branch delay slot is 7 cycle
       .func3_o(id_func3),
       .rs1_read_o(rs1_read),
       .rs2_read_o(rs2_read),
@@ -219,9 +211,7 @@ module CPU
       .is_branch_o(id_is_branch),
       .branch_taken_o(id_branch_taken),
       .branch_target_addr_o(id_branch_target_addr),
-      .is_in_delayslot_o(id_is_in_delayslot),
       .link_addr_o(id_link_addr),
-      .next_inst_in_delayslot_o(id_next_inst_in_delayslot),
       .stallreq(stallreq_from_id),
       .flush_o(flush)
   );
@@ -245,8 +235,6 @@ module CPU
       .id_memwr(id_memwr),
       .id_mem2reg(id_mem2reg),
       .id_link_addr(id_link_addr),
-      .id_is_in_delayslot(id_is_in_delayslot),
-      .id_next_inst_in_delayslot(id_next_inst_in_delayslot),
       .stall(stallreq),
       .flush(flush),
 
@@ -263,8 +251,7 @@ module CPU
       .ex_memrd(ex_memrd),
       .ex_memwr(ex_memwr),
       .ex_mem2reg(ex_mem2reg),
-      .ex_link_addr(ex_link_addr),
-      .ex_is_id_in_delayslot(ex_is_id_in_delayslot)
+      .ex_link_addr(ex_link_addr)
   );
 
   // EX
@@ -297,7 +284,6 @@ module CPU
       .ex_memrd(ex_memrd),
       .ex_memwr(ex_memwr),
       .ex_mem2reg(ex_mem2reg),
-      .ex_is_id_in_delayslot(ex_is_id_in_delayslot),
       .stall(stallreq),
       .flush(flush),
 
@@ -309,8 +295,7 @@ module CPU
       .mem_wreg_data(mem_wreg_data),
       .mem_memrd(mem_memrd),
       .mem_memwr(mem_memwr),
-      .mem_mem2reg(mem_mem2reg),
-      .mem_is_id_in_delayslot(mem_is_id_in_delayslot)
+      .mem_mem2reg(mem_mem2reg)
   );
 
   // MEM
@@ -339,7 +324,6 @@ module CPU
       .mem_mem2reg(mem_mem2reg),
       .mem_wreg_data(mem_wreg_data),
       .mem_func3(mem_func3),
-      .mem_is_id_in_delayslot(mem_is_id_in_delayslot),
       .mem_pc(mem_pc),
       .stall(stallreq),
       .flush(flush),
@@ -349,7 +333,6 @@ module CPU
       .wb_mem2reg(wb_mem2reg),
       .wb_from_alu(wb_from_alu),
       .wb_func3(wb_func3),
-      .wb_is_id_in_delayslot(wb_is_id_in_delayslot),
       .wb_pc(wb_pc)
   );
 
@@ -363,18 +346,4 @@ module CPU
       .wdata_o(wb_wdata)
   );
 
-  // For branch delay slot
-  always_ff @(posedge clk, negedge rstn) begin
-    if (~rstn) begin
-      wb_nxt_is_id_in_delayslot[3] <= NotInDelaySlot;
-      wb_nxt_is_id_in_delayslot[2] <= NotInDelaySlot;
-      wb_nxt_is_id_in_delayslot[1] <= NotInDelaySlot;
-      wb_nxt_is_id_in_delayslot[0] <= NotInDelaySlot;
-    end else begin
-      wb_nxt_is_id_in_delayslot[3] <= wb_nxt_is_id_in_delayslot[2];
-      wb_nxt_is_id_in_delayslot[2] <= wb_nxt_is_id_in_delayslot[1];
-      wb_nxt_is_id_in_delayslot[1] <= wb_nxt_is_id_in_delayslot[0];
-      wb_nxt_is_id_in_delayslot[0] <= wb_is_id_in_delayslot;
-    end
-  end
 endmodule

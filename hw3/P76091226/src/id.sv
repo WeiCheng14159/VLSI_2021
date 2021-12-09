@@ -43,13 +43,10 @@ module id
     output logic        [Func3BusWidth-1:0] func3_o,
 
     // Branch
-    input  logic                   is_in_delayslot_i,
     output logic                   is_branch_o,
     output logic                   branch_taken_o,
     output logic [RegBusWidth-1:0] branch_target_addr_o,
-    output logic                   is_in_delayslot_o,
     output logic [RegBusWidth-1:0] link_addr_o,
-    output logic                   next_inst_in_delayslot_o,
 
     // Stall
     output logic stallreq,
@@ -77,30 +74,6 @@ module id
   assign load_inst_in_mem = (mem_memrd_i == True) ? True : False;
 
   always_comb begin
-    if (is_in_delayslot_i == InDelaySlot) begin
-      // NOP instruction
-      aluop_o                  = ALUOP_ADD;
-      alusrc1_o                = SRC1_FROM_REG;
-      alusrc2_o                = SRC2_FROM_REG;
-      rd_o                     = ZERO_REG;
-      wreg_o                   = WriteDisable;
-      inst_valid               = InstValid;
-      rs1_read_o               = ReadDisable;
-      rs2_read_o               = ReadDisable;
-      rs1_addr_o               = ZERO_REG;
-      rs2_addr_o               = ZERO_REG;
-      imm_o                    = ZeroWord;
-      memrd_o                  = ReadDisable;
-      memwr_o                  = WriteDisable;
-      mem2reg_o                = NotMem2Reg;
-      link_addr_o              = ZeroWord;
-      branch_target_addr_o     = ZeroWord;
-      branch_taken             = BranchNotTaken;
-      is_branch_o              = False;
-      branch_taken_o           = BranchNotTaken;
-      next_inst_in_delayslot_o = NotInDelaySlot;
-      flush_o                  = False;
-    end else begin
       aluop_o                  = ALUOP_ADD;
       alusrc1_o                = SRC1_FROM_REG;
       alusrc2_o                = SRC2_FROM_REG;
@@ -120,7 +93,6 @@ module id
       branch_taken             = BranchNotTaken;
       is_branch_o              = False;
       branch_taken_o           = BranchNotTaken;
-      next_inst_in_delayslot_o = NotInDelaySlot;
       flush_o                  = False;
       case (opcode)
         OP_AUIPC: begin
@@ -150,7 +122,7 @@ module id
           branch_target_addr_o = pc_i + imm_o;
           is_branch_o = True;
           branch_taken_o = BranchTaken;
-          next_inst_in_delayslot_o = InDelaySlot;
+          // next_inst_in_delayslot_o = InDelaySlot;
         end
         OP_JALR: begin
           aluop_o                  = ALUOP_LINK;
@@ -164,7 +136,7 @@ module id
           is_branch_o              = True;
           branch_target_addr_o     = rs1_data_o + imm_o;
           branch_taken_o           = BranchTaken;
-          next_inst_in_delayslot_o = InDelaySlot;
+          // next_inst_in_delayslot_o = InDelaySlot;
         end
         OP_BRANCH: begin
           inst_valid = InstValid;
@@ -200,7 +172,7 @@ module id
           branch_target_addr_o = pc_i + imm_o;
           if (branch_taken == BranchTaken) begin
             branch_taken_o           = BranchTaken;
-            next_inst_in_delayslot_o = InDelaySlot;
+            // next_inst_in_delayslot_o = InDelaySlot;
           end
         end
         OP_LOAD: begin
@@ -285,7 +257,6 @@ module id
 
         default: ;
       endcase  //case opcode
-    end  //if
   end  //always
 
   // load_use_for_rs1
@@ -343,8 +314,5 @@ module id
       rs2_data_o = ZeroWord;
     end
   end
-
-  // is_in_delayslot_o
-  assign is_in_delayslot_o = is_in_delayslot_i;
 
 endmodule

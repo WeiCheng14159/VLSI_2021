@@ -13,7 +13,6 @@ module ex_mem
     input logic                          ex_memwr,
     input logic                          ex_mem2reg,
     input logic      [Func3BusWidth-1:0] ex_func3,
-    input logic                          ex_is_id_in_delayslot,
     input logic      [    STAGE_NUM-1:0] stall,
     input logic                          flush,
 
@@ -25,8 +24,7 @@ module ex_mem
     output logic      [  RegBusWidth-1:0] mem_wreg_data,
     output logic                          mem_memrd,
     output logic                          mem_memwr,
-    output logic                          mem_mem2reg,
-    output logic                          mem_is_id_in_delayslot
+    output logic                          mem_mem2reg
 );
 
   always_ff @(posedge clk, negedge rstn) begin
@@ -40,7 +38,6 @@ module ex_mem
       mem_memwr              <= WriteDisable;
       mem_mem2reg            <= NotMem2Reg;
       mem_wreg_data          <= ZeroWord;
-      mem_is_id_in_delayslot <= NotInDelaySlot;
     end else if (flush == True | (stall[EX_STAGE] == Stop && stall[ME_STAGE] == NoStop)) begin
       mem_pc                 <= ZeroWord;
       mem_func3              <= {Func3BusWidth{1'b0}};
@@ -51,7 +48,6 @@ module ex_mem
       mem_memwr              <= WriteDisable;
       mem_mem2reg            <= NotMem2Reg;
       mem_wreg_data          <= ZeroWord;
-      mem_is_id_in_delayslot <= NotInDelaySlot;
     end else if (stall[ME_STAGE] == NoStop) begin
       mem_pc                 <= ex_pc;
       mem_func3              <= ex_func3;
@@ -62,7 +58,6 @@ module ex_mem
       mem_memwr              <= ex_memwr;
       mem_mem2reg            <= ex_mem2reg;
       mem_wreg_data          <= ex_wreg_data;
-      mem_is_id_in_delayslot <= ex_is_id_in_delayslot;
     end
   end
 
