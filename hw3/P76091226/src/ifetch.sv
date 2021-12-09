@@ -13,10 +13,13 @@ module ifetch
 
     output logic [RegBusWidth-1:0] if_pc_o,
     output logic                   inst_read_o,
-    output logic [RegBusWidth-1:0] inst_addr_o
+    output logic [RegBusWidth-1:0] inst_addr_o,
+    output logic                   if_is_in_delay_slot_o
 );
 
-  logic [RegBusWidth-1:0] fetch_pc, next_pc, branch_not_taken_addr_r;
+  logic branch_taken_i_r, is_id_branch_inst_r;
+  logic [RegBusWidth-1:0]
+      branch_not_taken_addr_r, fetch_pc, fetch_pc_next, next_pc;
   logic if_stall, is_taken;
 
   assign if_stall = (stall[IF_STAGE] == Stop);
@@ -41,8 +44,8 @@ module ifetch
     if (~rstn) begin
       fetch_pc <= StartAddr;
     end else begin
-      fetch_pc <= (is_id_branch_inst & ~is_taken) ? (branch_not_taken_addr_r) : 
-                  (is_id_branch_inst & is_taken) ? branch_target_addr_i : 
+      fetch_pc <= (is_id_branch_inst & ~is_taken) ? branch_not_taken_addr_r :
+                  (is_id_branch_inst & is_taken) ? branch_target_addr_i :
                   (if_stall) ? fetch_pc : next_pc;
     end
   end
@@ -55,5 +58,19 @@ module ifetch
       branch_not_taken_addr_r <= (~is_id_branch_inst) ? next_pc : branch_not_taken_addr_r;
     end
   end
+
+  // is_id_branch_inst_r, branch_taken_i_r
+  always_ff @(posedge clk, negedge rstn) begin
+    if (~rstn) begin
+      is_id_branch_inst_r <= False;
+      branch_taken_i_r <= BranchNotTaken;
+    end else begin
+      is_id_branch_inst_r <= is_id_branch_inst;
+      branch_taken_i_r <= (~if_stall | (is_id_branch_inst & ~is_taken)) ? BranchNotTaken : 
+                          (is_id_branch_inst & is_taken) ? BranchTaken : branch_taken_i_r;
+    end
+  end
+
+  assign if_is_in_delay_slot_o = (is_taken | branch_taken_i_r);
 
 endmodule

@@ -36,6 +36,7 @@ module CPU
   /* Instruction Fetch (IF) */
   logic      [  RegBusWidth-1:0] if_pc;
   logic      [   InstrWidth-1:0] if_inst;
+  logic                          if_is_in_delay_slot;
 
   /* Instruction Decode (ID) */
   logic      [  RegBusWidth-1:0] id_pc;
@@ -164,7 +165,8 @@ module CPU
 
       .if_pc_o(if_pc),
       .inst_read_o(inst_read_o),
-      .inst_addr_o(inst_addr_o)
+      .inst_addr_o(inst_addr_o),
+      .if_is_in_delay_slot_o(if_is_in_delay_slot)
   );
 
   // IF-ID
@@ -172,10 +174,11 @@ module CPU
       .clk (clk),
       .rstn(rstn),
 
-      .if_pc  (if_pc),
+      .if_pc(if_pc),
       .if_inst(inst_in_i),
-      .stall  (stallreq),
-      .flush  (flush),
+      .stall(stallreq),
+      .flush(flush),
+      .if_is_in_delay_slot(if_is_in_delay_slot),
 
       .id_pc  (id_pc),
       .id_inst(id_inst)
