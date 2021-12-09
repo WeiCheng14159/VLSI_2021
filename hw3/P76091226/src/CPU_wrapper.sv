@@ -79,53 +79,54 @@ module CPU_wrapper
 
   wire [3:0] NoWrite = 4'hf;
 
-  //   L1C_inst I_cache (
-  //       .clk(clk),
-  //       .rstn(rstn),
-  //       // CPU -> cache
-  //       .core_addr(inst_addr),
-  //       .core_req(inst_rw_request),
-  //       .core_write(1'b0),
-  //       .core_in(`DATA_BITS'b0),
-  //       .core_type(`CACHE_WORD),
-  //       // Cache -> Master
-  //       .I_out(I_out),  
-  //       .I_wait(I_wait), 
-  //       // Master -> CPU
-  //       .core_out(inst_from_mem), 
-  //       .core_wait(stallreq_from_imem), 
-  //       // Master -> cache 
-  //       .I_req(I_req),  
-  //       .I_addr(I_addr),  
-  //       .I_write(I_write),
-  //       .I_in(I_in), 
-  //       .I_type(I_type)  
-  //   );
+  L1C_inst I_cache (
+      .clk(clk),
+      .rstn(rstn),
+      // CPU -> cache
+      .core_addr(inst_addr),
+      .core_req(inst_rw_request),
+      .core_write(1'b0),
+      .core_in(`DATA_BITS'b0),
+      .core_type(`CACHE_WORD),
+      // Cache -> Master
+      .I_out(I_out),
+      .I_wait(I_wait),
+      // Master -> CPU
+      .core_out(inst_from_mem),
+      .core_wait(stallreq_from_imem),
+      // Master -> cache 
+      .I_req(I_req),
+      .I_addr(I_addr),
+      .I_write(I_write),
+      .I_in(I_in),
+      .I_type(I_type)
+  );
 
   master #(
       .master_ID(`AXI_ID_BITS'b0),
-      .READ_BLOCK_SIZE(`AXI_LEN_ONE)
+    //   .READ_BLOCK_SIZE(`AXI_LEN_ONE)
+      .READ_BLOCK_SIZE(`AXI_LEN_FOUR)
   ) M0 (
       .clk(clk),
       .rstn(rstn),
       .master(master0),
 
       // With cache
-      //   .access_request(I_req),
-      //   .write(I_write),
-      //   .w_type(I_type),
-      //   .data_in(I_in),
-      //   .addr(I_addr),
-      //   .data_out(I_out),
-      //   .stall(I_wait)
+      .access_request(I_req),
+      .write(I_write),
+      .w_type(I_type),
+      .data_in(I_in),
+      .addr(I_addr),
+      .data_out(I_out),
+      .stall(I_wait)
       // Without cache
-      .access_request(inst_rw_request),
-      .write(1'b0),
-      .w_type(OP_SW),
-      .data_in(32'b0),
-      .addr(inst_addr),
-      .data_out(inst_from_mem),
-      .stall(stallreq_from_imem)
+      //   .access_request(inst_rw_request),
+      //   .write(1'b0),
+      //   .w_type(OP_SW),
+      //   .data_in(32'b0),
+      //   .addr(inst_addr),
+      //   .data_out(inst_from_mem),
+      //   .stall(stallreq_from_imem)
   );
 
   //   L1C_data D_cache (
@@ -148,7 +149,8 @@ module CPU_wrapper
   //   );
 
   master #(
-      .master_ID(`AXI_ID_BITS'b01)
+      .master_ID(`AXI_ID_BITS'b01),
+      .READ_BLOCK_SIZE(`AXI_LEN_ONE)
   ) M1 (
       .clk(clk),
       .rstn(rstn),

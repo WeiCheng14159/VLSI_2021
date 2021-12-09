@@ -26,6 +26,18 @@
 `define CACHE_BYTE_U `CACHE_TYPE_BITS'b100
 `define CACHE_HWORD_U `CACHE_TYPE_BITS'b101
 
+/*
+| --------- | --------- | --------- | --------- |
+| 31     10 | 9       4 | 3       2 | 1       0 |
+| --------- | --------- | --------- | --------- |
+| Tag (22b) | Index (6) | Word (2b) | Byte (2b) |
+| --------- | --------- | --------- | --------- |
+*/
+
+`define TAG_FIELD 31:10
+`define INDEX_FIELD 9:4
+`define WORD_FIELD 3:2
+
 //Read Write data length
 `define WRITE_LEN_BITS 2
 `define BYTE `WRITE_LEN_BITS'b00
