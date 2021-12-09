@@ -23,7 +23,7 @@ module L1C_inst
     // From cache to CPU
     output logic [      `DATA_BITS-1:0] core_out,
     output logic                        core_wait,
-    // From Cache to  CPU wrapper
+    // From Cache to CPU wrapper
     output logic                        I_req,
     output logic [      `DATA_BITS-1:0] I_addr,
     output logic                        I_write,
@@ -31,7 +31,7 @@ module L1C_inst
     output logic [`CACHE_TYPE_BITS-1:0] I_type
 );
 
-  logic [`CACHE_INDEX_BITS -1:0] index;
+  logic [`CACHE_INDEX_BITS-1:0] index;
   logic [`CACHE_DATA_BITS-1:0] DA_out;
   logic [`CACHE_DATA_BITS-1:0] DA_in;
   logic [`CACHE_WRITE_BITS-1:0] DA_write;

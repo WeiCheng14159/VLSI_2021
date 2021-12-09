@@ -23,27 +23,27 @@ module mem_wb
 
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
-      wb_rd                 <= ZERO_REG;
-      wb_wreg               <= WriteDisable;
-      wb_mem2reg            <= NotMem2Reg;
-      wb_from_alu           <= ZeroWord;
-      wb_func3              <= {Func3BusWidth{1'b0}};
-      wb_pc                 <= ZeroWord;
+      wb_rd       <= ZERO_REG;
+      wb_wreg     <= WriteDisable;
+      wb_mem2reg  <= NotMem2Reg;
+      wb_from_alu <= ZeroWord;
+      wb_func3    <= {Func3BusWidth{1'b0}};
+      wb_pc       <= ZeroWord;
     end else if (flush == True |
        (stall[ME_STAGE] == Stop && stall[WB_STAGE] == NoStop) ) begin
-      wb_rd                 <= ZERO_REG;
-      wb_wreg               <= WriteDisable;
-      wb_mem2reg            <= NotMem2Reg;
-      wb_from_alu           <= ZeroWord;
-      wb_func3              <= {Func3BusWidth{1'b0}};
-      wb_pc                 <= ZeroWord;
+      wb_rd       <= ZERO_REG;
+      wb_wreg     <= WriteDisable;
+      wb_mem2reg  <= NotMem2Reg;
+      wb_from_alu <= ZeroWord;
+      wb_func3    <= {Func3BusWidth{1'b0}};
+      wb_pc       <= ZeroWord;
     end else if (stall[ME_STAGE] == NoStop) begin
-      wb_rd                 <= mem_rd;
-      wb_wreg               <= mem_wreg;
-      wb_mem2reg            <= mem_mem2reg;
-      wb_from_alu           <= mem_wreg_data;
-      wb_func3              <= mem_func3;
-      wb_pc                 <= mem_pc;
+      wb_rd       <= mem_rd;
+      wb_wreg     <= mem_wreg;
+      wb_mem2reg  <= mem_mem2reg;
+      wb_from_alu <= mem_wreg_data;
+      wb_func3    <= mem_func3;
+      wb_pc       <= mem_pc;
     end
   end
 

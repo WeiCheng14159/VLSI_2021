@@ -104,7 +104,7 @@ module CPU_wrapper
 
   master #(
       .master_ID(`AXI_ID_BITS'b0),
-    //   .READ_BLOCK_SIZE(`AXI_LEN_ONE)
+      //   .READ_BLOCK_SIZE(`AXI_LEN_ONE)
       .READ_BLOCK_SIZE(`AXI_LEN_FOUR)
   ) M0 (
       .clk(clk),
