@@ -104,14 +104,13 @@ module CPU_wrapper
 
   master #(
       .master_ID(`AXI_ID_BITS'b0),
-      //   .READ_BLOCK_SIZE(`AXI_LEN_ONE)
       .READ_BLOCK_SIZE(`AXI_LEN_FOUR)
   ) M0 (
       .clk(clk),
       .rstn(rstn),
       .master(master0),
 
-      // With cache
+      // Cache
       .access_request(I_req),
       .write(I_write),
       .w_type(I_type),
@@ -119,58 +118,46 @@ module CPU_wrapper
       .addr(I_addr),
       .data_out(I_out),
       .stall(I_wait)
-      // Without cache
-      //   .access_request(inst_rw_request),
-      //   .write(1'b0),
-      //   .w_type(OP_SW),
-      //   .data_in(32'b0),
-      //   .addr(inst_addr),
-      //   .data_out(inst_from_mem),
-      //   .stall(stallreq_from_imem)
   );
 
-  //   L1C_data D_cache (
-  //       .clk(clk),
-  //       .rstn(rstn),
-  //       .core_addr(data_write_addr),  
-  //       .core_req(data_rw_request), 
-  //       .core_write(data_write),  
-  //       .core_in(data_to_mem), 
-  //       .core_type(data_write_type),  
-  //       .D_out(D_out),  
-  //       .D_wait(D_wait), 
-  //       .core_out(data_from_mem), 
-  //       .core_wait(stallreq_from_dmem),  
-  //       .D_req(D_req),  
-  //       .D_addr(D_addr),
-  //       .D_write(D_write), 
-  //       .D_in(D_in),  
-  //       .D_type(D_type) 
-  //   );
+  L1C_data D_cache (
+      .clk(clk),
+      .rstn(rstn),
+      // CPU -> cache
+      .core_addr(data_write_addr),
+      .core_req(data_rw_request),
+      .core_write(data_write),
+      .core_in(data_to_mem),
+      .core_type(data_write_type),
+      // Cache -> Master
+      .D_out(D_out),
+      .D_wait(D_wait),
+      // Master -> CPU
+      .core_out(data_from_mem),
+      .core_wait(stallreq_from_dmem),
+      // Master -> cache 
+      .D_req(D_req),
+      .D_addr(D_addr),
+      .D_write(D_write),
+      .D_in(D_in),
+      .D_type(D_type)
+  );
 
   master #(
       .master_ID(`AXI_ID_BITS'b01),
-      .READ_BLOCK_SIZE(`AXI_LEN_ONE)
+      .READ_BLOCK_SIZE(`AXI_LEN_FOUR)
   ) M1 (
       .clk(clk),
       .rstn(rstn),
       .master(master1),
-      // With cache
-      //   .access_request(D_req),
-      //   .write(D_write),
-      //   .w_type(D_type),
-      //   .data_in(D_in),
-      //   .addr(D_addr),
-      //   .data_out(D_out),
-      //   .stall(D_wait)
-      // Without cache
-      .access_request(data_rw_request),
-      .write(data_write),
-      .w_type(data_write_type),
-      .data_in(data_to_mem),
-      .addr(data_write_addr),
-      .data_out(data_from_mem),
-      .stall(stallreq_from_dmem)
+      // Cache
+      .access_request(D_req),
+      .write(D_write),
+      .w_type(D_type),
+      .data_in(D_in),
+      .addr(D_addr),
+      .data_out(D_out),
+      .stall(D_wait)
   );
 
 endmodule
