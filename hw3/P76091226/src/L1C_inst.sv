@@ -123,8 +123,7 @@ module L1C_inst
     case (curr_state)
       IDLE: {TA_write, TA_read} = 2'b11;
       CHK: {TA_write, TA_read} = 2'b11;
-      RMISS:
-      {TA_write, TA_read} = {(curr_state == IDLE & next_state == RMISS), 1'b0};
+      RMISS: {TA_write, TA_read} = 2'b00;
       default: {TA_write, TA_read} = 2'b10;  // WHIT, WMISS, RHIT, FIN
     endcase
   end
