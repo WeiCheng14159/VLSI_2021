@@ -5,6 +5,8 @@
 // Version:     0.1
 //================================================
 `include "pkg_include.sv"
+`include "data_array_wrapper.sv"
+`include "tag_array_wrapper.sv"
 
 module L1C_data
   import d_cache_pkg::*;
