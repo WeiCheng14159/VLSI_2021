@@ -77,29 +77,22 @@ module CPU_wrapper
       .stallreq_from_dmem(stallreq_from_dmem)
   );
 
-  wire [3:0] NoWrite = 4'hf;
+  cache2cpu_intf icache2cpu ();
+  cache2mem_intf icache2mem ();
+  cache2cpu_intf dcache2cpu ();
+  cache2mem_intf dcache2mem ();
 
   L1C_inst I_cache (
       .clk(clk),
       .rstn(rstn),
-      // CPU -> cache
+      .mem(icache2mem),
       .core_addr(inst_addr),
       .core_req(inst_rw_request),
       .core_write(1'b0),
       .core_in(`DATA_BITS'b0),
       .core_type(`CACHE_WORD),
-      // Cache -> Master
-      .I_out(I_out),
-      .I_wait(I_wait),
-      // Master -> CPU
       .core_out(inst_from_mem),
-      .core_wait(stallreq_from_imem),
-      // Master -> cache 
-      .I_req(I_req),
-      .I_addr(I_addr),
-      .I_write(I_write),
-      .I_in(I_in),
-      .I_type(I_type)
+      .core_wait(stallreq_from_imem)
   );
 
   master #(
@@ -109,38 +102,20 @@ module CPU_wrapper
       .clk(clk),
       .rstn(rstn),
       .master(master0),
-
-      // Cache
-      .access_request(I_req),
-      .write(I_write),
-      .w_type(I_type),
-      .data_in(I_in),
-      .addr(I_addr),
-      .data_out(I_out),
-      .valid(I_wait)
+      .mem(icache2mem)
   );
 
   L1C_data D_cache (
       .clk(clk),
       .rstn(rstn),
-      // CPU -> cache
+      .mem(dcache2mem),
       .core_addr(data_write_addr),
       .core_req(data_rw_request),
       .core_write(data_write),
       .core_in(data_to_mem),
       .core_type(data_write_type),
-      // Cache -> Master
-      .D_out(D_out),
-      .D_wait(D_wait),
-      // Master -> CPU
       .core_out(data_from_mem),
-      .core_wait(stallreq_from_dmem),
-      // Master -> cache 
-      .D_req(D_req),
-      .D_addr(D_addr),
-      .D_write(D_write),
-      .D_in(D_in),
-      .D_type(D_type)
+      .core_wait(stallreq_from_dmem)
   );
 
   master #(
@@ -150,14 +125,7 @@ module CPU_wrapper
       .clk(clk),
       .rstn(rstn),
       .master(master1),
-      // Cache
-      .access_request(D_req),
-      .write(D_write),
-      .w_type(D_type),
-      .data_in(D_in),
-      .addr(D_addr),
-      .data_out(D_out),
-      .valid(D_wait)
+      .mem(dcache2mem)
   );
 
 endmodule

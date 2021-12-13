@@ -11,26 +11,18 @@
 module L1C_inst
   import i_cache_pkg::*;
 (
-    input  logic                        clk,
-    input  logic                        rstn,
+    input  logic                                       clk,
+    input  logic                                       rstn,
+           cache2mem_intf.cache                        mem,
     // From CPU to cache
-    input  logic [      `DATA_BITS-1:0] core_addr,
-    input  logic                        core_req,
-    input  logic                        core_write,
-    input  logic [      `DATA_BITS-1:0] core_in,
-    input  logic [`CACHE_TYPE_BITS-1:0] core_type,
-    // From CPU wrapper to cache
-    input  logic [      `DATA_BITS-1:0] I_out,
-    input  logic                        I_wait,
+    input  logic                [      `DATA_BITS-1:0] core_addr,
+    input  logic                                       core_req,
+    input  logic                                       core_write,
+    input  logic                [      `DATA_BITS-1:0] core_in,
+    input  logic                [`CACHE_TYPE_BITS-1:0] core_type,
     // From cache to CPU
-    output logic [      `DATA_BITS-1:0] core_out,
-    output logic                        core_wait,
-    // From Cache to CPU wrapper
-    output logic                        I_req,
-    output logic [      `DATA_BITS-1:0] I_addr,
-    output logic                        I_write,
-    output logic [      `DATA_BITS-1:0] I_in,
-    output logic [`CACHE_TYPE_BITS-1:0] I_type
+    output logic                [      `DATA_BITS-1:0] core_out,
+    output logic                                       core_wait
 );
 
   logic [`CACHE_INDEX_BITS-1:0] index;
@@ -56,7 +48,7 @@ module L1C_inst
 
   icache_state_t curr_state, next_state;
 
-  assign I_out_valid = I_wait;
+  assign I_out_valid = mem.m_wait;
   assign read_miss_done = (cnt == 4);
 
   // Registers for inputs
@@ -136,7 +128,7 @@ module L1C_inst
     if (~rstn) begin
       DA_in <= `CACHE_DATA_BITS'h0;
     end else if (curr_state == RMISS && I_out_valid) begin
-      DA_in[127-:32] <= I_out;
+      DA_in[127-:32] <= mem.m_out;
       DA_in[95-:32]  <= DA_in[127-:32];
       DA_in[63-:32]  <= DA_in[95-:32];
       DA_in[31-:32]  <= DA_in[63-:32];
@@ -162,11 +154,11 @@ module L1C_inst
   end
 
   // From Cache to  CPU wrapper
-  assign I_req = (curr_state == RMISS && ~I_out_valid && ~|cnt);
-  assign I_write = 1'b0;
-  assign I_in = `DATA_BITS'h0;
-  assign I_type = `CACHE_WORD;
-  assign I_addr = {core_addr_r[`DATA_BITS-1:4], 4'h0};
+  assign mem.m_req = (curr_state == RMISS && ~I_out_valid && ~|cnt);
+  assign mem.m_write = 1'b0;
+  assign mem.m_in = `DATA_BITS'h0;
+  assign mem.m_type = `CACHE_WORD;
+  assign mem.m_addr = {core_addr_r[`DATA_BITS-1:4], 4'h0};
 
   data_array_wrapper DA (
       .A  (index),

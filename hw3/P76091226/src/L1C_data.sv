@@ -11,26 +11,18 @@
 module L1C_data
   import d_cache_pkg::*;
 (
-    input  logic                        clk,
-    input  logic                        rstn,
+    input  logic                                       clk,
+    input  logic                                       rstn,
+           cache2mem_intf.cache                        mem,
     // From CPU to cache
-    input  logic [      `DATA_BITS-1:0] core_addr,
-    input  logic                        core_req,
-    input  logic                        core_write,
-    input  logic [      `DATA_BITS-1:0] core_in,
-    input  logic [`CACHE_TYPE_BITS-1:0] core_type,
-    // From CPU wrapper to cache
-    input  logic [      `DATA_BITS-1:0] D_out,
-    input  logic                        D_wait,
+    input  logic                [      `DATA_BITS-1:0] core_addr,
+    input  logic                                       core_req,
+    input  logic                                       core_write,
+    input  logic                [      `DATA_BITS-1:0] core_in,
+    input  logic                [`CACHE_TYPE_BITS-1:0] core_type,
     // From cache to CPU
-    output logic [      `DATA_BITS-1:0] core_out,
-    output logic                        core_wait,
-    // From Cache to CPU wrapper
-    output logic                        D_req,
-    output logic [      `DATA_BITS-1:0] D_addr,
-    output logic                        D_write,
-    output logic [      `DATA_BITS-1:0] D_in,
-    output logic [`CACHE_TYPE_BITS-1:0] D_type
+    output logic                [      `DATA_BITS-1:0] core_out,
+    output logic                                       core_wait
 );
 
   logic [`CACHE_INDEX_BITS-1:0] index;
@@ -64,7 +56,7 @@ module L1C_data
   assign read_miss_done = (cnt == 3'h4);
   assign write_miss_done = (cnt == 3'h1);
   assign write_hit_done = (cnt == 3'h1);
-  assign D_out_valid = D_wait;
+  assign D_out_valid = mem.m_wait;
 
   // Registers for inputs
   always @(posedge clk or negedge rstn) begin
@@ -212,7 +204,7 @@ module L1C_data
         WHIT: DA_in <= {core_in_r, core_in_r, core_in_r, core_in_r};
         RMISS: begin
           if (D_out_valid) begin
-            DA_in[127-:32] <= D_out;
+            DA_in[127-:32] <= mem.m_out;
             DA_in[95-:32]  <= DA_in[127-:32];
             DA_in[63-:32]  <= DA_in[95-:32];
             DA_in[31-:32]  <= DA_in[63-:32];
@@ -243,32 +235,32 @@ module L1C_data
   always_comb begin
     case (curr_state)
       WMISS: begin
-        D_req   = ~|cnt & ~D_out_valid;
-        D_write = ~|cnt & ~D_out_valid;
-        D_addr  = core_addr_r;
-        D_in    = core_in_r;
-        D_type  = core_type_r;
+        mem.m_req   = ~|cnt & ~D_out_valid;
+        mem.m_write = ~|cnt & ~D_out_valid;
+        mem.m_addr  = core_addr_r;
+        mem.m_in    = core_in_r;
+        mem.m_type  = core_type_r;
       end
       WHIT: begin
-        D_req   = ~|cnt & ~D_out_valid;
-        D_write = ~|cnt & ~D_out_valid;
-        D_addr  = core_addr_r;
-        D_in    = core_in_r;
-        D_type  = core_type_r;
+        mem.m_req   = ~|cnt & ~D_out_valid;
+        mem.m_write = ~|cnt & ~D_out_valid;
+        mem.m_addr  = core_addr_r;
+        mem.m_in    = core_in_r;
+        mem.m_type  = core_type_r;
       end
       RMISS: begin
-        D_req   = ~|cnt & ~D_out_valid;
-        D_write = 1'b0;
-        D_addr  = {core_addr_r[`DATA_BITS-1:4], 4'h0};
-        D_in    = `DATA_BITS'h0;
-        D_type  = `CACHE_WORD;
+        mem.m_req   = ~|cnt & ~D_out_valid;
+        mem.m_write = 1'b0;
+        mem.m_addr  = {core_addr_r[`DATA_BITS-1:4], 4'h0};
+        mem.m_in    = `DATA_BITS'h0;
+        mem.m_type  = `CACHE_WORD;
       end
       default: begin
-        D_req   = 1'b0;
-        D_write = 1'b0;
-        D_addr  = `DATA_BITS'h0;
-        D_in    = `DATA_BITS'h0;
-        D_type  = core_type_r;
+        mem.m_req   = 1'b0;
+        mem.m_write = 1'b0;
+        mem.m_addr  = `DATA_BITS'h0;
+        mem.m_in    = `DATA_BITS'h0;
+        mem.m_type  = core_type_r;
       end
     endcase
   end

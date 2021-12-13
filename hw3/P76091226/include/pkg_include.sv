@@ -12,6 +12,8 @@
 `include "i_cache_pkg.sv"
 `include "d_cache_pkg.sv"
 `include "cache.svh"
+`include "cache2cpu_intf.sv"
+`include "cache2mem_intf.sv"
 // CPU
 `include "cpu_wrapper_pkg.sv"
 `include "cpu_pkg.sv"

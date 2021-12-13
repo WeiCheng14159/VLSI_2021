@@ -13,18 +13,10 @@ module master
     parameter [`AXI_ID_BITS-1:0] master_ID = {`AXI_ID_BITS{1'b0}},
     parameter [`AXI_LEN_BITS-1:0] READ_BLOCK_SIZE = `AXI_LEN_ONE
 ) (
-    input  logic                                       clk,
-    input  logic                                       rstn,
-    // AXI master interface
-           AXI_master_intf.master                      master,
-    //interface for cpu
-    input  logic                                       access_request,
-    input  logic                                       write,
-    input  logic                  [ Func3BusWidth-1:0] w_type,
-    input  logic                  [`AXI_DATA_BITS-1:0] data_in,
-    input  logic                  [`AXI_ADDR_BITS-1:0] addr,
-    output logic                  [`AXI_DATA_BITS-1:0] data_out,
-    output logic                                       valid
+    input logic                  clk,
+    input logic                  rstn,
+          AXI_master_intf.master master,
+          cache2mem_intf.cache   mem
 );
 
   logic [`AXI_ADDR_BITS-1:0] ARADDR_r, AWADDR_r;
@@ -35,7 +27,7 @@ module master
   master_state_t m_curr_state, m_next_state;
   logic ARx_hs_done, Rx_hs_done, AWx_hs_done, Wx_hs_done, Bx_hs_done;
 
-  assign read = access_request & ~write;
+  assign read = mem.m_req & ~mem.m_write;
 
   assign AWx_hs_done = master.AWVALID & master.AWREADY;
   assign Wx_hs_done = master.WVALID & master.WREADY;
@@ -44,7 +36,7 @@ module master
   assign Rx_hs_done = master.RVALID & master.RREADY;
 
   // RDATA_r
-  assign data_out = Rx_hs_done ? master.RDATA : RDATA_r;
+  assign mem.m_out = Rx_hs_done ? master.RDATA : RDATA_r;
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) RDATA_r <= `AXI_DATA_BITS'b0;
     else RDATA_r <= (Rx_hs_done) ? master.RDATA : RDATA_r;
@@ -68,10 +60,10 @@ module master
       AWADDR_r <= `AXI_ADDR_BITS'b0;
       ARLEN_r  <= `AXI_LEN_BITS'b0;
     end else if (m_curr_state != AR & m_next_state == AR) begin
-      ARADDR_r <= addr;
+      ARADDR_r <= mem.m_addr;
       ARLEN_r  <= master.ARLEN;
     end else if (m_curr_state != AW & m_next_state == AW) begin
-      AWADDR_r <= addr;
+      AWADDR_r <= mem.m_addr;
     end
   end
 
@@ -80,7 +72,7 @@ module master
     if (~rstn) begin
       WDATA_r <= `AXI_ADDR_BITS'b0;
     end else if (m_curr_state != AW & m_next_state == AW) begin
-      WDATA_r <= data_in;
+      WDATA_r <= mem.m_in;
     end
   end
 
@@ -89,10 +81,10 @@ module master
     if (~rstn) begin
       WSTRB_r <= {WriteDisable, WriteDisable, WriteDisable, WriteDisable};
     end else if (m_curr_state != AW & m_next_state == AW) begin
-      case (w_type)
+      case (mem.m_type)
         OP_SW: WSTRB_r <= {WriteEnable, WriteEnable, WriteEnable, WriteEnable};
         OP_SH: begin
-          case (addr[1])
+          case (mem.m_addr[1])
             1'b1:
             WSTRB_r <= {WriteEnable, WriteEnable, WriteDisable, WriteDisable};
             1'b0:
@@ -100,7 +92,7 @@ module master
           endcase
         end
         OP_SB: begin
-          case (addr[1:0])
+          case (mem.m_addr[1:0])
             2'b00:
             WSTRB_r <= {WriteDisable, WriteDisable, WriteDisable, WriteEnable};
             2'b01:
@@ -126,16 +118,17 @@ module master
   always_comb begin
     m_next_state = IDLE;
     unique case (1'b1)
-      m_curr_state[IDLE_BIT]: m_next_state = (write) ? AW : (read) ? AR : IDLE;
+      m_curr_state[IDLE_BIT]:
+      m_next_state = (mem.m_write) ? AW : (read) ? AR : IDLE;
       m_curr_state[AR_BIT]: m_next_state = (master.ARREADY) ? R : AR;
       m_curr_state[R_BIT]:
-      m_next_state = (Rx_hs_done & len_cnt == ARLEN_r) ? (write ? AW : read ? AR : IDLE) : R;
+      m_next_state = (Rx_hs_done & len_cnt == ARLEN_r) ? (mem.m_write ? AW : read ? AR : IDLE) : R;
       m_curr_state[AW_BIT]:
       m_next_state = (AWx_hs_done) ? (Wx_hs_done) ? B : W : AW;
       m_curr_state[W_BIT]:
       m_next_state = (Wx_hs_done) ? (Bx_hs_done) ? IDLE : B : W;
       m_curr_state[B_BIT]:
-      m_next_state = (Bx_hs_done) ? (write ? AW : read ? AR : IDLE) : B;
+      m_next_state = (Bx_hs_done) ? (mem.m_write ? AW : read ? AR : IDLE) : B;
     endcase
   end  // Next state (C)
 
@@ -164,7 +157,7 @@ module master
     // Rx
     master.RREADY = 1'b0;
     // valid
-    valid = 1'b0;
+    mem.m_wait = 1'b0;
 
     unique case (1'b1)
       m_curr_state[IDLE_BIT]: ;
@@ -176,7 +169,7 @@ module master
       m_curr_state[R_BIT]: begin
         // Rx
         master.RREADY = 1'b1;
-        valid = master.RVALID;
+        mem.m_wait = master.RVALID;
       end
       m_curr_state[AW_BIT]: begin
         // AWx
@@ -192,7 +185,7 @@ module master
       m_curr_state[B_BIT]: begin
         // Bx
         master.BREADY = 1'b1;
-        valid = master.BVALID;
+        mem.m_wait = master.BVALID;
       end
     endcase
   end
