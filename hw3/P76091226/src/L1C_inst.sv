@@ -122,7 +122,7 @@ module L1C_inst
   assign TA_in = (curr_state == IDLE) ? core_addr[`TAG_FIELD] : core_addr_r[`TAG_FIELD];
   always_comb begin
     case (curr_state)
-      IDLE:    {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_DIS};
+      IDLE:    {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
       CHK:     {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
       RMISS:   {TA_write, TA_read} = {TA_WRITE_ENB, TA_READ_DIS};
       default: {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_DIS};
@@ -130,7 +130,7 @@ module L1C_inst
   end
 
   // DAx
-  assign DA_read = (curr_state == CHK) ? (hit & ~core_write_r) ? DA_READ_ENB : DA_WRITE_DIS : DA_WRITE_DIS;
+  assign DA_read = (curr_state == CHK) ? (hit & ~core_write_r) ? DA_READ_ENB : DA_READ_DIS : DA_READ_DIS;
   assign DA_write = (read_miss_done) ? {`CACHE_WRITE_BITS{DA_WRITE_ENB}} : {`CACHE_WRITE_BITS{DA_WRITE_DIS}};
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
