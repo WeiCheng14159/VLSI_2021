@@ -95,9 +95,7 @@ module L1C_inst
         else next_state = CHK;
       end
       CHK:     next_state = ~core_write_r & hit ? IDLE : RMISS;
-      RHIT:    next_state = FIN;
       RMISS:   next_state = (read_miss_done) ? IDLE : RMISS;
-      FIN:     next_state = IDLE;
       default: next_state = IDLE;
     endcase
   end  // Next state (N)
@@ -115,9 +113,7 @@ module L1C_inst
       IDLE:
       hit = valid[core_addr[`INDEX_FIELD]] & (TA_out == core_addr[`TAG_FIELD]);
       CHK: hit = (TA_out == core_addr_r[`TAG_FIELD]);
-      RHIT: hit = 1'b1;
-      FIN: ;
-      default: hit = 1'b0;  // WMISS, RMISS, FIN
+      default: hit = 1'b0;
     endcase
   end
 
@@ -129,7 +125,7 @@ module L1C_inst
       IDLE: {TA_write, TA_read} = 2'b11;
       CHK: {TA_write, TA_read} = 2'b11;
       RMISS: {TA_write, TA_read} = 2'b00;
-      default: {TA_write, TA_read} = 2'b10;  // WHIT, WMISS, RHIT, FIN
+      default: {TA_write, TA_read} = 2'b10;
     endcase
   end
 
@@ -137,7 +133,6 @@ module L1C_inst
   always_comb begin
     case (curr_state)
       CHK:     DA_read = hit & ~core_write_r;
-      RHIT:    DA_read = 1'b1;
       default: DA_read = 1'b0;
     endcase
   end
