@@ -117,7 +117,7 @@ module CPU_wrapper
       .data_in(I_in),
       .addr(I_addr),
       .data_out(I_out),
-      .stall(I_wait)
+      .valid(I_wait)
   );
 
   L1C_data D_cache (
@@ -157,7 +157,7 @@ module CPU_wrapper
       .data_in(D_in),
       .addr(D_addr),
       .data_out(D_out),
-      .stall(D_wait)
+      .valid(D_wait)
   );
 
 endmodule

@@ -24,7 +24,7 @@ module master
     input  logic                  [`AXI_DATA_BITS-1:0] data_in,
     input  logic                  [`AXI_ADDR_BITS-1:0] addr,
     output logic                  [`AXI_DATA_BITS-1:0] data_out,
-    output logic                                       stall
+    output logic                                       valid
 );
 
   logic [`AXI_ADDR_BITS-1:0] ARADDR_r, AWADDR_r;
@@ -163,8 +163,8 @@ module master
     master.ARVALID = 1'b0;
     // Rx
     master.RREADY = 1'b0;
-    // stall
-    stall = 1'b0;
+    // valid
+    valid = 1'b0;
 
     unique case (1'b1)
       m_curr_state[IDLE_BIT]: ;
@@ -172,30 +172,27 @@ module master
         // ARx
         master.ARBURST = `AXI_BURST_INC;
         master.ARVALID = 1'b1;
-        stall = 1'b1;
       end
       m_curr_state[R_BIT]: begin
         // Rx
         master.RREADY = 1'b1;
-        stall = ~master.RLAST;
+        valid = master.RVALID;
       end
       m_curr_state[AW_BIT]: begin
         // AWx
         master.AWVALID = 1'b1;
-        stall = 1'b1;
-        master.WVALID = AWx_hs_done;
+        master.WVALID  = AWx_hs_done;
       end
       m_curr_state[W_BIT]: begin
         // Wx
         master.WVALID = 1'b1;
         // Bx
         master.BREADY = 1'b1;
-        stall = 1'b1;
       end
       m_curr_state[B_BIT]: begin
         // Bx
         master.BREADY = 1'b1;
-        stall = ~master.BVALID;
+        valid = master.BVALID;
       end
     endcase
   end
