@@ -38,8 +38,7 @@ module L1C_inst
   logic DA_read;
   logic [`CACHE_TAG_BITS-1:0] TA_out;
   logic [`CACHE_TAG_BITS-1:0] TA_in;
-  logic TA_write;
-  logic TA_read;
+  logic TA_write, TA_read;
   logic [`CACHE_LINE_BITS-1:0] valid;
 
 
@@ -120,24 +119,17 @@ module L1C_inst
   // TAx
   assign TA_in = (curr_state == IDLE) ? core_addr[`TAG_FIELD] : core_addr_r[`TAG_FIELD];
   always_comb begin
-    {TA_write, TA_read} = 2'b00;
     case (curr_state)
-      IDLE: {TA_write, TA_read} = 2'b11;
-      CHK: {TA_write, TA_read} = 2'b11;
-      RMISS: {TA_write, TA_read} = 2'b00;
-      default: {TA_write, TA_read} = 2'b10;
+      IDLE:    {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_DIS};
+      CHK:     {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
+      RMISS:   {TA_write, TA_read} = {TA_WRITE_ENB, TA_READ_DIS};
+      default: {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_DIS};
     endcase
   end
 
   // DAx
-  always_comb begin
-    case (curr_state)
-      CHK:     DA_read = hit & ~core_write_r;
-      default: DA_read = 1'b0;
-    endcase
-  end
-
-  assign DA_write = (read_miss_done) ? `CACHE_WRITE_BITS'h0 : `CACHE_WRITE_BITS'hffff;
+  assign DA_read = (curr_state == CHK) ? (hit & ~core_write_r) ? DA_READ_ENB : DA_WRITE_DIS : DA_WRITE_DIS;
+  assign DA_write = (read_miss_done) ? {`CACHE_WRITE_BITS{DA_WRITE_ENB}} : {`CACHE_WRITE_BITS{DA_WRITE_DIS}};
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
       DA_in <= `CACHE_DATA_BITS'h0;
