@@ -46,13 +46,17 @@ module L1C_inst
   logic [`DATA_BITS      -1:0] core_addr_r, core_in_r;
   logic [`CACHE_TYPE_BITS-1:0] core_type_r;
   logic                        core_write_r;
-  logic [                 1:0] I_wait_r;
   logic [`DATA_BITS      -1:0] read_data;
   logic [`CACHE_DATA_BITS-1:0] read_block_data;
   logic                        hit;
-  logic                        write_block_done;
+  logic                        read_miss_done;
+  logic [                 2:0] cnt;
+  logic                        I_out_valid;
 
   icache_state_t curr_state, next_state;
+
+  assign I_out_valid = I_wait;
+  assign read_miss_done = (cnt == 4);
 
   // Registers for inputs
   always @(posedge clk or negedge rstn) begin
@@ -61,20 +65,21 @@ module L1C_inst
       core_in_r    <= `DATA_BITS'h0;
       core_type_r  <= `CACHE_TYPE_BITS'h0;
       core_write_r <= 1'b0;
-      I_wait_r[0] <= 1'b0;
-      I_wait_r[1] <= 1'b0;
     end else if (curr_state == IDLE) begin
       core_addr_r  <= core_addr;
       core_in_r    <= core_in;
       core_type_r  <= core_type;
       core_write_r <= core_write;
-    end else if (curr_state == RMISS) begin
-      I_wait_r[0] <= I_wait;
-      I_wait_r[1] <= I_wait_r[0];
     end
   end
 
-  assign write_block_done = ~I_wait & ~I_wait_r[0] & I_wait_r[1];
+  // cnt
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) cnt <= 3'h0;
+    else if (~I_out_valid) cnt <= 3'h0;
+    else if (I_out_valid) cnt <= cnt + 3'h1;
+    else cnt <= cnt;
+  end
 
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) curr_state <= IDLE;
@@ -91,7 +96,7 @@ module L1C_inst
       end
       CHK:     next_state = ~core_write_r & hit ? IDLE : RMISS;
       RHIT:    next_state = FIN;
-      RMISS:   next_state = write_block_done ? IDLE : RMISS;
+      RMISS:   next_state = (read_miss_done) ? IDLE : RMISS;
       FIN:     next_state = IDLE;
       default: next_state = IDLE;
     endcase
@@ -137,11 +142,11 @@ module L1C_inst
     endcase
   end
 
-  assign DA_write = (write_block_done) ? `CACHE_WRITE_BITS'h0 : `CACHE_WRITE_BITS'hffff;
+  assign DA_write = (read_miss_done) ? `CACHE_WRITE_BITS'h0 : `CACHE_WRITE_BITS'hffff;
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
       DA_in <= `CACHE_DATA_BITS'h0;
-    end else if (curr_state == RMISS) begin
+    end else if (curr_state == RMISS && I_out_valid) begin
       DA_in[127-:32] <= I_out;
       DA_in[95-:32]  <= DA_in[127-:32];
       DA_in[63-:32]  <= DA_in[95-:32];
@@ -152,7 +157,7 @@ module L1C_inst
   end
 
   // read_block_data, read_data
-  assign read_block_data = (write_block_done) ? DA_in : DA_out;
+  assign read_block_data = (read_miss_done) ? DA_in : DA_out;
   assign read_data = read_block_data[{core_addr_r[`WORD_FIELD], 5'b0}+:32];
 
   // core_out
@@ -162,13 +167,13 @@ module L1C_inst
     else begin
       case (curr_state)
         CHK:   core_out <= read_data;
-        RMISS: core_out <= (write_block_done) ? read_data : core_out;
+        RMISS: core_out <= (read_miss_done) ? read_data : core_out;
       endcase
     end
   end
 
   // From Cache to  CPU wrapper
-  assign I_req = (curr_state == RMISS && ~I_wait && ~I_wait_r[0] && ~I_wait_r[1]);
+  assign I_req = (curr_state == RMISS && ~I_out_valid && ~|cnt);
   assign I_write = 1'b0;
   assign I_in = `DATA_BITS'h0;
   assign I_type = `CACHE_WORD;
@@ -204,7 +209,7 @@ module L1C_inst
       insts      <= `DATA_BITS'h0;
     end else begin
       L1CI_rhits <= (curr_state == CHK) & ~core_write_r &hit ? L1CI_rhits + 'h1 : L1CI_rhits;
-      L1CI_rmiss <= (curr_state == RMISS) & write_block_done ? L1CI_rmiss + 'h1 : L1CI_rmiss;
+      L1CI_rmiss <= (curr_state == RMISS) & read_miss_done ? L1CI_rmiss + 'h1 : L1CI_rmiss;
       insts <= (curr_state == IDLE) & core_req ? insts + 'h1 : insts;
     end
   end
