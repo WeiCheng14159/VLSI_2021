@@ -296,19 +296,25 @@ module L1C_data
   logic [`DATA_BITS-1:0] L1CD_rhits, L1CD_whits;
   logic [`DATA_BITS-1:0] L1CD_rmiss, L1CD_wmiss;
   logic [`DATA_BITS-1:0] L1CD_hits, L1CD_miss;
-  assign L1CD_hits = L1CD_rhits + L1CD_whits;
-  assign L1CD_miss = L1CD_rmiss + L1CD_wmiss;
+  logic [`DATA_BITS-1:0] L1CD_rcnt, L1CD_wcnt, L1CD_rwcnt;
+  assign L1CD_hits  = L1CD_rhits + L1CD_whits;
+  assign L1CD_miss  = L1CD_rmiss + L1CD_wmiss;
+  assign L1CD_rwcnt = L1CD_rcnt + L1CD_wcnt;
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
       L1CD_rhits <= `DATA_BITS'h0;
       L1CD_whits <= `DATA_BITS'h0;
       L1CD_rmiss <= `DATA_BITS'h0;
       L1CD_wmiss <= `DATA_BITS'h0;
+      L1CD_rcnt  <= `DATA_BITS'h0;
+      L1CD_wcnt  <= `DATA_BITS'h0;
     end else begin
       L1CD_rhits <= (curr_state == CHK) & hit & ~core_write ? L1CD_rhits + 'h1 : L1CD_rhits;
       L1CD_whits <= (curr_state == WHIT) & (write_hit_done) ? L1CD_whits + 'h1 : L1CD_whits;
       L1CD_rmiss <= (curr_state == RMISS) & (read_miss_done) ? L1CD_rmiss + 'h1 : L1CD_rmiss;
       L1CD_wmiss <= (curr_state == WMISS) & (write_miss_done) ? L1CD_wmiss + 'h1 : L1CD_wmiss;
+      L1CD_rcnt  <= (curr_state == IDLE) & (core_req & ~core_write) ? L1CD_rcnt + 'h1 : L1CD_rcnt;
+      L1CD_wcnt  <= (curr_state == IDLE) & (core_req & core_write) ? L1CD_wcnt + 'h1 : L1CD_wcnt;
     end
   end
 

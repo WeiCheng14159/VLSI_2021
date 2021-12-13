@@ -190,19 +190,18 @@ module L1C_inst
 
   logic [`DATA_BITS-1:0] L1CI_rhits;
   logic [`DATA_BITS-1:0] L1CI_rmiss;
-  logic [`DATA_BITS-1:0] insts;
+  logic [`DATA_BITS-1:0] L1CI_cnt;
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
       L1CI_rhits <= `DATA_BITS'h0;
       L1CI_rmiss <= `DATA_BITS'h0;
-      insts      <= `DATA_BITS'h0;
+      L1CI_cnt   <= `DATA_BITS'h0;
     end else begin
       L1CI_rhits <= (curr_state == CHK) & ~core_write_r &hit ? L1CI_rhits + 'h1 : L1CI_rhits;
       L1CI_rmiss <= (curr_state == RMISS) & read_miss_done ? L1CI_rmiss + 'h1 : L1CI_rmiss;
-      insts <= (curr_state == IDLE) & core_req ? insts + 'h1 : insts;
+      L1CI_cnt <= (curr_state == IDLE) & core_req ? L1CI_cnt + 'h1 : L1CI_cnt;
     end
   end
-
 
 endmodule
 
