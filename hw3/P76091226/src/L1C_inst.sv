@@ -112,9 +112,12 @@ module L1C_inst
   assign TA_in = (curr_state == IDLE) ? core_addr[`TAG_FIELD] : core_addr_r[`TAG_FIELD];
   always_comb begin
     case (curr_state)
-      IDLE:    {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
-      CHK:     {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
-      RMISS:   {TA_write, TA_read} = {TA_WRITE_ENB, TA_READ_DIS};
+      IDLE:
+      {TA_write, TA_read} = {
+        TA_WRITE_DIS, (core_req) ? TA_READ_ENB : TA_READ_DIS
+      };
+      CHK: {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
+      RMISS: {TA_write, TA_read} = {TA_WRITE_ENB, TA_READ_DIS};
       default: {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_DIS};
     endcase
   end
