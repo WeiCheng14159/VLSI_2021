@@ -55,6 +55,7 @@ module master
 
   // WSTRB_c
   always_comb begin
+    WSTRB_c = {WriteDisable, WriteDisable, WriteDisable, WriteDisable};
     case (mem.m_type)
       OP_SW: WSTRB_c = {WriteEnable, WriteEnable, WriteEnable, WriteEnable};
       OP_SH: begin
@@ -116,6 +117,7 @@ module master
     master.BREADY = 1'b0;
     // ARx
     master.ARID = master_ID;
+    master.ARADDR = ARADDR_r;
     master.ARLEN = READ_BLOCK_SIZE;
     master.ARSIZE = `AXI_SIZE_BITS'b0;
     master.ARBURST = `AXI_BURST_INC;
