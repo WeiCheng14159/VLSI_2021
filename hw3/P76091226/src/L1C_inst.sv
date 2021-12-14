@@ -45,11 +45,13 @@ module L1C_inst
   logic                        read_miss_done;
   logic [                 2:0] cnt;
   logic                        I_out_valid;
+  logic                        read_req;
 
   icache_state_t curr_state, next_state;
 
   assign I_out_valid = mem.m_wait;
   assign read_miss_done = (cnt == 4);
+  assign read_req = core_req & ~core_write;
 
   // Registers for inputs
   always @(posedge clk or negedge rstn) begin
@@ -84,7 +86,7 @@ module L1C_inst
     case (curr_state)
       IDLE: begin
         if (~core_req) next_state = IDLE;
-        else if (core_req & ~core_write & ~valid[index]) next_state = RMISS;
+        else if (read_req & ~valid[index]) next_state = RMISS;
         else next_state = CHK;
       end
       CHK:     next_state = ~core_write_r & hit ? IDLE : RMISS;
@@ -191,7 +193,7 @@ module L1C_inst
     end else begin
       L1CI_rhits <= (curr_state == CHK) & ~core_write_r &hit ? L1CI_rhits + 'h1 : L1CI_rhits;
       L1CI_rmiss <= (curr_state == RMISS) & read_miss_done ? L1CI_rmiss + 'h1 : L1CI_rmiss;
-      L1CI_cnt <= (curr_state == IDLE) & core_req ? L1CI_cnt + 'h1 : L1CI_cnt;
+      L1CI_cnt <= (curr_state == IDLE) & read_req ? L1CI_cnt + 'h1 : L1CI_cnt;
     end
   end
 
