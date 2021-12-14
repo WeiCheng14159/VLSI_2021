@@ -2,7 +2,9 @@
 
 module rom_wrapper
   import rom_wrapper_pkg::*;
-(
+#(
+    parameter [`AXI_ADDR_BITS-1:0] addr_upper_bound = {32'h27C}
+) (
     input  logic                                clk,
     input  logic                                rstn,
            AXI_slave_intf.slave                 slave,
@@ -20,18 +22,21 @@ module rom_wrapper
   logic [`AXI_IDS_BITS-1:0] ID_r;
   logic [`AXI_LEN_BITS-1:0] LEN_r;
   logic [`AXI_LEN_BITS-1:0] len_cnt;
+  logic addr_overflow;
 
   // Handshake signal
   assign ARx_hs_done = slave.ARVALID & slave.ARREADY;
-  assign Rx_hs_done  = slave.RVALID & slave.RREADY;
+  assign Rx_hs_done = slave.RVALID & slave.RREADY;
   // Rx
   assign slave.RLAST = (len_cnt == LEN_r);
-  assign slave.RDATA = (slave.RVALID) ? ROM_out : EMPTY_DATA;
-  assign slave.RID   = ID_r;
+  assign slave.RDATA = (slave.RVALID) ? (addr_overflow) ? EMPTY_DATA : ROM_out : EMPTY_DATA;
+  assign slave.RID = ID_r;
   assign slave.RRESP = `AXI_RESP_OKAY;
   // Bx
-  assign slave.BID   = ID_r;
+  assign slave.BID = ID_r;
   assign slave.BRESP = `AXI_RESP_SLVERR;
+  // Other
+  assign addr_overflow = (slave.ARADDR > addr_upper_bound);
 
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) curr_state <= IDLE;

@@ -1,3 +1,6 @@
+`ifndef DATA_ARRAY_WRAPPER_SV
+`define DATA_ARRAY_WRAPPER_SV
+
 module data_array_wrapper (
     input logic CK,
     input logic CS,
@@ -293,3 +296,5 @@ module data_array_wrapper (
   );
 
 endmodule
+
+`endif

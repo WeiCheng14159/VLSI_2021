@@ -4,8 +4,8 @@
 // Description: AXI defination
 // Version:     1.0
 //================================================
-// `ifndef AXI_DEFINE_SVH
-// `define AXI_DEFINE_SVH
+`ifndef AXI_DEFINE_SVH
+`define AXI_DEFINE_SVH
 
 `define AXI_ID_BITS 4
 `define AXI_IDS_BITS 8
@@ -17,6 +17,7 @@
 `define AXI_BURST_BITS 2
 `define AXI_RESP_BITS 2
 `define AXI_LEN_ONE 4'h0
+`define AXI_LEN_FOUR 4'h3
 `define AXI_SIZE_BYTE 3'b000
 `define AXI_SIZE_HWORD 3'b001
 `define AXI_SIZE_WORD 3'b010
@@ -28,4 +29,4 @@
 `define AXI_RESP_SLVERR 2'h2
 `define AXI_RESP_DECERR 2'h3
 
-// `endif
+`endif

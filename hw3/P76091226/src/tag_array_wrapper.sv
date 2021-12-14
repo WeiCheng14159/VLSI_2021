@@ -1,3 +1,6 @@
+`ifndef TAG_ARRAY_WRAPPER_SV
+`define TAG_ARRAY_WRAPPER_SV
+
 module tag_array_wrapper (
     input logic CK,
     input logic CS,
@@ -66,3 +69,5 @@ module tag_array_wrapper (
   );
 
 endmodule
+
+`endif

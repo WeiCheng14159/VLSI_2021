@@ -5,15 +5,12 @@ package master_pkg;
   localparam VERSION = "v1.0";
   localparam AUTHOR = "Wei Cheng";
 
-  localparam IDLE_BIT = 0, AR_BIT = 1, R_BIT = 2, AW_BIT = 3, W_BIT = 4, B_BIT = 5;
+  localparam IDLE_BIT = 0, READ_BIT = 1, WRITE_BIT = 2;
 
-  typedef enum logic [5:0] {
-    IDLE = 1 << IDLE_BIT,
-    AR = 1 << AR_BIT,
-    R = 1 << R_BIT,
-    AW = 1 << AW_BIT,
-    W = 1 << W_BIT,
-    B = 1 << B_BIT
+  typedef enum logic [2:0] {
+    IDLE  = 1 << IDLE_BIT,
+    READ  = 1 << READ_BIT,
+    WRITE = 1 << WRITE_BIT
   } master_state_t;
 
 endpackage : master_pkg
