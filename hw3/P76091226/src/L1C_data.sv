@@ -302,7 +302,7 @@ module L1C_data
       L1CD_rcnt  <= `DATA_BITS'h0;
       L1CD_wcnt  <= `DATA_BITS'h0;
     end else begin
-      L1CD_rhits <= (curr_state == CHK) & hit & ~core_write ? L1CD_rhits + 'h1 : L1CD_rhits;
+      L1CD_rhits <= (curr_state == CHK) & hit & ~core_write_r ? L1CD_rhits + 'h1 : L1CD_rhits;
       L1CD_whits <= (curr_state == WHIT) & (write_hit_done) ? L1CD_whits + 'h1 : L1CD_whits;
       L1CD_rmiss <= (curr_state == RMISS) & (read_miss_done) ? L1CD_rmiss + 'h1 : L1CD_rmiss;
       L1CD_wmiss <= (curr_state == WMISS) & (write_miss_done) ? L1CD_wmiss + 'h1 : L1CD_wmiss;
