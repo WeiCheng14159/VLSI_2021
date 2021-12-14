@@ -50,7 +50,6 @@ module L1C_data
   logic [3:0] web, bweb, hweb;
   logic read_miss_done, write_miss_done, write_hit_done;
   logic D_out_valid;
-  logic read_req, write_req;
 
   dcache_state_t curr_state, next_state;
 
@@ -58,8 +57,6 @@ module L1C_data
   assign write_miss_done = (cnt == 3'h1);
   assign write_hit_done = (cnt == 3'h1);
   assign D_out_valid = mem.m_wait;
-  assign read_req = core_req & ~core_write;
-  assign writer_req = core_req & core_write;
 
   // Registers for inputs
   always @(posedge clk or negedge rstn) begin
@@ -98,8 +95,8 @@ module L1C_data
     case (curr_state)
       IDLE: begin
         if (~core_req) next_state = IDLE;
-        else if (writer_req & ~valid[index]) next_state = WMISS;
-        else if (read_req & ~valid[index]) next_state = RMISS;
+        else if (core_req & core_write & ~valid[index]) next_state = WMISS;
+        else if (core_req & ~core_write & ~valid[index]) next_state = RMISS;
         else next_state = CHK;
       end
       CHK: begin
@@ -122,8 +119,6 @@ module L1C_data
   always_comb begin
     hit = 1'b0;
     case (curr_state)
-      IDLE:
-      hit = valid[core_addr[`INDEX_FIELD]] & (TA_out == core_addr[`TAG_FIELD]);
       CHK: hit = (TA_out == core_addr_r[`TAG_FIELD]);
       WHIT: hit = 1'b1;
       default: hit = 1'b0;  // WMISS, RMISS
@@ -308,8 +303,8 @@ module L1C_data
       L1CD_whits <= (curr_state == WHIT) & (write_hit_done) ? L1CD_whits + 'h1 : L1CD_whits;
       L1CD_rmiss <= (curr_state == RMISS) & (read_miss_done) ? L1CD_rmiss + 'h1 : L1CD_rmiss;
       L1CD_wmiss <= (curr_state == WMISS) & (write_miss_done) ? L1CD_wmiss + 'h1 : L1CD_wmiss;
-      L1CD_rcnt  <= (curr_state == IDLE) & (read_req) ? L1CD_rcnt + 'h1 : L1CD_rcnt;
-      L1CD_wcnt  <= (curr_state == IDLE) & (write_req) ? L1CD_wcnt + 'h1 : L1CD_wcnt;
+      L1CD_rcnt  <= (curr_state == IDLE) & (core_req & ~core_write) ? L1CD_rcnt + 'h1 : L1CD_rcnt;
+      L1CD_wcnt  <= (curr_state == IDLE) & (core_req & core_write) ? L1CD_wcnt + 'h1 : L1CD_wcnt;
     end
   end
 
