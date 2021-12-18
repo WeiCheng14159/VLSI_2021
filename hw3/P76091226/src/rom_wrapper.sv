@@ -48,7 +48,7 @@ module rom_wrapper
     case (curr_state)
       IDLE: next_state = (slave.ARVALID) ? READ : IDLE;
       READ:
-      next_state = (Rx_hs_done & slave.RLAST) ? (slave.ARVALID ? READ : IDLE) : READ;
+      next_state = (Rx_hs_done & slave.RLAST) ? IDLE : READ;
     endcase
   end  // Next state (C)
 
