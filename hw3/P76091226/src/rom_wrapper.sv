@@ -19,6 +19,7 @@ module rom_wrapper
   logic ARx_hs_done, Rx_hs_done;
 
   logic [ADDR_SIZE-1:0] ROM_address_r;
+  logic [`AXI_ADDR_BITS-1:0] ARADDR_r;
   logic [`AXI_IDS_BITS-1:0] ID_r;
   logic [`AXI_LEN_BITS-1:0] LEN_r;
   logic [`AXI_LEN_BITS-1:0] len_cnt;
@@ -36,7 +37,8 @@ module rom_wrapper
   assign slave.BID   = ID_r;
   assign slave.BRESP = `AXI_RESP_SLVERR;
   // Other
-  assign addr_overflow = (slave.ARADDR > addr_upper_bound);
+  assign addr_overflow = (ARADDR_r > addr_upper_bound);
+  assign ROM_address_r = ARADDR_r[15:2];
 
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) curr_state <= IDLE;
@@ -75,7 +77,7 @@ module rom_wrapper
         slave.RVALID = 1'b1;
         ROM_read = ROM_READ_ENB;
         ROM_enable = ROM_ENB;
-        ROM_address = (slave.RLAST & Rx_hs_done) ? (EMPTY_ADDR) : (ROM_address_r  + len_cnt + 1'b1);
+        ROM_address = (ROM_address_r  + len_cnt + 1'b1);
       end
       default: ;
     endcase
@@ -94,11 +96,11 @@ module rom_wrapper
 
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-      ROM_address_r <= 14'b0;
+      ARADDR_r      <= `AXI_ADDR_BITS'b0;
       ID_r          <= `AXI_IDS_BITS'b0;
       LEN_r         <= `AXI_LEN_BITS'b0;
     end else begin
-      ROM_address_r <= (ARx_hs_done) ? slave.ARADDR[15:2] : ROM_address_r;
+      ARADDR_r      <= (ARx_hs_done) ? slave.ARADDR : ARADDR_r;
       ID_r          <= (ARx_hs_done) ? slave.ARID : ID_r;
       LEN_r         <= (ARx_hs_done) ? slave.ARLEN : LEN_r;
     end
