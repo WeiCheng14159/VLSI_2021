@@ -30,7 +30,7 @@ module rom_wrapper
   assign Rx_hs_done  = slave.RVALID & slave.RREADY;
   // Rx
   assign slave.RLAST = (len_cnt == LEN_r);
-  assign slave.RDATA = (slave.RVALID) ? (addr_overflow) ? EMPTY_DATA : ROM_out : EMPTY_DATA;
+  assign slave.RDATA = (addr_overflow) ? EMPTY_DATA : ROM_out;
   assign slave.RID   = ID_r;
   assign slave.RRESP = `AXI_RESP_OKAY;
   // Bx
