@@ -103,8 +103,6 @@ module L1C_inst
   always_comb begin
     hit = 1'b0;
     case (curr_state)
-      IDLE:
-      hit = valid[core_addr[`INDEX_FIELD]] & (TA_out == core_addr[`TAG_FIELD]);
       CHK: hit = (TA_out == core_addr_r[`TAG_FIELD]);
       default: hit = 1'b0;
     endcase
@@ -114,9 +112,12 @@ module L1C_inst
   assign TA_in = (curr_state == IDLE) ? core_addr[`TAG_FIELD] : core_addr_r[`TAG_FIELD];
   always_comb begin
     case (curr_state)
-      IDLE:    {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
-      CHK:     {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
-      RMISS:   {TA_write, TA_read} = {TA_WRITE_ENB, TA_READ_DIS};
+      IDLE:
+      {TA_write, TA_read} = {
+        TA_WRITE_DIS, (core_req) ? TA_READ_ENB : TA_READ_DIS
+      };
+      CHK: {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
+      RMISS: {TA_write, TA_read} = {TA_WRITE_ENB, TA_READ_DIS};
       default: {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_DIS};
     endcase
   end
@@ -138,7 +139,7 @@ module L1C_inst
   end
 
   // read_block_data, read_data
-  assign read_block_data = (read_miss_done) ? DA_in : DA_out;
+  assign read_block_data = (DA_read) ? DA_out : DA_in;
   assign read_data = read_block_data[{core_addr_r[`WORD_FIELD], 5'b0}+:32];
 
   // core_out

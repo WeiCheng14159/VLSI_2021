@@ -119,8 +119,6 @@ module L1C_data
   always_comb begin
     hit = 1'b0;
     case (curr_state)
-      IDLE:
-      hit = valid[core_addr[`INDEX_FIELD]] & (TA_out == core_addr[`TAG_FIELD]);
       CHK: hit = (TA_out == core_addr_r[`TAG_FIELD]);
       WHIT: hit = 1'b1;
       default: hit = 1'b0;  // WMISS, RMISS
@@ -176,10 +174,13 @@ module L1C_data
   assign TA_in = (curr_state == IDLE) ? core_addr[`TAG_FIELD] : core_addr_r[`TAG_FIELD];
   always_comb begin
     case (curr_state)
-      IDLE:    {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
-      CHK:     {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
-      WHIT:    {TA_write, TA_read} = {TA_WRITE_ENB, TA_READ_DIS};
-      RMISS:   {TA_write, TA_read} = {TA_WRITE_ENB, TA_READ_DIS};
+      IDLE:
+      {TA_write, TA_read} = {
+        TA_WRITE_DIS, (core_req) ? TA_READ_ENB : TA_READ_DIS
+      };
+      CHK: {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
+      WHIT: {TA_write, TA_read} = {TA_WRITE_ENB, TA_READ_DIS};
+      RMISS: {TA_write, TA_read} = {TA_WRITE_ENB, TA_READ_DIS};
       default: {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_DIS};
     endcase
   end
@@ -216,7 +217,7 @@ module L1C_data
   end
 
   // read_block_data, read_data
-  assign read_block_data = (curr_state == RMISS) ? DA_in : DA_out;
+  assign read_block_data = (DA_read) ? DA_out : DA_in;
   assign read_data = read_block_data[{core_addr_r[`WORD_FIELD], 5'b0}+:32];
 
   // core_out
@@ -301,7 +302,7 @@ module L1C_data
       L1CD_rcnt  <= `DATA_BITS'h0;
       L1CD_wcnt  <= `DATA_BITS'h0;
     end else begin
-      L1CD_rhits <= (curr_state == CHK) & hit & ~core_write ? L1CD_rhits + 'h1 : L1CD_rhits;
+      L1CD_rhits <= (curr_state == CHK) & hit & ~core_write_r ? L1CD_rhits + 'h1 : L1CD_rhits;
       L1CD_whits <= (curr_state == WHIT) & (write_hit_done) ? L1CD_whits + 'h1 : L1CD_whits;
       L1CD_rmiss <= (curr_state == RMISS) & (read_miss_done) ? L1CD_rmiss + 'h1 : L1CD_rmiss;
       L1CD_wmiss <= (curr_state == WMISS) & (write_miss_done) ? L1CD_wmiss + 'h1 : L1CD_wmiss;
