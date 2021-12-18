@@ -16,7 +16,7 @@ module master
     input logic                  clk,
     input logic                  rstn,
           AXI_master_intf.master master,
-          cache2mem_intf.cache   mem
+          cache2mem_intf.memory  mem
 );
 
   logic [`AXI_ADDR_BITS-1:0] ARADDR_r, AWADDR_r;
