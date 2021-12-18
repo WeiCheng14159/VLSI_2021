@@ -139,7 +139,7 @@ module L1C_inst
   end
 
   // read_block_data, read_data
-  assign read_block_data = (read_miss_done) ? DA_in : DA_out;
+  assign read_block_data = (DA_read) ? DA_out : DA_in;
   assign read_data = read_block_data[{core_addr_r[`WORD_FIELD], 5'b0}+:32];
 
   // core_out
