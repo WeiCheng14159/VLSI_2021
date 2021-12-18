@@ -19,9 +19,7 @@ module master
           cache2mem_intf.memory  mem
 );
 
-  logic [`AXI_ADDR_BITS-1:0] ARADDR_r, AWADDR_r;
-  logic [`AXI_DATA_BITS-1:0] RDATA_r, WDATA_r;
-  logic [`AXI_STRB_BITS-1:0] WSTRB_r;
+  logic [`AXI_STRB_BITS-1:0] WSTRB_c;
   logic read_req, write_req;
   master_state_t m_curr_state, m_next_state;
   logic ARx_hs_done, Rx_hs_done, AWx_hs_done, Wx_hs_done, Bx_hs_done;
@@ -35,63 +33,34 @@ module master
   assign ARx_hs_done = master.ARVALID & master.ARREADY;
   assign Rx_hs_done = master.RVALID & master.RREADY;
 
-  // RDATA_r
-  assign mem.m_out = Rx_hs_done ? master.RDATA : RDATA_r;
-  always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) RDATA_r <= `AXI_DATA_BITS'b0;
-    else RDATA_r <= (Rx_hs_done) ? master.RDATA : RDATA_r;
-  end
+  assign mem.m_out = master.RDATA;
 
-  // ARADDR_r, AWADDR_r
-  always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
-      ARADDR_r <= `AXI_ADDR_BITS'b0;
-      AWADDR_r <= `AXI_ADDR_BITS'b0;
-    end else if (m_curr_state != AR & m_next_state == AR) begin
-      ARADDR_r <= mem.m_addr;
-    end else if (m_curr_state != AW & m_next_state == AW) begin
-      AWADDR_r <= mem.m_addr;
-    end
-  end
-
-  // WDATA_r
-  always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
-      WDATA_r <= `AXI_ADDR_BITS'b0;
-    end else if (m_curr_state != AW & m_next_state == AW) begin
-      WDATA_r <= mem.m_in;
-    end
-  end
-
-  // WSTRB_r
-  always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) begin
-      WSTRB_r <= {WriteDisable, WriteDisable, WriteDisable, WriteDisable};
-    end else if (m_curr_state != AW & m_next_state == AW) begin
-      case (mem.m_type)
-        OP_SW: WSTRB_r <= {WriteEnable, WriteEnable, WriteEnable, WriteEnable};
-        OP_SH: begin
-          case (mem.m_addr[1])
-            1'b1:
-            WSTRB_r <= {WriteEnable, WriteEnable, WriteDisable, WriteDisable};
-            1'b0:
-            WSTRB_r <= {WriteDisable, WriteDisable, WriteEnable, WriteEnable};
-          endcase
-        end
-        OP_SB: begin
-          case (mem.m_addr[1:0])
-            2'b00:
-            WSTRB_r <= {WriteDisable, WriteDisable, WriteDisable, WriteEnable};
-            2'b01:
-            WSTRB_r <= {WriteDisable, WriteDisable, WriteEnable, WriteDisable};
-            2'b10:
-            WSTRB_r <= {WriteDisable, WriteEnable, WriteDisable, WriteDisable};
-            2'b11:
-            WSTRB_r <= {WriteEnable, WriteDisable, WriteDisable, WriteDisable};
-          endcase
-        end
-      endcase
-    end
+  // WSTRB_c
+  always_comb begin
+    WSTRB_c = {WriteDisable, WriteDisable, WriteDisable, WriteDisable};
+    case (mem.m_type)
+      OP_SW: WSTRB_c = {WriteEnable, WriteEnable, WriteEnable, WriteEnable};
+      OP_SH: begin
+        case (mem.m_addr[1])
+          1'b1:
+          WSTRB_c = {WriteEnable, WriteEnable, WriteDisable, WriteDisable};
+          1'b0:
+          WSTRB_c = {WriteDisable, WriteDisable, WriteEnable, WriteEnable};
+        endcase
+      end
+      OP_SB: begin
+        case (mem.m_addr[1:0])
+          2'b00:
+          WSTRB_c = {WriteDisable, WriteDisable, WriteDisable, WriteEnable};
+          2'b01:
+          WSTRB_c = {WriteDisable, WriteDisable, WriteEnable, WriteDisable};
+          2'b10:
+          WSTRB_c = {WriteDisable, WriteEnable, WriteDisable, WriteDisable};
+          2'b11:
+          WSTRB_c = {WriteEnable, WriteDisable, WriteDisable, WriteDisable};
+        endcase
+      end
+    endcase
   end
 
   always_ff @(posedge clk, negedge rstn) begin
@@ -122,21 +91,21 @@ module master
   always_comb begin
     // AWx
     master.AWID = master_ID;
-    master.AWADDR = AWADDR_r;
+    master.AWADDR = mem.m_addr;
     master.AWLEN = `AXI_LEN_BITS'b0;
     master.AWSIZE = `AXI_SIZE_BITS'b0;
     master.AWBURST = `AXI_BURST_INC;
     master.AWVALID = 1'b0;
     // Wx
-    master.WDATA = WDATA_r;
-    master.WSTRB = WSTRB_r;
+    master.WDATA = mem.m_in;
+    master.WSTRB = WSTRB_c;
     master.WLAST = 1'b1;
     master.WVALID = 1'b0;
     // Bx
     master.BREADY = 1'b0;
     // ARx
     master.ARID = master_ID;
-    master.ARADDR = ARADDR_r;
+    master.ARADDR = mem.m_addr;
     master.ARLEN = READ_BLOCK_SIZE;
     master.ARSIZE = `AXI_SIZE_BITS'b0;
     master.ARBURST = `AXI_BURST_INC;
