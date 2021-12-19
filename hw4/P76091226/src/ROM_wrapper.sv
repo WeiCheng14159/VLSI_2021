@@ -1,6 +1,6 @@
 `include "pkg_include.sv"
 
-module rom_wrapper
+module ROM_wrapper
   import rom_wrapper_pkg::*;
 #(
     parameter [`AXI_ADDR_BITS-1:0] addr_upper_bound = {32'h27C}

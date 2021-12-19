@@ -3,7 +3,7 @@
 `include "CPU_wrapper.sv"
 `include "AXI/AXI.sv"
 `include "util.sv"
-`include "rom_wrapper.sv"
+`include "ROM_wrapper.sv"
 `include "DRAM_wrapper.sv"
 
 module top (
@@ -73,7 +73,7 @@ module top (
   );
 
   // slave 0 => ROM
-  rom_wrapper rom_wrapper (
+  ROM_wrapper rom_wrapper (
       .clk(clk),
       .rstn(rstn_sync),
       .slave(slave0),
