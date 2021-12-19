@@ -57,7 +57,7 @@ module SRAM_wrapper
         next_state = (Rx_hs_done & slave.RLAST) ? ((slave.AWVALID) ? WRITE : (slave.ARVALID) ? READ : IDLE) : READ;
       end
       WRITE: begin
-        next_state = (Bx_hs_done) ? ((slave.AWVALID) ? WRITE : IDLE) : WRITE;
+        next_state = (Bx_hs_done) ? ((slave.ARVALID) ? READ : (slave.AWVALID) ? WRITE : IDLE) : WRITE;
       end
       default: next_state = curr_state;
     endcase
