@@ -22,9 +22,8 @@ module CPU
     output logic [InstrAddrWidth-1:0] inst_addr_o,
     // Data access
     input  logic [     DataWidth-1:0] data_in_i,
-    output logic                      data_read_o,
+    output logic                      data_rw_req_o,
     output logic [ Func3BusWidth-1:0] data_read_type_o,
-    output logic                      data_write_o,
     output logic [ Func3BusWidth-1:0] data_write_type_o,
     output logic [ DataAddrWidth-1:0] data_write_addr_o,
     output logic [     DataWidth-1:0] data_out_o,
@@ -86,6 +85,8 @@ module CPU
   logic                          mem_memwr;
   logic                          mem_mem2reg;
   logic      [Func3BusWidth-1:0] mem_func3;
+  logic                          data_read_o;
+  logic                          data_write_o;
 
   /* Write Back (WB) */
   logic      [  RegBusWidth-1:0] wb_pc;
@@ -115,6 +116,8 @@ module CPU
 
   logic                          booting;
   assign booting = (inst_addr_o >= 32'h128 && inst_addr_o <= 32'h27c);
+
+  assign data_rw_req_o = data_read_o | data_write_o;
 
   /* Register file */
   regfile regfile0 (

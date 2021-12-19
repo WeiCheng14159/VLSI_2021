@@ -16,19 +16,15 @@ module CPU_wrapper
 
   // CPU - Instruction
   logic [      InstrWidth-1:0] inst_from_mem;
-  logic                        inst_read;
   logic [  InstrAddrWidth-1:0] inst_addr;
   logic                        inst_rw_request;
 
   // CPU - Data
   logic [       DataWidth-1:0] data_from_mem;
-  logic                        data_read;
-  logic [   Func3BusWidth-1:0] data_read_type;
-  logic                        data_write;
+  logic                        data_rw_request;
   logic [   Func3BusWidth-1:0] data_write_type;
   logic [   DataAddrWidth-1:0] data_write_addr;
   logic [       DataWidth-1:0] data_to_mem;
-  logic                        data_rw_request;
 
   logic                        stallreq_from_imem;
   logic                        stallreq_from_dmem;
@@ -53,22 +49,17 @@ module CPU_wrapper
   logic [`CACHE_TYPE_BITS-1:0] I_type;
   logic                        I_wait;
 
-  // Cache signals
-  assign inst_rw_request = inst_read;
-  assign data_rw_request = data_read | data_write;
-
   CPU cpu0 (
       .clk(clk),
       .rstn(rstn),
       // Instruction access
       .inst_in_i(inst_from_mem),
-      .inst_read_o(inst_read),
+      .inst_read_o(inst_rw_request),
       .inst_addr_o(inst_addr),
       // Data access
       .data_in_i(data_from_mem),
-      .data_read_o(data_read),
+      .data_rw_req_o(data_rw_request),
       .data_read_type_o(data_read_type),
-      .data_write_o(data_write),
       .data_write_type_o(data_write_type),
       .data_write_addr_o(data_write_addr),
       .data_out_o(data_to_mem),
