@@ -35,7 +35,7 @@ module SRAM_wrapper
   assign Rx_hs_done = slave.RVALID & slave.RREADY;
   // Rx
   assign slave.RLAST = (len_cnt == LEN_r);
-  assign slave.RDATA = (slave.RVALID) ? DO : 32'b0;
+  assign slave.RDATA = DO;
   assign slave.RID = ID_r;
   assign slave.RRESP = `AXI_RESP_OKAY;
   // Bx
