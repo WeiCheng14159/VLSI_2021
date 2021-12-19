@@ -101,13 +101,13 @@ module DRAM_wrapper
       end
       curr_state[READ_BIT]: begin
         DRAM_RASn = RAS_DIS;
-        DRAM_CASn = CAS_ENB | (|RAS_counter);
+        DRAM_CASn = (|RAS_counter) ? CAS_DIS : CAS_ENB;
         DRAM_A = {1'b0, COL};
         DRAM_WEn = {WEB_SIZE{WEB_DIS}};
       end
       curr_state[WRITE_BIT]: begin
         DRAM_RASn = RAS_DIS;
-        DRAM_CASn = CAS_ENB | (|RAS_counter);
+        DRAM_CASn = (|RAS_counter) ? CAS_DIS : CAS_ENB;
         DRAM_A = {1'b0, COL};
         DRAM_WEn = (~|RAS_counter) ? (1'b1 == WEB_ENB) ? WSTRB_r : ~WSTRB_r : {WEB_SIZE{WEB_DIS}};
       end
