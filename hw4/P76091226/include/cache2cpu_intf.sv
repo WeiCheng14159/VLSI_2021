@@ -14,13 +14,13 @@ interface cache2cpu_intf;
   logic                        core_wait;
 
   modport cpu(
-      input core_addr, core_req, core_write, core_in, core_type,
-      output core_out, core_wait
+      output core_addr, core_req, core_write, core_in, core_type,
+      input core_out, core_wait
   );
 
   modport cache(
-      output core_addr, core_req, core_write, core_in, core_type,
-      input core_out, core_wait
+      input core_addr, core_req, core_write, core_in, core_type,
+      output core_out, core_wait
   );
 
 endinterface : cache2cpu_intf
