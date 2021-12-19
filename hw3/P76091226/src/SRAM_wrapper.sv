@@ -25,7 +25,6 @@ module SRAM_wrapper
   logic [`AXI_LEN_BITS-1:0] LEN_r;
   logic Wx_hs_done_r;
   logic [`AXI_LEN_BITS-1:0] len_cnt;
-  logic [1:0] w_offset;
 
   // Handshake signal
   assign AW_hs_done = slave.AWVALID & slave.AWREADY;
@@ -124,10 +123,8 @@ module SRAM_wrapper
 
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-      w_offset <= 2'b0;
       Wx_hs_done_r <= 1'b0;
     end else begin
-      w_offset <= (AW_hs_done) ? slave.AWADDR[1:0] : w_offset;
       Wx_hs_done_r  <= (Bx_hs_done) ? 1'b0 : (Wx_hs_done) ? (slave.WLAST) ? 1'b1 : 1'b0 : Wx_hs_done_r;
     end
   end
