@@ -11,18 +11,10 @@
 module L1C_inst
   import i_cache_pkg::*;
 (
-    input  logic                                       clk,
-    input  logic                                       rstn,
-           cache2mem_intf.cache                        mem,
-    // From CPU to cache
-    input  logic                [      `DATA_BITS-1:0] core_addr,
-    input  logic                                       core_req,
-    input  logic                                       core_write,
-    input  logic                [      `DATA_BITS-1:0] core_in,
-    input  logic                [`CACHE_TYPE_BITS-1:0] core_type,
-    // From cache to CPU
-    output logic                [      `DATA_BITS-1:0] core_out,
-    output logic                                       core_wait
+    input logic                clk,
+    input logic                rstn,
+          cache2mem_intf.cache mem,
+          cache2cpu_intf.cache cpu
 );
 
   logic [`CACHE_INDEX_BITS-1:0] index;
@@ -59,10 +51,10 @@ module L1C_inst
       core_type_r  <= `CACHE_TYPE_BITS'h0;
       core_write_r <= 1'b0;
     end else if (curr_state == IDLE) begin
-      core_addr_r  <= core_addr;
-      core_in_r    <= core_in;
-      core_type_r  <= core_type;
-      core_write_r <= core_write;
+      core_addr_r  <= cpu.core_addr;
+      core_in_r    <= cpu.core_in;
+      core_type_r  <= cpu.core_type;
+      core_write_r <= cpu.core_write;
     end
   end
 
@@ -83,8 +75,9 @@ module L1C_inst
     next_state = IDLE;
     case (curr_state)
       IDLE: begin
-        if (~core_req) next_state = IDLE;
-        else if (core_req & ~core_write & ~valid[index]) next_state = RMISS;
+        if (~cpu.core_req) next_state = IDLE;
+        else if (cpu.core_req & ~cpu.core_write & ~valid[index])
+          next_state = RMISS;
         else next_state = CHK;
       end
       CHK:     next_state = ~core_write_r & hit ? IDLE : RMISS;
@@ -94,7 +87,7 @@ module L1C_inst
   end  // Next state (N)
 
   // index, offset, hit, valid
-  assign index = (curr_state == IDLE) ? core_addr[`INDEX_FIELD] : core_addr_r[`INDEX_FIELD];
+  assign index = (curr_state == IDLE) ? cpu.core_addr[`INDEX_FIELD] : core_addr_r[`INDEX_FIELD];
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) valid <= `CACHE_LINE_BITS'h0;
     else if (curr_state == RMISS) valid[index] <= 1'b1;
@@ -109,12 +102,12 @@ module L1C_inst
   end
 
   // TAx
-  assign TA_in = (curr_state == IDLE) ? core_addr[`TAG_FIELD] : core_addr_r[`TAG_FIELD];
+  assign TA_in = (curr_state == IDLE) ? cpu.core_addr[`TAG_FIELD] : core_addr_r[`TAG_FIELD];
   always_comb begin
     case (curr_state)
       IDLE:
       {TA_write, TA_read} = {
-        TA_WRITE_DIS, (core_req) ? TA_READ_ENB : TA_READ_DIS
+        TA_WRITE_DIS, (cpu.core_req) ? TA_READ_ENB : TA_READ_DIS
       };
       CHK: {TA_write, TA_read} = {TA_WRITE_DIS, TA_READ_ENB};
       RMISS: {TA_write, TA_read} = {TA_WRITE_ENB, TA_READ_DIS};
@@ -142,14 +135,14 @@ module L1C_inst
   assign read_block_data = (DA_read) ? DA_out : DA_in;
   assign read_data = read_block_data[{core_addr_r[`WORD_FIELD], 5'b0}+:32];
 
-  // core_out
-  assign core_wait = (curr_state == IDLE) ? 1'b0 : 1'b1;
+  // cpu.core_out
+  assign cpu.core_wait = (curr_state == IDLE) ? 1'b0 : 1'b1;
   always_ff @(posedge clk or negedge rstn) begin
-    if (~rstn) core_out <= `DATA_BITS'h0;
+    if (~rstn) cpu.core_out <= `DATA_BITS'h0;
     else begin
       case (curr_state)
-        CHK:   core_out <= read_data;
-        RMISS: core_out <= (read_miss_done) ? read_data : core_out;
+        CHK:   cpu.core_out <= read_data;
+        RMISS: cpu.core_out <= (read_miss_done) ? read_data : cpu.core_out;
       endcase
     end
   end
@@ -192,7 +185,7 @@ module L1C_inst
     end else begin
       L1CI_rhits <= (curr_state == CHK) & ~core_write_r &hit ? L1CI_rhits + 'h1 : L1CI_rhits;
       L1CI_rmiss <= (curr_state == RMISS) & read_miss_done ? L1CI_rmiss + 'h1 : L1CI_rmiss;
-      L1CI_cnt <= (curr_state == IDLE) & core_req ? L1CI_cnt + 'h1 : L1CI_cnt;
+      L1CI_cnt <= (curr_state == IDLE) & cpu.core_req ? L1CI_cnt + 'h1 : L1CI_cnt;
     end
   end
 
