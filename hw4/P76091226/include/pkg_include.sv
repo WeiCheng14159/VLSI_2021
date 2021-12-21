@@ -17,6 +17,8 @@
 // CPU
 `include "cpu_wrapper_pkg.sv"
 `include "cpu_pkg.sv"
+`include "CSR_pkg.sv"
+`include "CSR_ctrl_intf.sv"
 // DRAM
 `include "dram_wrapper_pkg.sv"
 // ROM
