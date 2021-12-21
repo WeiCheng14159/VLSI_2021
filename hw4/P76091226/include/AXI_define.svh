@@ -22,6 +22,7 @@
 `define AXI_SIZE_HWORD 3'b001
 `define AXI_SIZE_WORD 3'b010
 `define AXI_BURST_INC 2'h1
+`define AXI_BURST_FIXED 2'h0
 `define AXI_STRB_WORD 4'b1111
 `define AXI_STRB_HWORD 4'b0011
 `define AXI_STRB_BYTE 4'b0001
