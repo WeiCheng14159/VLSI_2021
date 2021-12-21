@@ -93,6 +93,15 @@ package cpu_pkg;
   localparam OP_REM = 3'b110;
   localparam OP_REMU = 3'b111;
 
+  // FUNC3, INST[14:12], INST[6:0] = 7'b1110011
+  localparam OP_ECALL = 3'b000;  // inst[20] == 0: ECALL, inst[20] == 1: EBREAK
+  localparam OP_CSRRW = 3'b001;
+  localparam OP_CSRRS = 3'b010;
+  localparam OP_CSRRC = 3'b011;
+  localparam OP_CSRRWI = 3'b101;
+  localparam OP_CSRRSI = 3'b110;
+  localparam OP_CSRRCI = 3'b111;
+
   // ALUop
   localparam AluOpBusWidth = 15;
   localparam ALUOP_ADD_BIT = 0, ALUOP_SUB_BIT = 1, ALUOP_SLL_BIT = 2, 
