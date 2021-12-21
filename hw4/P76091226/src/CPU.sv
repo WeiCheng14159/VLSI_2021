@@ -15,8 +15,8 @@
 module CPU
   import cpu_pkg::*;
 (
-    input logic clk,
-    input logic rstn,
+    input logic              clk,
+    input logic              rstn,
     input logic              interrupt,
     // I-cache
           cache2cpu_intf.cpu icache,
@@ -111,7 +111,7 @@ module CPU
   logic                          booting;
 
   /* Interface */
-  CSR_ctrl_intf                  csr_ctrl();
+  CSR_ctrl_intf csr_ctrl ();
   assign booting = (icache.core_addr >= 32'h128 && icache.core_addr <= 32'h27c);
 
   /* I-cache and D-cache */
@@ -142,11 +142,11 @@ module CPU
   CSR #(
       .mtvec_addr(32'h10000)
   ) csr0 (
-    .clk(clk),
-    .rstn(rstn),
-    .interrupt(interrupt),
-    .CSR_rdata(id_csr_rdata),
-    .csr_ctrl_i(csr_ctrl)
+      .clk(clk),
+      .rstn(rstn),
+      .interrupt(interrupt),
+      .CSR_rdata(id_csr_rdata),
+      .csr_ctrl_i(csr_ctrl)
   );
 
   /* Contrller */

@@ -133,7 +133,7 @@ package cpu_pkg;
   localparam SRC1_FROM_REG_BIT = 0, SRC1_FROM_PC_BIT = 1, SRC1_FROM_CSR_BIT = 2;
   typedef enum logic [SRC1_FROM_CSR_BIT:0] {
     SRC1_FROM_REG = 1 << SRC1_FROM_REG_BIT,
-    SRC1_FROM_PC = 1 << SRC1_FROM_PC_BIT,
+    SRC1_FROM_PC  = 1 << SRC1_FROM_PC_BIT,
     SRC1_FROM_CSR = 1 << SRC1_FROM_CSR_BIT
   } alu_src1_t;
 

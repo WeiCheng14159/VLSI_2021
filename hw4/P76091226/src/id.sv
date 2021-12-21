@@ -50,7 +50,7 @@ module id
     output logic [RegBusWidth-1:0] link_addr_o,
 
     // Control Status Register
-    CSR_ctrl_intf.cpu               csr_ctrl_o,
+    CSR_ctrl_intf.cpu csr_ctrl_o,
 
     // Stall
     output logic stallreq,
@@ -254,30 +254,30 @@ module id
       end
       OP_FENCE: begin
         inst_valid = InstValid;
-      end // OP_FENCE
+      end  // OP_FENCE
       OP_SYSTEM: begin
         if(func3_o == OP_CSRRW | func3_o == OP_CSRRS | func3_o == OP_CSRRC | 
            func3_o == OP_CSRRWI | func3_o == OP_CSRRSI | func3_o == OP_CSRRCI) begin // CSR
-          inst_valid           = InstValid;
-          rs1_read_o           = ReadEnable;
-          rs1_addr_o           = REG_CONVERT(inst_i[`RS1]);
-          rd_o                 = REG_CONVERT(inst_i[`RD]);
-          wreg_o               = WriteEnable;
-          alusrc1_o            = SRC1_FROM_CSR;
-          alusrc2_o            = SRC2_FROM_IMM;
-          imm_o                = ZeroWord;
-          aluop_o              = ALUOP_ADD;
-        end else if(func3_o == OP_ECALL & ~|inst_i[31:20]) begin // ECALL
-          inst_valid           = InstValid;
+          inst_valid = InstValid;
+          rs1_read_o = ReadEnable;
+          rs1_addr_o = REG_CONVERT(inst_i[`RS1]);
+          rd_o       = REG_CONVERT(inst_i[`RD]);
+          wreg_o     = WriteEnable;
+          alusrc1_o  = SRC1_FROM_CSR;
+          alusrc2_o  = SRC2_FROM_IMM;
+          imm_o      = ZeroWord;
+          aluop_o    = ALUOP_ADD;
+        end else if (func3_o == OP_ECALL & ~|inst_i[31:20]) begin  // ECALL
+          inst_valid = InstValid;
         end else if(func3_o == OP_ECALL & ~|inst_i[31:21] & inst_i[20]) begin // EBREAK
-          inst_valid           = InstValid;
+          inst_valid = InstValid;
         end else if(func3_o == OP_ECALL & inst_i[`RS2] == 5'b0_0010) begin // MRET, SRET, URET
-          inst_valid           = InstValid;
+          inst_valid = InstValid;
         end else if(func3_o == OP_ECALL & inst_i[`RS2] == 5'b0_0101 & 
                                           inst_i[`FUNC7] == 7'b000_1000) begin // WFI
-          inst_valid           = InstValid;
+          inst_valid = InstValid;
         end
-      end // OP_SYSTEM
+      end  // OP_SYSTEM
       default: ;
     endcase  //case opcode
   end  //always
@@ -289,45 +289,45 @@ module id
     csr_ctrl_o.CSR_wait  = 1'b0;
     csr_ctrl_o.CSR_ret   = 1'b0;
     csr_ctrl_o.CSR_write = CSR_WRITE_DIS;
-    
-    if(opcode == OP_SYSTEM) begin
+
+    if (opcode == OP_SYSTEM) begin
       case (func3_o)
         OP_ECALL: begin
           if(inst_i[`RS2] == 5'b0_0010 & inst_i[`FUNC7] == 7'b001_1000) begin // MRET
-            csr_ctrl_o.CSR_ret   = 1'b1;  
+            csr_ctrl_o.CSR_ret = 1'b1;
           end else if(inst_i[`RS2] == 5'b0_0101 & inst_i[`FUNC7] == 7'b000_1000) begin // WFI
-            csr_ctrl_o.CSR_wait  = 1'b1;
+            csr_ctrl_o.CSR_wait = 1'b1;
           end
         end
         OP_CSRRW: begin
           csr_ctrl_o.CSR_write = CSR_WRITE_ENB;
           csr_ctrl_o.CSR_addr  = inst_i[`IMM12];
-          csr_ctrl_o.CSR_wdata = rs1_data_i;           
-          end
+          csr_ctrl_o.CSR_wdata = rs1_data_i;
+        end
         OP_CSRRS: begin
           csr_ctrl_o.CSR_write = CSR_WRITE_ENB;
           csr_ctrl_o.CSR_addr  = inst_i[`IMM12];
-          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata | rs1_data_i;           
-          end
+          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata | rs1_data_i;
+        end
         OP_CSRRC: begin
           csr_ctrl_o.CSR_write = CSR_WRITE_ENB;
           csr_ctrl_o.CSR_addr  = inst_i[`IMM12];
-          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata & ~rs1_data_i;   
+          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata & ~rs1_data_i;
         end
         OP_CSRRWI: begin
           csr_ctrl_o.CSR_write = CSR_WRITE_ENB;
           csr_ctrl_o.CSR_addr  = inst_i[`IMM12];
-          csr_ctrl_o.CSR_wdata = {27'b0, inst_i[`RS1]};   
+          csr_ctrl_o.CSR_wdata = {27'b0, inst_i[`RS1]};
         end
         OP_CSRRSI: begin
           csr_ctrl_o.CSR_write = CSR_WRITE_ENB;
           csr_ctrl_o.CSR_addr  = inst_i[`IMM12];
-          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata | {27'b0, inst_i[`RS1]};   
+          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata | {27'b0, inst_i[`RS1]};
         end
         OP_CSRRCI: begin
           csr_ctrl_o.CSR_write = CSR_WRITE_ENB;
           csr_ctrl_o.CSR_addr  = inst_i[`IMM12];
-          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata & {27'b0, ~inst_i[`RS1]};   
+          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata & {27'b0, ~inst_i[`RS1]};
         end
         default: ;
       endcase

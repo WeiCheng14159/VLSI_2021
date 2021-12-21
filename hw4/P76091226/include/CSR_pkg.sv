@@ -51,9 +51,9 @@ package CSR_pkg;
 
   localparam CSR_MCYCLE = 12'hb00; // The mcycle CSR holds a count of the number of cycles the hart has executed.
   localparam CSR_MINSTRET = 12'hb02; // The minstret CSR holds a count of the number of instructions the hart has retired.
-  localparam CSR_MCYCLEH = 12'hb80; // Upper 32 bit of counter
-  localparam CSR_MINSTRETH = 12'hb82; // Upper 32 bit of counter
-  
+  localparam CSR_MCYCLEH = 12'hb80;  // Upper 32 bit of counter
+  localparam CSR_MINSTRETH = 12'hb82;  // Upper 32 bit of counter
+
   localparam CSR_RDCYCLE = 12'hc00;  // cycle counter
   localparam CSR_RDCYCLEH = 12'hc80;  // upper 32-bits of cycle counter
   localparam CSR_RDTIME = 12'hc01;  // timer counter

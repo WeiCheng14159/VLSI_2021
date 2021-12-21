@@ -6,11 +6,11 @@ module CSR
 #(
     parameter [`AXI_ADDR_BITS-1:0] mtvec_addr = {32'h10000}
 ) (
-    input logic                  clk,
-    input logic                  rstn,
-    input logic                  interrupt,
-    output logic [CSR_DATA_WIDTH-1:0] CSR_rdata,
-          CSR_ctrl_intf.register csr_ctrl_i
+    input  logic                                       clk,
+    input  logic                                       rstn,
+    input  logic                                       interrupt,
+    output logic                  [CSR_DATA_WIDTH-1:0] CSR_rdata,
+           CSR_ctrl_intf.register                      csr_ctrl_i
 );
 
   logic [CSR_DATA_WIDTH-1:0] mstatus;  // Machine status register

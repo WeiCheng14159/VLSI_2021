@@ -102,7 +102,7 @@ module top (
   );
 
   // Slave 3
-  sensor_wrapper sensor_wrapper(
+  sensor_wrapper sensor_wrapper (
       .clk(clk),
       .rstn(rstn_sync),
       .sensor_ready(sensor_ready),

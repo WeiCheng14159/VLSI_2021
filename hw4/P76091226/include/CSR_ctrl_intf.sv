@@ -14,13 +14,13 @@ interface CSR_ctrl_intf;
   logic CSR_write;
 
   modport register(
-    input CSR_wdata, CSR_addr, CSR_wait, CSR_ret, CSR_write, curr_pc,
-    output CSR_rdata
+      input CSR_wdata, CSR_addr, CSR_wait, CSR_ret, CSR_write, curr_pc,
+      output CSR_rdata
   );
 
   modport cpu(
-    output CSR_wdata, CSR_addr, CSR_wait, CSR_ret, CSR_write, curr_pc,
-    input CSR_rdata
+      output CSR_wdata, CSR_addr, CSR_wait, CSR_ret, CSR_write, curr_pc,
+      input CSR_rdata
   );
 
 endinterface : CSR_ctrl_intf
