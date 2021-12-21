@@ -8,6 +8,7 @@ module ex
     input logic   [RegBusWidth-1:0] rs1_i,
     input logic   [RegBusWidth-1:0] rs2_i,
     input logic   [RegBusWidth-1:0] imm_i,
+    input logic   [RegBusWidth-1:0] csr_rdata_i,
     input logic   [RegBusWidth-1:0] link_addr_i,
 
     output logic        [RegBusWidth-1:0] wdata_o,
@@ -42,7 +43,7 @@ module ex
     unique case(1'b1)
       alusrc1_i[SRC1_FROM_REG_BIT]: alu_in1 = rs1_i;
       alusrc1_i[SRC1_FROM_PC_BIT ]: alu_in1 = pc_i;
-      alusrc1_i[SRC1_FROM_CSR_BIT]: alu_in1 = 0;
+      alusrc1_i[SRC1_FROM_CSR_BIT]: alu_in1 = csr_rdata_i;
     endcase
   end
 

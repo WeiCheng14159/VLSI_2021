@@ -10,12 +10,14 @@
 `include "mem.sv"
 `include "ifetch.sv"
 `include "wb.sv"
+`include "CSR.sv"
 
 module CPU
   import cpu_pkg::*;
 (
-    input logic              clk,
-    input logic              rstn,
+    input logic clk,
+    input logic rstn,
+    input logic              interrupt,
     // I-cache
           cache2cpu_intf.cpu icache,
     // D-cache
@@ -36,6 +38,7 @@ module CPU
   logic      [  RegBusWidth-1:0] id_imm;
   logic      [  RegBusWidth-1:0] id_rs1;
   logic      [  RegBusWidth-1:0] id_rs2;
+  logic      [  RegBusWidth-1:0] id_csr_rdata;
   logic                          id_wreg;
   reg_addr_t                     id_rd;
   logic                          id_memrd;
@@ -55,6 +58,7 @@ module CPU
   logic      [  RegBusWidth-1:0] ex_imm;
   logic      [  RegBusWidth-1:0] ex_rs1;
   logic      [  RegBusWidth-1:0] ex_rs2;
+  logic      [  RegBusWidth-1:0] ex_csr_rdata;
   logic                          ex_wreg;
   reg_addr_t                     ex_rd;
   logic      [  RegBusWidth-1:0] ex_wdata;
@@ -105,6 +109,9 @@ module CPU
   logic      [  RegBusWidth-1:0] new_pc;
 
   logic                          booting;
+
+  /* Interface */
+  CSR_ctrl_intf                  csr_ctrl();
   assign booting = (icache.core_addr >= 32'h128 && icache.core_addr <= 32'h27c);
 
   /* I-cache and D-cache */
@@ -129,6 +136,17 @@ module CPU
 
       .rdata1_o(rs1_data),
       .rdata2_o(rs2_data)
+  );
+
+  /* Control Status Register */
+  CSR #(
+      .mtvec_addr(32'h10000)
+  ) csr0 (
+    .clk(clk),
+    .rstn(rstn),
+    .interrupt(interrupt),
+    .CSR_rdata(id_csr_rdata),
+    .csr_ctrl_i(csr_ctrl)
   );
 
   /* Contrller */
@@ -210,6 +228,7 @@ module CPU
       .branch_taken_o(id_branch_taken),
       .branch_target_addr_o(id_branch_target_addr),
       .link_addr_o(id_link_addr),
+      .csr_ctrl_o(csr_ctrl),
       .stallreq(stallreq_from_id),
       .flush_o(flush)
   );
@@ -227,6 +246,7 @@ module CPU
       .id_imm(id_imm),
       .id_rs1(id_rs1),
       .id_rs2(id_rs2),
+      .id_csr_rdata(id_csr_rdata),
       .id_rd(id_rd),
       .id_wreg(id_wreg),
       .id_memrd(id_memrd),
@@ -244,6 +264,7 @@ module CPU
       .ex_imm(ex_imm),
       .ex_rs1(ex_rs1),
       .ex_rs2(ex_rs2),
+      .ex_csr_rdata(ex_csr_rdata),
       .ex_rd(ex_rd),
       .ex_wreg(ex_wreg),
       .ex_memrd(ex_memrd),
@@ -261,6 +282,7 @@ module CPU
       .rs1_i(ex_rs1),
       .rs2_i(ex_rs2),
       .imm_i(ex_imm),
+      .csr_rdata_i(ex_csr_rdata),
 
       .link_addr_i(ex_link_addr),
       .wdata_o(ex_wdata),

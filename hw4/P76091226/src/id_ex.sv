@@ -12,6 +12,7 @@ module id_ex
     input logic      [  RegBusWidth-1:0] id_imm,
     input logic      [  RegBusWidth-1:0] id_rs1,
     input logic      [  RegBusWidth-1:0] id_rs2,
+    input logic      [  RegBusWidth-1:0] id_csr_rdata,
     input reg_addr_t                     id_rd,
     input logic                          id_wreg,
     input logic                          id_memrd,
@@ -29,6 +30,7 @@ module id_ex
     output logic      [  RegBusWidth-1:0] ex_imm,
     output logic      [  RegBusWidth-1:0] ex_rs1,
     output logic      [  RegBusWidth-1:0] ex_rs2,
+    output logic      [  RegBusWidth-1:0] ex_csr_rdata,
     output reg_addr_t                     ex_rd,
     output logic                          ex_wreg,
     output logic                          ex_memrd,
@@ -47,6 +49,7 @@ module id_ex
       ex_imm       <= ZeroWord;
       ex_rs1       <= ZeroWord;
       ex_rs2       <= ZeroWord;
+      ex_csr_rdata <= ZeroWord;
       ex_rd        <= ZERO_REG;
       ex_wreg      <= WriteDisable;
       ex_memrd     <= ReadDisable;
@@ -63,6 +66,7 @@ module id_ex
       ex_imm       <= ZeroWord;
       ex_rs1       <= ZeroWord;
       ex_rs2       <= ZeroWord;
+      ex_csr_rdata <= ZeroWord;
       ex_rd        <= ZERO_REG;
       ex_wreg      <= WriteDisable;
       ex_memrd     <= ReadDisable;
@@ -78,6 +82,7 @@ module id_ex
       ex_imm       <= id_imm;
       ex_rs1       <= id_rs1;
       ex_rs2       <= id_rs2;
+      ex_csr_rdata <= id_csr_rdata;
       ex_rd        <= id_rd;
       ex_wreg      <= id_wreg;
       ex_memrd     <= id_memrd;

@@ -5,6 +5,7 @@
 `include "util.sv"
 `include "ROM_wrapper.sv"
 `include "DRAM_wrapper.sv"
+`include "sensor_wrapper.sv"
 
 module top (
     input  logic        clk,
@@ -30,6 +31,8 @@ module top (
 );
 
   logic rst_sync, rstn_sync;
+  logic sensor_interrupt;
+
   reset_sync i_reset_sync (
       .clk(clk),
       .rst_async(rst),
@@ -53,6 +56,7 @@ module top (
   CPU_wrapper cpu_wrapper (
       .clk(clk),
       .rstn(rstn_sync),
+      .interrupt(sensor_interrupt),
       .master0(master0),
       .master1(master1)
   );
@@ -98,9 +102,13 @@ module top (
   );
 
   // Slave 3
-  default_slave default_slave3 (
-      .clk  (clk),
-      .rstn (rstn_sync),
+  sensor_wrapper sensor_wrapper(
+      .clk(clk),
+      .rstn(rstn_sync),
+      .sensor_ready(sensor_ready),
+      .sensor_out(sensor_out),
+      .sensor_en(sensor_en),
+      .sensor_interrupt(sensor_interrupt),
       .slave(slave3)
   );
 

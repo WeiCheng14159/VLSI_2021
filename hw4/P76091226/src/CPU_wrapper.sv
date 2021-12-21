@@ -10,6 +10,7 @@ module CPU_wrapper
 (
     input logic                  clk,
     input logic                  rstn,
+    input logic                  interrupt,
           AXI_master_intf.master master0,
           AXI_master_intf.master master1
 );
@@ -24,6 +25,7 @@ module CPU_wrapper
   CPU cpu0 (
       .clk(clk),
       .rstn(rstn),
+      .interrupt(interrupt),
       .icache(icache2cpu),
       .dcache(dcache2cpu)
   );
