@@ -30,8 +30,8 @@ module id
 
     // Control signals
     output aluop_t                          aluop_o,
-    output logic                            alusrc1_o,
-    output logic                            alusrc2_o,
+    output alu_src1_t                       alusrc1_o,
+    output alu_src2_t                       alusrc2_o,
     output logic signed [  RegBusWidth-1:0] imm_o,
     output logic        [  RegBusWidth-1:0] rs1_data_o,
     output logic        [  RegBusWidth-1:0] rs2_data_o,

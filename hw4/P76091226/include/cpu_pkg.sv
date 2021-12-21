@@ -120,10 +120,19 @@ package cpu_pkg;
   } aluop_t;
 
   // ALU source
-  localparam SRC1_FROM_REG = 1'b0;
-  localparam SRC1_FROM_PC = 1'b1;
-  localparam SRC2_FROM_REG = 1'b0;
-  localparam SRC2_FROM_IMM = 1'b1;
+
+  localparam SRC1_FROM_REG_BIT = 0, SRC1_FROM_PC_BIT = 1, SRC1_FROM_CSR_BIT = 2;
+  typedef enum logic [SRC1_FROM_CSR_BIT:0] {
+    SRC1_FROM_REG = 1 << SRC1_FROM_REG_BIT,
+    SRC1_FROM_PC = 1 << SRC1_FROM_PC_BIT,
+    SRC1_FROM_CSR = 1 << SRC1_FROM_CSR_BIT
+  } alu_src1_t;
+
+  localparam SRC2_FROM_REG_BIT = 0, SRC2_FROM_IMM_BIT = 1;
+  typedef enum logic [SRC2_FROM_IMM_BIT:0] {
+    SRC2_FROM_REG = 1 << SRC2_FROM_REG_BIT,
+    SRC2_FROM_IMM = 1 << SRC2_FROM_IMM_BIT
+  } alu_src2_t;
 
   typedef enum logic [RegAddrWidth-1:0] {
     ZERO_REG = 5'd0,

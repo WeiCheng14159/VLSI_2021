@@ -31,8 +31,8 @@ module CPU
   logic      [  RegBusWidth-1:0] id_pc;
   logic      [   InstrWidth-1:0] id_inst;
   aluop_t                        id_aluop;
-  logic                          id_alusrc1;
-  logic                          id_alusrc2;
+  alu_src1_t                     id_alusrc1;
+  alu_src2_t                     id_alusrc2;
   logic      [  RegBusWidth-1:0] id_imm;
   logic      [  RegBusWidth-1:0] id_rs1;
   logic      [  RegBusWidth-1:0] id_rs2;
@@ -50,8 +50,8 @@ module CPU
   /* Execution (EX) */
   logic      [  RegBusWidth-1:0] ex_pc;
   aluop_t                        ex_aluop;
-  logic                          ex_alusrc1;
-  logic                          ex_alusrc2;
+  alu_src1_t                     ex_alusrc1;
+  alu_src2_t                     ex_alusrc2;
   logic      [  RegBusWidth-1:0] ex_imm;
   logic      [  RegBusWidth-1:0] ex_rs1;
   logic      [  RegBusWidth-1:0] ex_rs2;

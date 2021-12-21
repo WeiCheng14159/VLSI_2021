@@ -3,8 +3,8 @@ module ex
 (
     input logic   [RegBusWidth-1:0] pc_i,
     input aluop_t                   aluop_i,
-    input logic                     alusrc1_i,
-    input logic                     alusrc2_i,
+    input alu_src1_t                alusrc1_i,
+    input alu_src2_t                alusrc2_i,
     input logic   [RegBusWidth-1:0] rs1_i,
     input logic   [RegBusWidth-1:0] rs2_i,
     input logic   [RegBusWidth-1:0] imm_i,
@@ -38,10 +38,21 @@ module ex
 `endif
 
   // alu_in1
-  assign alu_in1 = (alusrc1_i == SRC1_FROM_REG) ? rs1_i : pc_i;
+  always_comb begin
+    unique case(1'b1)
+      alusrc1_i[SRC1_FROM_REG_BIT]: alu_in1 = rs1_i;
+      alusrc1_i[SRC1_FROM_PC_BIT ]: alu_in1 = pc_i;
+      alusrc1_i[SRC1_FROM_CSR_BIT]: alu_in1 = 0;
+    endcase
+  end
 
   // alu_in2
-  assign alu_in2 = (alusrc2_i == SRC2_FROM_REG) ? rs2_i : imm_i;
+  always_comb begin
+    unique case(1'b1)
+      alusrc2_i[SRC2_FROM_REG_BIT]: alu_in2 = rs2_i;
+      alusrc2_i[SRC2_FROM_IMM_BIT]: alu_in2 = imm_i;
+    endcase
+  end
 
   // wreg_data_o
   always_comb begin
