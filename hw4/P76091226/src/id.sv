@@ -302,17 +302,17 @@ module id
         OP_CSRRW: begin
           csr_ctrl_o.CSR_write = CSR_WRITE_ENB;
           csr_ctrl_o.CSR_addr  = inst_i[`IMM12];
-          csr_ctrl_o.CSR_wdata = rs1_data_i;
+          csr_ctrl_o.CSR_wdata = rs1_data_o;
         end
         OP_CSRRS: begin
           csr_ctrl_o.CSR_write = CSR_WRITE_ENB;
           csr_ctrl_o.CSR_addr  = inst_i[`IMM12];
-          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata | rs1_data_i;
+          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata | rs1_data_o;
         end
         OP_CSRRC: begin
           csr_ctrl_o.CSR_write = CSR_WRITE_ENB;
           csr_ctrl_o.CSR_addr  = inst_i[`IMM12];
-          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata & ~rs1_data_i;
+          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata & ~rs1_data_o;
         end
         OP_CSRRWI: begin
           csr_ctrl_o.CSR_write = CSR_WRITE_ENB;
@@ -327,7 +327,7 @@ module id
         OP_CSRRCI: begin
           csr_ctrl_o.CSR_write = CSR_WRITE_ENB;
           csr_ctrl_o.CSR_addr  = inst_i[`IMM12];
-          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata & {27'b0, ~inst_i[`RS1]};
+          csr_ctrl_o.CSR_wdata = csr_ctrl_o.CSR_rdata & ~{27'b0, inst_i[`RS1]};
         end
         default: ;
       endcase
