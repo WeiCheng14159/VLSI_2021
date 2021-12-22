@@ -100,8 +100,10 @@ module CPU
   reg_addr_t                     rs2_addr;
 
   /* Stall signal */
+  logic                          stallreq_from_imem;
   logic                          stallreq_from_id;
   logic                          stallreq_from_ex;
+  logic                          stallreq_from_dmem;
   logic      [    STAGE_NUM-1:0] stallreq;
 
   /* Flush */
@@ -118,8 +120,10 @@ module CPU
   assign icache.core_write = 1'b0;
   assign icache.core_in = `DATA_BITS'b0;
   assign icache.core_type = `CACHE_WORD;
+  assign stallreq_from_imem = icache.core_wait;
   assign dcache.core_req = data_read_o | data_write_o;
   assign dcache.core_write = data_write_o;
+  assign stallreq_from_dmem = dcache.core_wait;
 
   /* Register file */
   regfile regfile0 (
@@ -151,10 +155,10 @@ module CPU
 
   /* Contrller */
   ctrl ctrl0 (
-      .stallreq_from_imem(icache.core_wait),
+      .stallreq_from_imem(stallreq_from_imem),
       .stallreq_from_id  (stallreq_from_id),
       .stallreq_from_ex  (stallreq_from_ex),
-      .stallreq_from_dmem(dcache.core_wait),
+      .stallreq_from_dmem(stallreq_from_dmem),
       .is_id_branch_inst (id_is_branch),
 
       .stall(stallreq),
