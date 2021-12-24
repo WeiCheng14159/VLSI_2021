@@ -92,10 +92,10 @@ module CSR
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
       mip <= CSR_EMPTY_DATA;
-    end else if (csr_ctrl_i.CSR_wait) begin
-      mip[MEIP] <= mie[MEIE] ? 1'b1 : mip[MEIP];
     end else if (interrupt) begin
       mip[MEIP] <= 1'b0;
+    end else if (csr_ctrl_i.CSR_wait) begin
+      mip[MEIP] <= mie[MEIE] ? 1'b1 : mip[MEIP];
     end else begin
       mip <= mip;
     end
