@@ -12,15 +12,16 @@ interface cache2mem_intf;
   logic                        m_write;
   logic [      `DATA_BITS-1:0] m_in;
   logic [`CACHE_TYPE_BITS-1:0] m_type;
+  logic [   `AXI_LEN_BITS-1:0] m_blk_size;
 
   modport memory(
       output m_out, m_wait,
-      input m_req, m_addr, m_write, m_in, m_type
+      input m_req, m_addr, m_write, m_in, m_type, m_blk_size
   );
 
   modport cache(
       input m_out, m_wait,
-      output m_req, m_addr, m_write, m_in, m_type
+      output m_req, m_addr, m_write, m_in, m_type, m_blk_size
   );
 
 endinterface : cache2mem_intf
