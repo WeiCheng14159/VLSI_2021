@@ -11,10 +11,10 @@
 module L1C_data
   import d_cache_pkg::*;
 (
-    input  logic                clk,
-    input  logic                rstn,
-           cache2mem_intf.cache mem,
-           cache2cpu_intf.cache cpu
+    input logic                clk,
+    input logic                rstn,
+          cache2mem_intf.cache mem,
+          cache2cpu_intf.cache cpu
 );
 
   logic [`CACHE_INDEX_BITS-1:0] index;
@@ -40,7 +40,12 @@ module L1C_data
   logic [2:0] cnt;
   logic       hit;
   logic [3:0] web, bweb, hweb;
-  logic read_miss_done, volatile_read_done, write_miss_done, volatile_write_done, write_hit_done;
+  logic
+      read_miss_done,
+      volatile_read_done,
+      write_miss_done,
+      volatile_write_done,
+      write_hit_done;
   logic D_out_valid;
   logic cacheable;
 
@@ -98,10 +103,9 @@ module L1C_data
         else next_state = CHK;
       end
       CHK: begin
-        if(cacheable)
+        if (cacheable)
           next_state = (core_write_r) ? (hit ? WHIT : WMISS) : (hit ? IDLE : RMISS);
-        else
-          next_state = (core_write_r) ? VWRITE : VREAD;
+        else next_state = (core_write_r) ? VWRITE : VREAD;
       end
       WHIT: next_state = (write_hit_done) ? IDLE : WHIT;
       WMISS: next_state = (write_miss_done) ? IDLE : WMISS;

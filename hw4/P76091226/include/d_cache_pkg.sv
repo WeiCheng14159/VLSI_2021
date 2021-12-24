@@ -14,9 +14,9 @@ package d_cache_pkg;
   RMISS_BIT = 4, VREAD_BIT = 5, VWRITE_BIT = 6;
 
   typedef enum logic [VWRITE_BIT:0] {
-    IDLE  = 1 << IDLE_BIT,
-    CHK   = 1 << CHK_BIT,
-    WHIT  = 1 << WHIT_BIT,
+    IDLE = 1 << IDLE_BIT,
+    CHK = 1 << CHK_BIT,
+    WHIT = 1 << WHIT_BIT,
     WMISS = 1 << WMISS_BIT,
     RMISS = 1 << RMISS_BIT,
     VREAD = 1 << VREAD_BIT,

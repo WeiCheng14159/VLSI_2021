@@ -105,7 +105,8 @@ module master
     // ARx
     master.ARID = master_ID;
     master.ARADDR = mem.m_addr;
-    master.ARLEN = mem.m_blk_size;;
+    master.ARLEN = mem.m_blk_size;
+    ;
     master.ARSIZE = `AXI_SIZE_BITS'b0;
     master.ARBURST = `AXI_BURST_INC;
     master.ARVALID = 1'b0;
