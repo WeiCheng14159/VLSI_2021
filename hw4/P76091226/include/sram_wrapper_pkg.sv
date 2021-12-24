@@ -18,7 +18,7 @@ package sram_wrapper_pkg;
 
   localparam IDLE_BIT = 0, READ_BIT = 1, WRITE_BIT = 2;
 
-  typedef enum logic [3:0] {
+  typedef enum logic [WRITE_BIT:0] {
     IDLE  = 1 << IDLE_BIT,
     READ  = 1 << READ_BIT,
     WRITE = 1 << WRITE_BIT

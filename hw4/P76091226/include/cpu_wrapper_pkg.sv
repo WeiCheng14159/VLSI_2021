@@ -7,7 +7,7 @@ package cpu_wrapper_pkg;
 
   localparam IDLEE_BIT = 0, SADDR_BIT = 1, SWAIT_BIT = 2, STEPP_BIT = 3;
 
-  typedef enum logic [3:0] {
+  typedef enum logic [STEPP_BIT:0] {
     IDLEE = 1 << IDLEE_BIT,
     SADDR = 1 << SADDR_BIT,
     SWAIT = 1 << SWAIT_BIT,

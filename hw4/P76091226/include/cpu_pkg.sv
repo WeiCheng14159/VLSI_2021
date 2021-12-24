@@ -103,14 +103,13 @@ package cpu_pkg;
   localparam OP_CSRRCI = 3'b111;
 
   // ALUop
-  localparam AluOpBusWidth = 15;
   localparam ALUOP_ADD_BIT = 0, ALUOP_SUB_BIT = 1, ALUOP_SLL_BIT = 2, 
              ALUOP_SRL_BIT = 3, ALUOP_SRA_BIT = 4,ALUOP_SLT_BIT = 5, 
              ALUOP_SLTU_BIT = 6, ALUOP_OR_BIT = 7, ALUOP_XOR_BIT = 8, 
              ALUOP_AND_BIT = 9, ALUOP_MUL_BIT = 10, ALUOP_MULH_BIT = 11, 
              ALUOP_MULHU_BIT = 12, ALUOP_MULSU_BIT = 13, ALUOP_LINK_BIT = 14;
 
-  typedef enum logic [AluOpBusWidth-1:0] {
+  typedef enum logic [ALUOP_LINK_BIT:0] {
     ALUOP_ADD = 1 << ALUOP_ADD_BIT,
     ALUOP_SUB = 1 << ALUOP_SUB_BIT,
     ALUOP_SLL = 1 << ALUOP_SLL_BIT,

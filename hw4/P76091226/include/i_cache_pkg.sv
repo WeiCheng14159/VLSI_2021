@@ -11,7 +11,7 @@ package i_cache_pkg;
   localparam TA_READ_ENB = 1'b1, TA_READ_DIS = 1'b0;
 
   localparam IDLE_BIT = 0, CHK_BIT = 1, RMISS_BIT = 2;
-  typedef enum logic [2:0] {
+  typedef enum logic [RMISS_BIT:0] {
     IDLE  = 1 << IDLE_BIT,
     CHK   = 1 << CHK_BIT,
     RMISS = 1 << RMISS_BIT

@@ -21,9 +21,9 @@ package dram_wrapper_pkg;
   localparam COL_ADDR_SIZE = 10;
 
   localparam IDLE_BIT = 0, ACT_BIT = 1, READ_BIT = 2, WRITE_BIT = 3, 
-  WRITE_RESP_BIT = 4, PRE_BIT = 5, ERROR_BIT = 6;
+  WRITE_RESP_BIT = 4, PRE_BIT = 5;
 
-  typedef enum logic [6:0] {
+  typedef enum logic [PRE_BIT:0] {
     IDLE = 1 << IDLE_BIT,  // Idle state
     ACT = 1 << ACT_BIT,  // Activate row
     READ = 1 << READ_BIT,  // Read column

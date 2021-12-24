@@ -7,7 +7,7 @@ package master_pkg;
 
   localparam IDLE_BIT = 0, AR_BIT = 1, R_BIT = 2, AW_BIT = 3, W_BIT = 4, B_BIT = 5;
 
-  typedef enum logic [5:0] {
+  typedef enum logic [B_BIT:0] {
     IDLE = 1 << IDLE_BIT,
     AR = 1 << AR_BIT,
     R = 1 << R_BIT,

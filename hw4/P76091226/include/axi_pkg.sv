@@ -15,7 +15,7 @@ package axi_pkg;
   } axi_master_id_t;
 
   localparam LOCK_M0_BIT = 0, LOCK_M1_BIT = 1, LOCK_FREE_BIT = 2;
-  typedef enum logic [2:0] {
+  typedef enum logic [LOCK_FREE_BIT:0] {
     LOCK_M0   = 1 << LOCK_M0_BIT,
     LOCK_M1   = 1 << LOCK_M1_BIT,
     LOCK_FREE = 1 << LOCK_FREE_BIT
@@ -24,7 +24,7 @@ package axi_pkg;
   localparam LOCK_S0_BIT = 0, LOCK_S1_BIT = 1, LOCK_S2_BIT = 2, 
              LOCK_S3_BIT = 3, LOCK_S4_BIT = 4, LOCK_S5_BIT = 5, 
              LOCK_S6_BIT = 6, LOCK_NO_BIT = 7;
-  typedef enum logic [7:0] {
+  typedef enum logic [LOCK_NO_BIT:0] {
     LOCK_S0 = 1 << LOCK_S0_BIT,
     LOCK_S1 = 1 << LOCK_S1_BIT,
     LOCK_S2 = 1 << LOCK_S2_BIT,
@@ -39,7 +39,7 @@ package axi_pkg;
   localparam SLAVE_0_BIT = 0, SLAVE_1_BIT = 1, SLAVE_2_BIT = 2, 
              SLAVE_3_BIT = 3, SLAVE_4_BIT = 4, SLAVE_5_BIT = 5,
              SLAVE_6_BIT = 6, SLAVE_D_BIT = 7;
-  typedef enum logic [7:0] {
+  typedef enum logic [SLAVE_D_BIT:0] {
     SLAVE_0 = 1 << SLAVE_0_BIT,
     SLAVE_1 = 1 << SLAVE_1_BIT,
     SLAVE_2 = 1 << SLAVE_2_BIT,
