@@ -10,6 +10,7 @@ module CSR
     input  logic                                       rstn,
     input  logic                                       interrupt,
     output logic                  [CSR_DATA_WIDTH-1:0] CSR_rdata,
+    output logic                                       stallreq,
            CSR_ctrl_intf.register                      csr_ctrl_i
 );
 
@@ -30,7 +31,6 @@ module CSR
   logic [CSR_DATA_WIDTH-1:0] mhartid; // The integer ID of the hardware thread running the code
 
   logic zero;
-  logic stall;
   // Not implemented CSR reg
   assign mvendorid = CSR_EMPTY_DATA;
   assign marchid = CSR_EMPTY_DATA;
@@ -39,11 +39,7 @@ module CSR
 
   assign mtvec = mtvec_addr;
 
-  // assign CSR_retPC = mepc;
-  // assign CSR_PC = mtvec;
-  // assign zero = ~(|csr_ctrl_i.CSR_wdata);
-  // assign CSR_control = mstatus[3] & interrupt & mip[11] & mie[11];
-  // assign stall = CSR_wait & mie[11];
+  assign stallreq = csr_ctrl_i.CSR_wait & mie[MEIE] & ~interrupt;
 
   // mcycleh, mcycle
   always_ff @(posedge clk or negedge rstn) begin
