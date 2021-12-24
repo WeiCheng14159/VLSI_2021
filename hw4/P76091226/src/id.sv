@@ -7,10 +7,6 @@ module id
     input logic [RegBusWidth-1:0] pc_i,
     input logic [ InstrWidth-1:0] inst_i,
 
-    // From reg file
-    input logic [RegBusWidth-1:0] rs1_data_i,
-    input logic [RegBusWidth-1:0] rs2_data_i,
-
     // From ex stage
     input logic                        ex_wreg_i,
     input logic      [RegBusWidth-1:0] ex_wreg_data_i,
@@ -23,11 +19,8 @@ module id
     input reg_addr_t                   mem_rd_i,
     input logic                        mem_memrd_i,
 
-    // Register file control
-    output logic      rs1_read_o,
-    output logic      rs2_read_o,
-    output reg_addr_t rs1_addr_o,
-    output reg_addr_t rs2_addr_o,
+    // Register file access
+    register_ctrl_intf.cpu             regfile_o,
 
     // Control signals
     output aluop_t                          aluop_o,
@@ -84,10 +77,10 @@ module id
     rd_o                 = ZERO_REG;
     wreg_o               = WriteDisable;
     inst_valid           = InstInvalid;
-    rs1_read_o           = ReadDisable;
-    rs2_read_o           = ReadDisable;
-    rs1_addr_o           = ZERO_REG;
-    rs2_addr_o           = ZERO_REG;
+    regfile_o.re1           = ReadDisable;
+    regfile_o.re2           = ReadDisable;
+    regfile_o.raddr1           = ZERO_REG;
+    regfile_o.raddr2           = ZERO_REG;
     imm_o                = ZeroWord;
     memrd_o              = ReadDisable;
     memwr_o              = WriteDisable;
@@ -132,8 +125,8 @@ module id
         rd_o                 = REG_CONVERT(inst_i[`RD]);
         wreg_o               = WriteEnable;
         inst_valid           = InstValid;
-        rs1_read_o           = ReadEnable;
-        rs1_addr_o           = REG_CONVERT(inst_i[`RS1]);
+        regfile_o.re1           = ReadEnable;
+        regfile_o.raddr1           = REG_CONVERT(inst_i[`RS1]);
         imm_o                = $signed({inst_i[31:20]});
         link_addr_o          = pc_next;
         is_branch_o          = True;
@@ -142,10 +135,10 @@ module id
       end
       OP_BRANCH: begin
         inst_valid = InstValid;
-        rs1_read_o = ReadEnable;
-        rs2_read_o = ReadEnable;
-        rs1_addr_o = REG_CONVERT(inst_i[`RS1]);
-        rs2_addr_o = REG_CONVERT(inst_i[`RS2]);
+        regfile_o.re1 = ReadEnable;
+        regfile_o.re2 = ReadEnable;
+        regfile_o.raddr1 = REG_CONVERT(inst_i[`RS1]);
+        regfile_o.raddr2 = REG_CONVERT(inst_i[`RS2]);
         imm_o =
             $signed({inst_i[31], inst_i[7], inst_i[30:25], inst_i[11:8], 1'b0});
         is_branch_o = True;
@@ -182,8 +175,8 @@ module id
         alusrc2_o  = SRC2_FROM_IMM;
         wreg_o     = WriteEnable;
         inst_valid = InstValid;
-        rs1_read_o = ReadEnable;
-        rs1_addr_o = REG_CONVERT(inst_i[`RS1]);  // rs
+        regfile_o.re1 = ReadEnable;
+        regfile_o.raddr1 = REG_CONVERT(inst_i[`RS1]);  // rs
         imm_o      = $signed({inst_i[31:20]});
         memrd_o    = ReadEnable;
         mem2reg_o  = Mem2Reg;
@@ -192,10 +185,10 @@ module id
         inst_valid = InstValid;
         alusrc1_o  = SRC1_FROM_REG;
         alusrc2_o  = SRC2_FROM_IMM;
-        rs1_read_o = ReadEnable;
-        rs2_read_o = ReadEnable;
-        rs1_addr_o = REG_CONVERT(inst_i[`RS1]);
-        rs2_addr_o = REG_CONVERT(inst_i[`RS2]);
+        regfile_o.re1 = ReadEnable;
+        regfile_o.re2 = ReadEnable;
+        regfile_o.raddr1 = REG_CONVERT(inst_i[`RS1]);
+        regfile_o.raddr2 = REG_CONVERT(inst_i[`RS2]);
         imm_o      = $signed({inst_i[31:25], inst_i[11:7]});
         memwr_o    = WriteEnable;
       end
@@ -215,8 +208,8 @@ module id
         alusrc2_o  = SRC2_FROM_IMM;
         wreg_o     = WriteEnable;
         inst_valid = InstValid;
-        rs1_read_o = ReadEnable;
-        rs1_addr_o = REG_CONVERT(inst_i[`RS1]);
+        regfile_o.re1 = ReadEnable;
+        regfile_o.raddr1 = REG_CONVERT(inst_i[`RS1]);
         imm_o      = $signed({inst_i[31:20]});
       end
       OP_ARITHR: begin
@@ -244,10 +237,10 @@ module id
         rd_o       = REG_CONVERT(inst_i[`RD]);
         wreg_o     = WriteEnable;
         inst_valid = InstValid;
-        rs1_read_o = ReadEnable;
-        rs2_read_o = ReadEnable;
-        rs1_addr_o = REG_CONVERT(inst_i[`RS1]);
-        rs2_addr_o = REG_CONVERT(inst_i[`RS2]);
+        regfile_o.re1 = ReadEnable;
+        regfile_o.re2 = ReadEnable;
+        regfile_o.raddr1 = REG_CONVERT(inst_i[`RS1]);
+        regfile_o.raddr2 = REG_CONVERT(inst_i[`RS2]);
       end
       OP_FENCE: begin
         inst_valid = InstValid;
@@ -256,8 +249,8 @@ module id
         if(func3_o == OP_CSRRW | func3_o == OP_CSRRS | func3_o == OP_CSRRC | 
            func3_o == OP_CSRRWI | func3_o == OP_CSRRSI | func3_o == OP_CSRRCI) begin // CSR
           inst_valid = InstValid;
-          rs1_read_o = ReadEnable;
-          rs1_addr_o = REG_CONVERT(inst_i[`RS1]);
+          regfile_o.re1 = ReadEnable;
+          regfile_o.raddr1 = REG_CONVERT(inst_i[`RS1]);
           rd_o       = REG_CONVERT(inst_i[`RD]);
           wreg_o     = WriteEnable;
           alusrc1_o  = SRC1_FROM_CSR;
@@ -339,11 +332,11 @@ module id
 
   // load_use_for_rs1
   always_comb begin
-    if ((rs1_read_o == ReadEnable) && (ex_wreg_i == WriteEnable) && 
-        (ex_rd_i == rs1_addr_o) && (load_inst_in_ex == True)) begin
+    if ((regfile_o.re1 == ReadEnable) && (ex_wreg_i == WriteEnable) && 
+        (ex_rd_i == regfile_o.raddr1) && (load_inst_in_ex == True)) begin
       load_use_for_rs1 = True;
-    end else if ((rs1_read_o == ReadEnable) && (mem_wreg_i == WriteEnable) &&
-                 (mem_rd_i == rs1_addr_o) && (load_inst_in_mem == True)) begin
+    end else if ((regfile_o.re1 == ReadEnable) && (mem_wreg_i == WriteEnable) &&
+                 (mem_rd_i == regfile_o.raddr1) && (load_inst_in_mem == True)) begin
       load_use_for_rs1 = True;
     end else begin
       load_use_for_rs1 = False;
@@ -352,11 +345,11 @@ module id
 
   // load_use_for_rs2
   always_comb begin
-    if((rs2_read_o == ReadEnable) && (ex_wreg_i == WriteEnable) && 
-       (ex_rd_i == rs2_addr_o) && (load_inst_in_ex == True)) begin
+    if((regfile_o.re2 == ReadEnable) && (ex_wreg_i == WriteEnable) && 
+       (ex_rd_i == regfile_o.raddr2) && (load_inst_in_ex == True)) begin
       load_use_for_rs2 = True;
-    end else if ((rs2_read_o == ReadEnable) && (mem_wreg_i == WriteEnable) && 
-                 (mem_rd_i == rs2_addr_o) && (load_inst_in_mem == True)) begin
+    end else if ((regfile_o.re2 == ReadEnable) && (mem_wreg_i == WriteEnable) && 
+                 (mem_rd_i == regfile_o.raddr2) && (load_inst_in_mem == True)) begin
       load_use_for_rs2 = True;
     end else begin
       load_use_for_rs2 = False;
@@ -365,14 +358,14 @@ module id
 
   // rs1_data_o
   always_comb begin
-    if ((rs1_read_o == ReadEnable) && (ex_wreg_i == WriteEnable) && 
-        (ex_rd_i != {RegNumLog2{1'b0}}) && (ex_rd_i == rs1_addr_o)) begin
+    if ((regfile_o.re1 == ReadEnable) && (ex_wreg_i == WriteEnable) && 
+        (ex_rd_i != {RegNumLog2{1'b0}}) && (ex_rd_i == regfile_o.raddr1)) begin
       rs1_data_o = ex_wreg_data_i;
-    end else if ((rs1_read_o == ReadEnable) && (mem_wreg_i == WriteEnable) &&
-                 (mem_rd_i != {RegNumLog2{1'b0}}) && (mem_rd_i == rs1_addr_o)) begin
+    end else if ((regfile_o.re1 == ReadEnable) && (mem_wreg_i == WriteEnable) &&
+                 (mem_rd_i != {RegNumLog2{1'b0}}) && (mem_rd_i == regfile_o.raddr1)) begin
       rs1_data_o = mem_wreg_data_i;
-    end else if (rs1_read_o == ReadEnable) begin
-      rs1_data_o = rs1_data_i;
+    end else if (regfile_o.re1 == ReadEnable) begin
+      rs1_data_o = regfile_o.rdata1;
     end else begin
       rs1_data_o = ZeroWord;
     end
@@ -380,14 +373,14 @@ module id
 
   // rs2_data_o
   always_comb begin
-    if ((rs2_read_o == ReadEnable) && (ex_wreg_i == WriteEnable) &&
-                 (ex_rd_i != {RegNumLog2{1'b0}}) && (ex_rd_i == rs2_addr_o)) begin
+    if ((regfile_o.re2 == ReadEnable) && (ex_wreg_i == WriteEnable) &&
+                 (ex_rd_i != {RegNumLog2{1'b0}}) && (ex_rd_i == regfile_o.raddr2)) begin
       rs2_data_o = ex_wreg_data_i;
-    end else if ((rs2_read_o == ReadEnable) && (mem_wreg_i == WriteEnable) && 
-                 (mem_rd_i != {RegNumLog2{1'b0}}) && (mem_rd_i == rs2_addr_o)) begin
+    end else if ((regfile_o.re2 == ReadEnable) && (mem_wreg_i == WriteEnable) && 
+                 (mem_rd_i != {RegNumLog2{1'b0}}) && (mem_rd_i == regfile_o.raddr2)) begin
       rs2_data_o = mem_wreg_data_i;
-    end else if (rs2_read_o == ReadEnable) begin
-      rs2_data_o = rs2_data_i;
+    end else if (regfile_o.re2 == ReadEnable) begin
+      rs2_data_o = regfile_o.rdata2;
     end else begin
       rs2_data_o = ZeroWord;
     end

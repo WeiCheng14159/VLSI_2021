@@ -4,17 +4,7 @@ module regfile
     input logic clk,
     input logic rstn,
 
-    input logic                        we_i,
-    input reg_addr_t                   waddr_i,
-    input logic      [RegBusWidth-1:0] wdata_i,
-
-    input  logic                        re1_i,
-    input  reg_addr_t                   raddr1_i,
-    output logic      [RegBusWidth-1:0] rdata1_o,
-
-    input  logic                        re2_i,
-    input  reg_addr_t                   raddr2_i,
-    output logic      [RegBusWidth-1:0] rdata2_o
+    register_ctrl_intf.regfile             rf
 );
 
   integer                   i;
@@ -27,37 +17,37 @@ module regfile
         regs[i] <= ZeroWord;
       end
     end else begin
-      if ((we_i == WriteEnable) && (waddr_i != ZERO_REG)) begin
-        regs[waddr_i] <= wdata_i;
+      if ((rf.we == WriteEnable) && (rf.waddr != ZERO_REG)) begin
+        regs[rf.waddr] <= rf.wdata;
       end
     end
   end
 
-  // rdata1_o
+  // rf.rdata1
   always_comb begin
-    if (raddr1_i == ZERO_REG) begin
-      rdata1_o = ZeroWord;
-    end else if((raddr1_i == waddr_i) && (we_i == WriteEnable) &&
-                (re1_i == ReadEnable)) begin
-      rdata1_o = wdata_i;
-    end else if (re1_i == ReadEnable) begin
-      rdata1_o = regs[raddr1_i];
+    if (rf.raddr1 == ZERO_REG) begin
+      rf.rdata1 = ZeroWord;
+    end else if((rf.raddr1 == rf.waddr) && (rf.we == WriteEnable) &&
+                (rf.re1 == ReadEnable)) begin
+      rf.rdata1 = rf.wdata;
+    end else if (rf.re1 == ReadEnable) begin
+      rf.rdata1 = regs[rf.raddr1];
     end else begin
-      rdata1_o = ZeroWord;
+      rf.rdata1 = ZeroWord;
     end
   end
 
-  // rdata2_o
+  // rf.rdata2
   always_comb begin
-    if (raddr2_i == ZERO_REG) begin
-      rdata2_o = ZeroWord;
-    end else if((raddr2_i == waddr_i) && (we_i == WriteEnable) &&
-                (re2_i == ReadEnable)) begin
-      rdata2_o = wdata_i;
-    end else if (re2_i == ReadEnable) begin
-      rdata2_o = regs[raddr2_i];
+    if (rf.raddr2 == ZERO_REG) begin
+      rf.rdata2 = ZeroWord;
+    end else if((rf.raddr2 == rf.waddr) && (rf.we == WriteEnable) &&
+                (rf.re2 == ReadEnable)) begin
+      rf.rdata2 = rf.wdata;
+    end else if (rf.re2 == ReadEnable) begin
+      rf.rdata2 = regs[rf.raddr2];
     end else begin
-      rdata2_o = ZeroWord;
+      rf.rdata2 = ZeroWord;
     end
   end
 

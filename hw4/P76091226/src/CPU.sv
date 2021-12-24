@@ -84,20 +84,9 @@ module CPU
 
   /* Write Back (WB) */
   logic      [  RegBusWidth-1:0] wb_pc;
-  logic                          wb_wreg;
-  reg_addr_t                     wb_rd;
-  logic      [  RegBusWidth-1:0] wb_wdata;
   logic                          wb_mem2reg;
   logic      [  RegBusWidth-1:0] wb_from_alu;
   logic      [Func3BusWidth-1:0] wb_func3;
-
-  /* Register file */
-  logic                          rs1_read;
-  logic                          rs2_read;
-  logic      [  RegBusWidth-1:0] rs1_data;
-  logic      [  RegBusWidth-1:0] rs2_data;
-  reg_addr_t                     rs1_addr;
-  reg_addr_t                     rs2_addr;
 
   /* Stall signal */
   logic                          stallreq_from_imem;
@@ -114,7 +103,9 @@ module CPU
   logic                          booting;
 
   /* Interface */
-  CSR_ctrl_intf csr_ctrl ();
+  CSR_ctrl_intf                   csr_ctrl ();
+  register_ctrl_intf              rf2cpu();
+
   assign booting = (icache.core_addr >= 32'h128 && icache.core_addr <= 32'h27c);
 
   /* I-cache and D-cache */
@@ -130,17 +121,7 @@ module CPU
   regfile regfile0 (
       .clk (clk),
       .rstn(rstn),
-
-      .we_i(wb_wreg),
-      .waddr_i(wb_rd),
-      .wdata_i(wb_wdata),
-      .re1_i(rs1_read),
-      .raddr1_i(rs1_addr),
-      .re2_i(rs2_read),
-      .raddr2_i(rs2_addr),
-
-      .rdata1_o(rs1_data),
-      .rdata2_o(rs2_data)
+      .rf(rf2cpu)
   );
 
   /* Control Status Register */
@@ -205,8 +186,6 @@ module CPU
   id id0 (
       .pc_i(id_pc),
       .inst_i(id_inst),
-      .rs1_data_i(rs1_data),
-      .rs2_data_i(rs2_data),
       .ex_wreg_i(ex_wreg),
       .ex_wreg_data_i(ex_wreg_data),
       .ex_rd_i(ex_rd),
@@ -216,10 +195,7 @@ module CPU
       .mem_rd_i(mem_rd),
       .mem_memrd_i(mem_memrd),
       .func3_o(id_func3),
-      .rs1_read_o(rs1_read),
-      .rs2_read_o(rs2_read),
-      .rs1_addr_o(rs1_addr),
-      .rs2_addr_o(rs2_addr),
+      .regfile_o(rf2cpu),
       .aluop_o(id_aluop),
       .alusrc1_o(id_alusrc1),
       .alusrc2_o(id_alusrc2),
@@ -355,8 +331,8 @@ module CPU
       .stall(stallreq),
       .flush(flush),
 
-      .wb_rd(wb_rd),
-      .wb_wreg(wb_wreg),
+      .wb_rd(rf2cpu.waddr),
+      .wb_wreg(rf2cpu.we),
       .wb_mem2reg(wb_mem2reg),
       .wb_from_alu(wb_from_alu),
       .wb_func3(wb_func3),
@@ -370,7 +346,7 @@ module CPU
       .from_mem_i(dcache.core_out),
       .func3_i(wb_func3),
 
-      .wdata_o(wb_wdata)
+      .wdata_o(rf2cpu.wdata)
   );
 
 endmodule
