@@ -273,9 +273,15 @@ module id
           inst_valid = InstValid;
         end else if(func3_o == OP_ECALL & inst_i[`RS2] == 5'b0_0010) begin // MRET, SRET, URET
           inst_valid = InstValid;
+          branch_target_addr_o = csr_ctrl_o.CSR_ret_PC;
+          branch_taken_o = BranchTaken;
+          is_branch_o = True;
         end else if(func3_o == OP_ECALL & inst_i[`RS2] == 5'b0_0101 & 
                                           inst_i[`FUNC7] == 7'b000_1000) begin // WFI
           inst_valid = InstValid;
+          branch_target_addr_o = csr_ctrl_o.CSR_ISR_PC;
+          branch_taken_o = BranchTaken;
+          is_branch_o = True;
         end
       end  // OP_SYSTEM
       default: ;
