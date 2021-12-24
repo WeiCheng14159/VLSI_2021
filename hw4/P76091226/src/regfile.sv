@@ -4,7 +4,7 @@ module regfile
     input logic clk,
     input logic rstn,
 
-    register_ctrl_intf.regfile             rf
+    register_ctrl_intf.regfile rf
 );
 
   integer                   i;

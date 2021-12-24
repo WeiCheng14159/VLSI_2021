@@ -20,7 +20,7 @@ module id
     input logic                        mem_memrd_i,
 
     // Register file access
-    register_ctrl_intf.cpu             regfile_o,
+    register_ctrl_intf.cpu regfile_o,
 
     // Control signals
     output aluop_t                          aluop_o,
@@ -77,10 +77,10 @@ module id
     rd_o                 = ZERO_REG;
     wreg_o               = WriteDisable;
     inst_valid           = InstInvalid;
-    regfile_o.re1           = ReadDisable;
-    regfile_o.re2           = ReadDisable;
-    regfile_o.raddr1           = ZERO_REG;
-    regfile_o.raddr2           = ZERO_REG;
+    regfile_o.re1        = ReadDisable;
+    regfile_o.re2        = ReadDisable;
+    regfile_o.raddr1     = ZERO_REG;
+    regfile_o.raddr2     = ZERO_REG;
     imm_o                = ZeroWord;
     memrd_o              = ReadDisable;
     memwr_o              = WriteDisable;
@@ -125,8 +125,8 @@ module id
         rd_o                 = REG_CONVERT(inst_i[`RD]);
         wreg_o               = WriteEnable;
         inst_valid           = InstValid;
-        regfile_o.re1           = ReadEnable;
-        regfile_o.raddr1           = REG_CONVERT(inst_i[`RS1]);
+        regfile_o.re1        = ReadEnable;
+        regfile_o.raddr1     = REG_CONVERT(inst_i[`RS1]);
         imm_o                = $signed({inst_i[31:20]});
         link_addr_o          = pc_next;
         is_branch_o          = True;
@@ -170,27 +170,27 @@ module id
         end
       end
       OP_LOAD: begin
-        rd_o       = REG_CONVERT(inst_i[`RD]);  // rd
-        alusrc1_o  = SRC1_FROM_REG;
-        alusrc2_o  = SRC2_FROM_IMM;
-        wreg_o     = WriteEnable;
-        inst_valid = InstValid;
-        regfile_o.re1 = ReadEnable;
+        rd_o             = REG_CONVERT(inst_i[`RD]);  // rd
+        alusrc1_o        = SRC1_FROM_REG;
+        alusrc2_o        = SRC2_FROM_IMM;
+        wreg_o           = WriteEnable;
+        inst_valid       = InstValid;
+        regfile_o.re1    = ReadEnable;
         regfile_o.raddr1 = REG_CONVERT(inst_i[`RS1]);  // rs
-        imm_o      = $signed({inst_i[31:20]});
-        memrd_o    = ReadEnable;
-        mem2reg_o  = Mem2Reg;
+        imm_o            = $signed({inst_i[31:20]});
+        memrd_o          = ReadEnable;
+        mem2reg_o        = Mem2Reg;
       end
       OP_STORE: begin
-        inst_valid = InstValid;
-        alusrc1_o  = SRC1_FROM_REG;
-        alusrc2_o  = SRC2_FROM_IMM;
-        regfile_o.re1 = ReadEnable;
-        regfile_o.re2 = ReadEnable;
+        inst_valid       = InstValid;
+        alusrc1_o        = SRC1_FROM_REG;
+        alusrc2_o        = SRC2_FROM_IMM;
+        regfile_o.re1    = ReadEnable;
+        regfile_o.re2    = ReadEnable;
         regfile_o.raddr1 = REG_CONVERT(inst_i[`RS1]);
         regfile_o.raddr2 = REG_CONVERT(inst_i[`RS2]);
-        imm_o      = $signed({inst_i[31:25], inst_i[11:7]});
-        memwr_o    = WriteEnable;
+        imm_o            = $signed({inst_i[31:25], inst_i[11:7]});
+        memwr_o          = WriteEnable;
       end
       OP_ARITHI: begin
         case (func3_o)
@@ -203,14 +203,14 @@ module id
           OP_OR:   aluop_o = ALUOP_OR;
           OP_AND:  aluop_o = ALUOP_AND;
         endcase
-        rd_o       = REG_CONVERT(inst_i[`RD]);
-        alusrc1_o  = SRC1_FROM_REG;
-        alusrc2_o  = SRC2_FROM_IMM;
-        wreg_o     = WriteEnable;
-        inst_valid = InstValid;
-        regfile_o.re1 = ReadEnable;
+        rd_o             = REG_CONVERT(inst_i[`RD]);
+        alusrc1_o        = SRC1_FROM_REG;
+        alusrc2_o        = SRC2_FROM_IMM;
+        wreg_o           = WriteEnable;
+        inst_valid       = InstValid;
+        regfile_o.re1    = ReadEnable;
         regfile_o.raddr1 = REG_CONVERT(inst_i[`RS1]);
-        imm_o      = $signed({inst_i[31:20]});
+        imm_o            = $signed({inst_i[31:20]});
       end
       OP_ARITHR: begin
         if (func7[0] == 1'b1) begin  // Multiply instruction
@@ -234,11 +234,11 @@ module id
             OP_AND:  aluop_o = ALUOP_AND;
           endcase
         end
-        rd_o       = REG_CONVERT(inst_i[`RD]);
-        wreg_o     = WriteEnable;
-        inst_valid = InstValid;
-        regfile_o.re1 = ReadEnable;
-        regfile_o.re2 = ReadEnable;
+        rd_o             = REG_CONVERT(inst_i[`RD]);
+        wreg_o           = WriteEnable;
+        inst_valid       = InstValid;
+        regfile_o.re1    = ReadEnable;
+        regfile_o.re2    = ReadEnable;
         regfile_o.raddr1 = REG_CONVERT(inst_i[`RS1]);
         regfile_o.raddr2 = REG_CONVERT(inst_i[`RS2]);
       end
@@ -248,15 +248,15 @@ module id
       OP_SYSTEM: begin
         if(func3_o == OP_CSRRW | func3_o == OP_CSRRS | func3_o == OP_CSRRC | 
            func3_o == OP_CSRRWI | func3_o == OP_CSRRSI | func3_o == OP_CSRRCI) begin // CSR
-          inst_valid = InstValid;
-          regfile_o.re1 = ReadEnable;
+          inst_valid       = InstValid;
+          regfile_o.re1    = ReadEnable;
           regfile_o.raddr1 = REG_CONVERT(inst_i[`RS1]);
-          rd_o       = REG_CONVERT(inst_i[`RD]);
-          wreg_o     = WriteEnable;
-          alusrc1_o  = SRC1_FROM_CSR;
-          alusrc2_o  = SRC2_FROM_IMM;
-          imm_o      = ZeroWord;
-          aluop_o    = ALUOP_ADD;
+          rd_o             = REG_CONVERT(inst_i[`RD]);
+          wreg_o           = WriteEnable;
+          alusrc1_o        = SRC1_FROM_CSR;
+          alusrc2_o        = SRC2_FROM_IMM;
+          imm_o            = ZeroWord;
+          aluop_o          = ALUOP_ADD;
         end else if (func3_o == OP_ECALL & ~|inst_i[31:20]) begin  // ECALL
           inst_valid = InstValid;
         end else if(func3_o == OP_ECALL & ~|inst_i[31:21] & inst_i[20]) begin // EBREAK

@@ -103,8 +103,8 @@ module CPU
   logic                          booting;
 
   /* Interface */
-  CSR_ctrl_intf                   csr_ctrl ();
-  register_ctrl_intf              rf2cpu();
+  CSR_ctrl_intf csr_ctrl ();
+  register_ctrl_intf rf2cpu ();
 
   assign booting = (icache.core_addr >= 32'h128 && icache.core_addr <= 32'h27c);
 
@@ -121,7 +121,7 @@ module CPU
   regfile regfile0 (
       .clk (clk),
       .rstn(rstn),
-      .rf(rf2cpu)
+      .rf  (rf2cpu)
   );
 
   /* Control Status Register */
