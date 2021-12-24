@@ -3,6 +3,7 @@ module ctrl
 (
     input logic stallreq_from_imem,
     input logic stallreq_from_id,
+    input logic stallreq_from_csr,
     input logic stallreq_from_ex,
     input logic stallreq_from_dmem,
     input logic is_id_branch_inst,
@@ -13,7 +14,9 @@ module ctrl
 
   always_comb begin
     stall = {{(STAGE_NUM - 5) {1'b0}}, 5'b0_0000};
-    if (stallreq_from_dmem == Stop) begin
+    if (stallreq_from_csr) begin
+      stall = {{(STAGE_NUM - 5) {1'b0}}, 5'b1_1111};
+    end else if (stallreq_from_dmem == Stop) begin
       stall = {{(STAGE_NUM - 5) {1'b0}}, 5'b1_1111};
     end else if (stallreq_from_ex == Stop) begin
       stall = {{(STAGE_NUM - 5) {1'b0}}, 5'b0_0111};

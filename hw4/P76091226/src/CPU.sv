@@ -102,6 +102,7 @@ module CPU
   /* Stall signal */
   logic                          stallreq_from_imem;
   logic                          stallreq_from_id;
+  logic                          stallreq_from_csr;
   logic                          stallreq_from_ex;
   logic                          stallreq_from_dmem;
   logic      [    STAGE_NUM-1:0] stallreq;
@@ -150,6 +151,7 @@ module CPU
       .rstn(rstn),
       .interrupt(interrupt),
       .CSR_rdata(id_csr_rdata),
+      .stallreq(stallreq_from_csr),
       .csr_ctrl_i(csr_ctrl)
   );
 
@@ -157,6 +159,7 @@ module CPU
   ctrl ctrl0 (
       .stallreq_from_imem(stallreq_from_imem),
       .stallreq_from_id  (stallreq_from_id),
+      .stallreq_from_csr (stallreq_from_csr),
       .stallreq_from_ex  (stallreq_from_ex),
       .stallreq_from_dmem(stallreq_from_dmem),
       .is_id_branch_inst (id_is_branch),
