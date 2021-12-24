@@ -11,14 +11,16 @@ package d_cache_pkg;
   localparam TA_READ_ENB = 1'b1, TA_READ_DIS = 1'b0;
 
   localparam IDLE_BIT = 0, CHK_BIT = 1, WHIT_BIT = 2, WMISS_BIT = 3, 
-  RMISS_BIT = 4;
+  RMISS_BIT = 4, VREAD_BIT = 5, VWRITE_BIT = 6;
 
-  typedef enum logic [4:0] {
+  typedef enum logic [VWRITE_BIT:0] {
     IDLE  = 1 << IDLE_BIT,
     CHK   = 1 << CHK_BIT,
     WHIT  = 1 << WHIT_BIT,
     WMISS = 1 << WMISS_BIT,
-    RMISS = 1 << RMISS_BIT
+    RMISS = 1 << RMISS_BIT,
+    VREAD = 1 << VREAD_BIT,
+    VWRITE = 1 << VWRITE_BIT
   } dcache_state_t;
 
 endpackage : d_cache_pkg
