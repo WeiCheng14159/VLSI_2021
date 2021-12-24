@@ -153,6 +153,7 @@ module L1C_inst
   assign mem.m_in = `DATA_BITS'h0;
   assign mem.m_type = `CACHE_WORD;
   assign mem.m_addr = {core_addr_r[`DATA_BITS-1:4], 4'h0};
+  assign mem.m_blk_size = `AXI_LEN_FOUR;
 
   data_array_wrapper DA (
       .A  (index),
