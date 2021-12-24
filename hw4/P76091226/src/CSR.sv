@@ -97,6 +97,11 @@ module CSR
     end
   end
 
+  assign MEIP_r = mip[MEIP];
+  assign MEIE_r = mie[MEIE];
+  assign MIE_r  = mstatus[MIE];
+  assign MPIE_r = mstatus[MPIE];
+
   // mepc
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
