@@ -11,10 +11,10 @@
 module L1C_data
   import d_cache_pkg::*;
 (
-    input logic                clk,
-    input logic                rstn,
-          cache2mem_intf.cache mem,
-          cache2cpu_intf.cache cpu
+    input  logic                clk,
+    input  logic                rstn,
+           cache2mem_intf.cache mem,
+           cache2cpu_intf.cache cpu
 );
 
   logic [`CACHE_INDEX_BITS-1:0] index;
@@ -40,15 +40,19 @@ module L1C_data
   logic [2:0] cnt;
   logic       hit;
   logic [3:0] web, bweb, hweb;
-  logic read_miss_done, write_miss_done, write_hit_done;
+  logic read_miss_done, volatile_read_done, write_miss_done, volatile_write_done, write_hit_done;
   logic D_out_valid;
+  logic cacheable;
 
   dcache_state_t curr_state, next_state;
 
   assign read_miss_done = (cnt == 3'h4);
-  assign write_miss_done = (cnt == 3'h1);
-  assign write_hit_done = (cnt == 3'h1);
+  assign volatile_read_done = D_out_valid;
+  assign write_miss_done = D_out_valid;
+  assign volatile_write_done = D_out_valid;
+  assign write_hit_done = D_out_valid;
   assign D_out_valid = mem.m_wait;
+  assign cacheable = (core_addr_r[31:16] != 16'h1000);
 
   // Registers for inputs
   always @(posedge clk or negedge rstn) begin
@@ -94,11 +98,16 @@ module L1C_data
         else next_state = CHK;
       end
       CHK: begin
-        next_state = (core_write_r) ? (hit ? WHIT : WMISS) : (hit ? IDLE : RMISS);
+        if(cacheable)
+          next_state = (core_write_r) ? (hit ? WHIT : WMISS) : (hit ? IDLE : RMISS);
+        else
+          next_state = (core_write_r) ? VWRITE : VREAD;
       end
       WHIT: next_state = (write_hit_done) ? IDLE : WHIT;
       WMISS: next_state = (write_miss_done) ? IDLE : WMISS;
+      VWRITE: next_state = (volatile_write_done) ? IDLE : VWRITE;
       RMISS: next_state = (read_miss_done) ? IDLE : RMISS;
+      VREAD: next_state = (volatile_read_done) ? IDLE : VREAD;
       default: next_state = IDLE;
     endcase
   end  // Next state (N)
@@ -222,6 +231,7 @@ module L1C_data
       case (curr_state)
         CHK:   cpu.core_out <= read_data;
         RMISS: cpu.core_out <= (read_miss_done) ? read_data : cpu.core_out;
+        VREAD: cpu.core_out <= (volatile_read_done) ? mem.m_out : cpu.core_out;
       endcase
     end
   end
@@ -235,6 +245,15 @@ module L1C_data
         mem.m_addr  = core_addr_r;
         mem.m_in    = core_in_r;
         mem.m_type  = core_type_r;
+        mem.m_blk_size = `AXI_LEN_FOUR;
+      end
+      VWRITE: begin
+        mem.m_req   = ~|cnt & ~D_out_valid;
+        mem.m_write = ~|cnt & ~D_out_valid;
+        mem.m_addr  = core_addr_r;
+        mem.m_in    = core_in_r;
+        mem.m_type  = core_type_r;
+        mem.m_blk_size = `AXI_LEN_FOUR;
       end
       WHIT: begin
         mem.m_req   = ~|cnt & ~D_out_valid;
@@ -242,6 +261,7 @@ module L1C_data
         mem.m_addr  = core_addr_r;
         mem.m_in    = core_in_r;
         mem.m_type  = core_type_r;
+        mem.m_blk_size = `AXI_LEN_FOUR;
       end
       RMISS: begin
         mem.m_req   = ~|cnt & ~D_out_valid;
@@ -249,6 +269,15 @@ module L1C_data
         mem.m_addr  = {core_addr_r[`DATA_BITS-1:4], 4'h0};
         mem.m_in    = `DATA_BITS'h0;
         mem.m_type  = `CACHE_WORD;
+        mem.m_blk_size = `AXI_LEN_FOUR;
+      end
+      VREAD: begin
+        mem.m_req   = ~|cnt & ~D_out_valid;
+        mem.m_write = 1'b0;
+        mem.m_addr  = {core_addr_r[`DATA_BITS-1:2], 2'h0};
+        mem.m_in    = `DATA_BITS'h0;
+        mem.m_type  = `CACHE_WORD;
+        mem.m_blk_size = `AXI_LEN_ONE;
       end
       default: begin
         mem.m_req   = 1'b0;
@@ -256,6 +285,7 @@ module L1C_data
         mem.m_addr  = `DATA_BITS'h0;
         mem.m_in    = `DATA_BITS'h0;
         mem.m_type  = core_type_r;
+        mem.m_blk_size = `AXI_LEN_FOUR;
       end
     endcase
   end
