@@ -126,7 +126,6 @@ module id
         branch_target_addr_o = pc_i + imm_o;
         is_branch_o = True;
         branch_taken_o = BranchTaken;
-        // next_inst_in_delayslot_o = InDelaySlot;
       end
       OP_JALR: begin
         aluop_o              = ALUOP_LINK;
@@ -140,7 +139,6 @@ module id
         is_branch_o          = True;
         branch_target_addr_o = rs1_data_o + imm_o;
         branch_taken_o       = BranchTaken;
-        // next_inst_in_delayslot_o = InDelaySlot;
       end
       OP_BRANCH: begin
         inst_valid = InstValid;
@@ -176,7 +174,6 @@ module id
         branch_target_addr_o = pc_i + imm_o;
         if (branch_taken == BranchTaken) begin
           branch_taken_o = BranchTaken;
-          // next_inst_in_delayslot_o = InDelaySlot;
         end
       end
       OP_LOAD: begin
