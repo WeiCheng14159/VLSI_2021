@@ -135,5 +135,7 @@ module CSR
   end
 
   assign CSR_rdata = csr_ctrl_i.CSR_rdata;
+  assign csr_ctrl_i.CSR_ret_PC = mepc;
+  assign csr_ctrl_i.CSR_ISR_PC = mtvec;
 
 endmodule
