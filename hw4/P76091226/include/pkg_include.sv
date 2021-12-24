@@ -19,6 +19,8 @@
 `include "cpu_pkg.sv"
 `include "CSR_pkg.sv"
 `include "CSR_ctrl_intf.sv"
+// Sensor
+`include "sensor_wrapper_pkg.sv"
 // DRAM
 `include "dram_wrapper_pkg.sv"
 // ROM
