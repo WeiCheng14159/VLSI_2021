@@ -10,8 +10,7 @@ module master
   import cpu_pkg::WriteEnable;
   import cpu_pkg::WriteDisable;
 #(
-    parameter [`AXI_ID_BITS-1:0] master_ID = {`AXI_ID_BITS{1'b0}},
-    parameter [`AXI_LEN_BITS-1:0] READ_BLOCK_SIZE = `AXI_LEN_ONE
+    parameter [`AXI_ID_BITS-1:0] master_ID = {`AXI_ID_BITS{1'b0}}
 ) (
     input logic                  clk,
     input logic                  rstn,
@@ -106,7 +105,7 @@ module master
     // ARx
     master.ARID = master_ID;
     master.ARADDR = mem.m_addr;
-    master.ARLEN = READ_BLOCK_SIZE;
+    master.ARLEN = mem.m_blk_size;;
     master.ARSIZE = `AXI_SIZE_BITS'b0;
     master.ARBURST = `AXI_BURST_INC;
     master.ARVALID = 1'b0;

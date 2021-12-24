@@ -38,8 +38,7 @@ module CPU_wrapper
   );
 
   master #(
-      .master_ID(`AXI_ID_BITS'b0),
-      .READ_BLOCK_SIZE(`AXI_LEN_FOUR)
+      .master_ID(`AXI_ID_BITS'b0)
   ) M0 (
       .clk(clk),
       .rstn(rstn),
@@ -55,8 +54,7 @@ module CPU_wrapper
   );
 
   master #(
-      .master_ID(`AXI_ID_BITS'b01),
-      .READ_BLOCK_SIZE(`AXI_LEN_FOUR)
+      .master_ID(`AXI_ID_BITS'b01)
   ) M1 (
       .clk(clk),
       .rstn(rstn),
