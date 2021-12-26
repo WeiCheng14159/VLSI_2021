@@ -22,7 +22,7 @@ module ROM_wrapper
   logic [`AXI_ADDR_BITS-1:0] ARADDR_r;
   logic [`AXI_IDS_BITS-1:0] ID_r;
   logic [`AXI_LEN_BITS-1:0] LEN_r;
-  logic [`AXI_LEN_BITS-1:0] len_cnt;
+  logic [`AXI_LEN_BITS-1:0] len_cnt, addr_cnt;
   logic addr_overflow;
 
   // Handshake signal
@@ -48,7 +48,8 @@ module ROM_wrapper
   always_comb begin
     next_state = IDLE;
     case (curr_state)
-      IDLE: next_state = (slave.ARVALID) ? READ : IDLE;
+      IDLE: next_state = (slave.ARVALID) ? WAIT : IDLE;
+      WAIT: next_state = READ;
       READ: next_state = (Rx_hs_done & slave.RLAST) ? IDLE : READ;
     endcase
   end  // Next state (C)
@@ -71,25 +72,29 @@ module ROM_wrapper
         ROM_enable = (slave.ARVALID) ? ROM_ENB : ROM_DIS;
         ROM_address = slave.ARADDR[15:2];
       end
+      WAIT: begin
+        ROM_read = ROM_READ_ENB;
+        ROM_enable = ROM_ENB;
+        ROM_address = (ROM_address_r + addr_cnt);
+      end
       READ: begin
         slave.ARREADY = slave.RLAST & Rx_hs_done;
         slave.RVALID = 1'b1;
         ROM_read = ROM_READ_ENB;
         ROM_enable = ROM_ENB;
-        ROM_address = (ROM_address_r + len_cnt + 1'b1);
+        ROM_address = (ROM_address_r + addr_cnt);
       end
       default: ;
     endcase
   end
 
-
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) begin
-      len_cnt <= `AXI_LEN_BITS'b0;
-    end else if (curr_state[READ_BIT]) begin
+      len_cnt  <= `AXI_LEN_BITS'b0;
+      addr_cnt <= `AXI_LEN_BITS'b0;
+    end else begin
       len_cnt <= (slave.RLAST & Rx_hs_done) ? `AXI_LEN_BITS'b0 : (Rx_hs_done) ? len_cnt + `AXI_LEN_BITS'b1 : len_cnt;
-    end else if (curr_state[IDLE_BIT]) begin
-      len_cnt <= `AXI_LEN_BITS'b0;
+      addr_cnt <= (slave.RLAST & Rx_hs_done) ? `AXI_LEN_BITS'b0 : (ROM_read & ROM_enable) ? addr_cnt + `AXI_LEN_BITS'b1 : addr_cnt;
     end
   end
 
@@ -103,7 +108,6 @@ module ROM_wrapper
       ID_r     <= (ARx_hs_done) ? slave.ARID : ID_r;
       LEN_r    <= (ARx_hs_done) ? slave.ARLEN : LEN_r;
     end
-
   end
 
 endmodule

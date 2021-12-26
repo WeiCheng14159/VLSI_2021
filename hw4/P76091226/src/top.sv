@@ -76,15 +76,31 @@ module top (
       .slave6(slave6)
   );
 
+  logic        ROM_read_r;
+  logic        ROM_enable_r;
+  logic [11:0] ROM_address_r;
+
+  always_ff @(posedge clk or posedge rst_sync) begin
+    if (rst_sync) begin
+      ROM_read <= 1'b0;
+      ROM_enable <= 1'b0;
+      ROM_address <= 32'h0;
+    end else begin
+      ROM_read <= ROM_read_r;
+      ROM_enable <= ROM_enable_r;
+      ROM_address <= ROM_address_r;
+    end
+  end
+
   // slave 0 => ROM
   ROM_wrapper rom_wrapper (
       .clk(clk),
       .rstn(rstn_sync),
       .slave(slave0),
       .ROM_out(ROM_out),
-      .ROM_read(ROM_read),
-      .ROM_enable(ROM_enable),
-      .ROM_address(ROM_address)
+      .ROM_read(ROM_read_r),
+      .ROM_enable(ROM_enable_r),
+      .ROM_address(ROM_address_r)
   );
 
   // slave 1 => IM

@@ -14,11 +14,12 @@ package rom_wrapper_pkg;
   localparam ROM_ENB = 1'b1, ROM_DIS = 1'b0;
   localparam ROM_READ_ENB = 1'b1, ROM_READ_DIS = 1'b0;
 
-  localparam IDLE_BIT = 0, READ_BIT = 1;
+  localparam IDLE_BIT = 0, READ_BIT = 1, WAIT_BIT = 2;
 
-  typedef enum logic [READ_BIT:0] {
+  typedef enum logic [WAIT_BIT:0] {
     IDLE = 1 << IDLE_BIT,
-    READ = 1 << READ_BIT
+    READ = 1 << READ_BIT,
+    WAIT = 1 << WAIT_BIT
   } rom_wrapper_state_t;
 
 endpackage : rom_wrapper_pkg
