@@ -36,3 +36,26 @@ module reset_sync (
   assign rst_sync = rst_async_tmp2;
 
 endmodule
+
+module bus_syncer #(
+    parameter BUS_WIDTH = 32
+) (
+    input logic clk,
+    input logic rstn,
+    input logic [BUS_WIDTH-1:0] data_in,
+    output logic [BUS_WIDTH-1:0] data_out
+);
+
+  logic [BUS_WIDTH-1:0] data_tmp;
+
+  always_ff @(posedge clk or negedge rstn) begin
+    if (~rstn) begin
+      data_tmp <= {BUS_WIDTH{1'b0}};
+      data_out <= {BUS_WIDTH{1'b0}};
+    end else begin
+      data_tmp <= data_in;
+      data_out <= data_tmp;
+    end
+  end
+
+endmodule
