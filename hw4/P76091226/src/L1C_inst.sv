@@ -41,7 +41,7 @@ module L1C_inst
   icache_state_t curr_state, next_state;
 
   assign I_out_valid = mem.m_wait;
-  assign read_miss_done = (cnt == 4);
+  assign read_miss_done = (cnt == 3'h4);
 
   // Registers for inputs
   always @(posedge clk or negedge rstn) begin
