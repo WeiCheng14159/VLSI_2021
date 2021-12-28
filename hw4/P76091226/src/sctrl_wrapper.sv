@@ -1,7 +1,7 @@
 `include "pkg_include.sv"
 `include "sensor_ctrl.sv"
 
-module sensor_wrapper
+module sctrl_wrapper
   import sensor_wrapper_pkg::*;
 (
     input  logic                       clk,

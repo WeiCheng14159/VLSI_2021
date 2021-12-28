@@ -5,7 +5,7 @@
 `include "util.sv"
 `include "ROM_wrapper.sv"
 `include "DRAM_wrapper.sv"
-`include "sensor_wrapper.sv"
+`include "sctrl_wrapper.sv"
 
 module top (
     input  logic        clk,
@@ -118,7 +118,7 @@ module top (
   );
 
   // Slave 3
-  sensor_wrapper sensor_wrapper (
+  sctrl_wrapper sctrl_wrapper (
       .clk(clk),
       .rstn(rstn_sync),
       .sensor_ready(sensor_ready),
