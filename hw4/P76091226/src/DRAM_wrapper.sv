@@ -59,7 +59,7 @@ module DRAM_wrapper
   assign change_row = (ROW_prev != ROW);
   // assign finish = (Bx_hs_done & slave.WLAST) | (Rx_hs_done & slave.RLAST);
   assign DRAM_D = WDATA_r;
-  assign write_done = (RAS_counter == 0);
+  assign write_done = (RAS_counter == 3'h0);
 
   always_ff @(posedge clk, negedge rstn) begin
     if (~rstn) begin
