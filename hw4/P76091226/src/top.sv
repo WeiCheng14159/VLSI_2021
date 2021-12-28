@@ -84,7 +84,7 @@ module top (
     if (rst_sync) begin
       ROM_read <= 1'b0;
       ROM_enable <= 1'b0;
-      ROM_address <= 32'h0;
+      ROM_address <= 12'h0;
     end else begin
       ROM_read <= ROM_read_r;
       ROM_enable <= ROM_enable_r;
