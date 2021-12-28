@@ -96,7 +96,7 @@ module DRAM_wrapper
       curr_state[ACT_BIT]: begin
         DRAM_RASn = (change_row) ? RAS_ENB : RAS_DIS;
         DRAM_CASn = CAS_DIS;
-        DRAM_A = {1'b0, ROW};
+        DRAM_A = ROW;
         DRAM_WEn = {WEB_SIZE{WEB_DIS}};
       end
       curr_state[READ_BIT]: begin
@@ -115,7 +115,7 @@ module DRAM_wrapper
       curr_state[PRE_BIT]: begin
         DRAM_RASn = RAS_ENB;
         DRAM_CASn = CAS_DIS;
-        DRAM_A = {1'b0, ROW};
+        DRAM_A = ROW;
         DRAM_WEn = {WEB_SIZE{WEB_ENB}};
       end
     endcase
