@@ -38,7 +38,7 @@ module ROM_wrapper
   assign slave.BRESP = `AXI_RESP_SLVERR;
   // Other
   assign addr_overflow = (ARADDR_r > addr_upper_bound);
-  assign ROM_address_r = ARADDR_r[15:2];
+  assign ROM_address_r = ARADDR_r[13:2];
 
   always_ff @(posedge clk or negedge rstn) begin
     if (~rstn) curr_state <= IDLE;
