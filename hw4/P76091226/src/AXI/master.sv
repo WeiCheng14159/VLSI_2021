@@ -75,7 +75,7 @@ module master
     unique case (1'b1)
       m_curr_state[IDLE_BIT]:
       m_next_state = (write_req) ? AW : (read_req) ? AR : IDLE;
-      m_curr_state[AR_BIT]: m_next_state = (master.ARREADY) ? R : AR;
+      m_curr_state[AR_BIT]: m_next_state = (ARx_hs_done) ? R : AR;
       m_curr_state[R_BIT]:
       m_next_state = (Rx_hs_done & master.RLAST) ? (write_req ? AW : read_req ? AR : IDLE) : R;
       m_curr_state[AW_BIT]:
