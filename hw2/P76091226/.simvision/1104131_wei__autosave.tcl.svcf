@@ -1,0 +1,173 @@
+
+#
+# Preferences
+#
+preferences set savedlg-dbnames save
+preferences set plugin-enable-svdatabrowser-new 1
+preferences set plugin-enable-groupscope 0
+preferences set plugin-enable-interleaveandcompare 0
+preferences set plugin-enable-waveformfrequencyplot 0
+preferences set savedlg-simulator ppe
+preferences set whats-new-dont-show-at-startup 1
+
+#
+# Databases
+#
+database require top -search {
+	./build/top.shm/top.trn
+	/home/wei/VLSI_2021/hw2/P76091226/build/top.shm/top.trn
+}
+
+#
+# Mnemonic Maps
+#
+mmap new -reuse -name {Boolean as Logic} -radix %b -contents {{%c=FALSE -edgepriority 1 -shape low}
+{%c=TRUE -edgepriority 1 -shape high}}
+mmap new -reuse -name {Example Map} -radix %x -contents {{%b=11???? -bgcolor orange -label REG:%x -linecolor yellow -shape bus}
+{%x=1F -bgcolor red -label ERROR -linecolor white -shape EVENT}
+{%x=2C -bgcolor red -label ERROR -linecolor white -shape EVENT}
+{%x=* -label %x -linecolor gray -shape bus}}
+
+#
+# Waveform windows
+#
+if {[catch {window new WaveWindow -name "Waveform 1" -geometry 2560x1017+0+23}] != ""} {
+    window geometry "Waveform 1" 2560x1017+0+23
+}
+window target "Waveform 1" on
+waveform using {Waveform 1}
+waveform sidebar select designbrowser
+waveform set \
+    -primarycursor TimeA \
+    -signalnames name \
+    -signalwidth 175 \
+    -units ns \
+    -valuewidth 75
+waveform baseline set -time 0
+
+set id [waveform add -signals  {
+	top::top_tb.TOP.cpu_wrapper0.cpu0.clk
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.cpu_wrapper0.cpu0.rstn
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.cpu_wrapper0.cpu0.ex_pc[31:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.cpu_wrapper0.cpu0.id_pc[31:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.cpu_wrapper0.cpu0.if_pc[31:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.cpu_wrapper0.cpu0.mem_pc[31:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.cpu_wrapper0.cpu0.new_pc[31:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARADDR_M0[31:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARBURST_M0[1:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARID_M0[3:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARLEN_M0[3:0]}
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARREADY_M0
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARSIZE_M0[2:0]}
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARVALID_M0
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARx.addr_arb_lock[2:0]}
+	} ]
+waveform hierarchy expand $id
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARx.addr_arb_lock_next[2:0]}
+	} ]
+waveform hierarchy expand $id
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.start
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.ARVALID_M
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARx.ARADDR_M[31:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARx.ARBURST_M[1:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARx.ARID_M[7:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARx.ARLEN_M[3:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.axi.ARx.ARSIZE_M[2:0]}
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.ARVALID_M
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.ARVALID_M0
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.ARVALID_M1
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.ARVALID_S0
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.ARVALID_S1
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.ARVALID_S2
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.cpu_wrapper0.M0.m_curr_state[6:0]}
+	} ]
+set id [waveform add -signals  {
+	{top::top_tb.TOP.cpu_wrapper0.M1.m_curr_state[6:0]}
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.lock_ARREADY_M0
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.lock_ARREADY_M1
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.lock_ARVALID_S0
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.lock_ARVALID_S1
+	} ]
+set id [waveform add -signals  {
+	top::top_tb.TOP.axi.ARx.lock_ARVALID_S2
+	} ]
+
+waveform xview limits 0 2000ns
+
+#
+# Waveform Window Links
+#
+
+#
+# Console windows
+#
+console set -windowname Console
+window geometry Console 600x250+0+0
+
+#
+# Layout selection
+#
